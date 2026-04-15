@@ -3,41 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INFINITY AJUDAAI</title>
+<title>INFINITY AJUDA.AI</title>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
-background:#fff;
+background:#000;
 color:#ff7a00;
 }
 
 /* HEADER */
 header{
-background:#ff7a00;
-color:#fff;
-padding:14px;
+background:#111;
+padding:15px;
 text-align:center;
 font-weight:bold;
+font-size:18px;
 }
 
-/* TICKER */
+/* LETREIRO */
 #ticker{
-background:#fff3e6;
-padding:10px;
-font-size:12px;
-white-space:nowrap;
+background:#000;
+color:#ff7a00;
 overflow:hidden;
-border-bottom:2px solid #ff7a00;
+white-space:nowrap;
+font-size:13px;
+border-bottom:1px solid #222;
 }
 
 #ticker span{
 display:inline-block;
 padding-left:100%;
-animation:marquee 12s linear infinite;
-color:#ff7a00;
-font-weight:bold;
+animation:marquee 10s linear infinite;
 }
 
 @keyframes marquee{
@@ -45,181 +43,169 @@ font-weight:bold;
 100%{transform:translateX(-100%);}
 }
 
-/* AVISO */
-#warning{
-text-align:center;
+/* CONTAINER */
+.container{
+padding:12px;
+}
+
+/* FORM */
+input{
+width:100%;
+padding:8px;
+margin:5px 0;
+border-radius:8px;
+border:1px solid #333;
+background:#111;
+color:#fff;
+}
+
+/* BUTTON */
+.btn{
+background:green;
+color:#fff;
 padding:10px;
-font-weight:bold;
-color:#ff7a00;
+border:none;
+border-radius:8px;
+width:100%;
+margin-top:5px;
+cursor:pointer;
 }
 
-/* SEÇÕES */
-.section{
-padding:10px;
-border-bottom:1px solid #eee;
-}
-
-.title{
-font-weight:bold;
-margin-bottom:8px;
-}
-
-/* CARD */
+/* PRODUTOS */
 .card{
-border:1px solid #ff7a00;
+background:#111;
 padding:10px;
 border-radius:10px;
+border-left:4px solid #ff7a00;
 margin-bottom:10px;
-font-size:12px;
 }
 
-/* CHAT */
-#chat{
+/* ADMIN */
+#adminBtn{
+position:fixed;
+top:50%;
+right:10px;
+width:45px;
+height:45px;
+background:#ff7a00;
+border-radius:50%;
+display:none;
+align-items:center;
+justify-content:center;
+}
+
+#adminPanel{
+position:fixed;
+top:10%;
+right:-300px;
+width:260px;
+height:80%;
+background:#111;
+padding:10px;
+transition:0.3s;
+overflow:auto;
+}
+
+#adminPanel.open{right:0;}
+
+/* LOGIN */
+#loginBtn{
 position:fixed;
 bottom:15px;
 right:15px;
-width:55px;
-height:55px;
-background:#25d366;
+width:45px;
+height:45px;
+background:#ff7a00;
 border-radius:50%;
 display:flex;
 align-items:center;
 justify-content:center;
-cursor:pointer;
-opacity:0.98;
-font-size:22px;
 }
 
-#chatBox{
-position:fixed;
-bottom:80px;
-right:15px;
-width:220px;
-background:#fff;
-border:1px solid #ff7a00;
-padding:10px;
-display:none;
-}
-
-.chatItem{
-padding:6px;
-border-bottom:1px solid #eee;
-cursor:pointer;
-}
-
-/* ADMIN */
-#adminPanel{
-position:fixed;
-top:10%;
-right:10px;
-width:250px;
-background:#fff;
-border:2px solid #ff7a00;
-padding:10px;
-display:none;
-}
-
-input,button{
-width:100%;
-padding:8px;
-margin-top:5px;
-border:1px solid #ff7a00;
-border-radius:6px;
-}
-
-/* LOGIN FLUTUANTE */
 #loginBox{
 position:fixed;
-top:20px;
-right:20px;
-width:180px;
-background:#fff;
-border:2px solid #ff7a00;
+bottom:70px;
+right:15px;
+width:200px;
+background:#111;
 padding:10px;
+display:none;
 border-radius:10px;
-opacity:0.98;
-z-index:9999;
-font-size:12px;
 }
 
-/* COMMENTS */
-.comment{
-font-size:11px;
-padding:4px;
-border-bottom:1px solid #eee;
+/* ALERT */
+#alertBox{
+position:fixed;
+top:20%;
+left:50%;
+transform:translateX(-50%);
+background:#111;
+padding:15px;
+border-radius:10px;
+border:1px solid #00ff55;
+display:none;
+z-index:999;
+color:#fff;
 }
 </style>
 </head>
 
 <body>
 
-<header>INFINITY HOTMARKET</header>
+<header>INFINITY AJUDA.AI</header>
 
 <div id="ticker">
-<span>🔥 Adquira plano Ultra VIP ilimitado • 24h online • Sistema seguro • Hotmarket Style 🔥</span>
+<span>Infinity ajuda.ai.com • Plataforma de divulgação profissional • Sistema estilo Hotmart</span>
 </div>
 
-<div id="warning">
-⚡ Venha adquirir versão VIP ilimitada ⚡ seu site 24h on-line
-</div>
+<div class="container">
 
-<!-- PRODUTOS -->
-<div class="section">
-<div class="title">📦 Produtos Free Online</div>
-<div id="free"></div>
-</div>
+<h3>Cadastre-se produto aqui:</h3>
 
-<div class="section">
-<div class="title">💎 Produtos VIP Online</div>
-<div id="vip"></div>
-</div>
+<input id="vendedor" placeholder="⚡ vendedor">
+<input id="produto" placeholder="⚡ produto">
+<input id="valor" placeholder="⚡ valor">
+<input id="descricao" placeholder="⚡ descrição">
+<input id="whatsapp" placeholder="⚡ whatsapp">
 
-<!-- COMENTÁRIOS -->
-<div class="section">
-<div class="title">💬 Comentários</div>
-<div id="comments"></div>
-</div>
+<button class="btn" onclick="enviarProduto()">Enviar pedido</button>
 
-<!-- CHAT -->
-<div id="chat" onclick="toggleChat()">💬</div>
+<hr>
 
-<div id="chatBox">
-<div class="chatItem" onclick="goWhats()">Suporte</div>
-<div class="chatItem" onclick="goWhats()">Problema cadastro</div>
-<div class="chatItem" onclick="goWhats()">Denunciar vendedor</div>
-</div>
+<h3>Produtos cadastrados em nossa base:</h3>
 
-<!-- LOGIN FLUTUANTE -->
-<div id="loginBox">
-<input id="loginUser" placeholder="Usuário">
-<input id="loginPass" type="password" placeholder="Senha">
-<button onclick="loginAdmin()">Entrar</button>
+<div id="lista"></div>
+
 </div>
 
 <!-- ADMIN -->
-<button onclick="toggleAdmin()">ADMIN</button>
+<div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
 
 <h3>ADMIN</h3>
 
-<input id="vendedor" placeholder="Vendedor">
-<input id="produto" placeholder="Produto">
-<input id="valor" placeholder="Valor">
-<input id="descricao" placeholder="Descrição">
-<input id="whatsapp" placeholder="WhatsApp">
+<input id="uid" placeholder="UID produto">
 
-<select id="tipo">
-<option>FREE</option>
-<option>VIP</option>
-</select>
+<button onclick="updateStatus('aprovado')">Ativar</button>
+<button onclick="updateStatus('desativado')">Desativar</button>
+<button onclick="deleteProduct()">Deletar</button>
 
-<button onclick="addProduct()">Enviar para análise</button>
-<button onclick="approve()">Aprovar UID</button>
-<button onclick="remove()">Deletar</button>
-<button onclick="block()">Bloquear</button>
 </div>
 
+<!-- LOGIN -->
+<div id="loginBtn" onclick="toggleLogin()">🔐</div>
+
+<div id="loginBox">
+<input id="user" placeholder="Usuário">
+<input id="pass" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+</div>
+
+<!-- ALERT -->
+<div id="alertBox"></div>
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -233,32 +219,16 @@ databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
-/* LOGIN ADMIN */
-function loginAdmin(){
-if(loginUser.value==="INFINITY" && loginPass.value==="CLIENTE"){
-document.getElementById("adminPanel").style.display="block";
-alert("Acesso liberado");
-}else{
-alert("Login inválido");
-}
+/* ALERT */
+function showAlert(msg){
+let box=document.getElementById("alertBox");
+box.innerHTML=msg;
+box.style.display="block";
+setTimeout(()=>box.style.display="none",3000);
 }
 
-/* CHAT */
-function toggleChat(){
-chatBox.style.display = chatBox.style.display==="block"?"none":"block";
-}
-
-function goWhats(){
-window.open("https://wa.me/51981528372?text=Suporte INFINITY HOTMARKET");
-}
-
-/* ADMIN */
-function toggleAdmin(){
-adminPanel.style.display="block";
-}
-
-/* ADD */
-function addProduct(){
+/* ENVIAR PRODUTO */
+function enviarProduto(){
 let id=db.ref("products").push().key;
 
 db.ref("products/"+id).set({
@@ -268,65 +238,58 @@ produto:produto.value,
 valor:valor.value,
 descricao:descricao.value,
 whatsapp:whatsapp.value,
-tipo:tipo.value,
 status:"pendente"
 });
+
+showAlert("Produto enviado com sucesso ✔️ aguarde aprovação de nossos administradores !");
 }
 
-/* APPROVE */
-function approve(){
-db.ref("products/"+uid.value).update({status:"aprovado"});
+/* LOGIN */
+function toggleLogin(){
+loginBox.style.display=loginBox.style.display==="block"?"none":"block";
 }
 
-/* REMOVE */
-function remove(){
+function login(){
+if(user.value==="INFINITY" && pass.value==="CLIENTE"){
+loginBox.style.display="none";
+adminBtn.style.display="flex";
+}else{
+alert("Login inválido");
+}
+}
+
+/* ADMIN */
+function toggleAdmin(){
+adminPanel.classList.toggle("open");
+}
+
+function updateStatus(status){
+db.ref("products/"+uid.value).update({status});
+}
+
+function deleteProduct(){
 db.ref("products/"+uid.value).remove();
 }
 
-/* BLOCK */
-function block(){
-db.ref("products/"+uid.value).update({status:"bloqueado"});
-}
-
-/* RENDER */
+/* LISTA PRODUTOS */
 db.ref("products").on("value",snap=>{
-let freeHTML="";
-let vipHTML="";
-
+let html="";
 snap.forEach(i=>{
 let d=i.val();
+
 if(d.status!=="aprovado") return;
 
-let card=`
+html+=`
 <div class="card">
-UID: ${d.uid}<br>
-Vendedor: ${d.vendedor}<br>
-Valor: R$ ${d.valor}<br>
-WhatsApp: ${d.whatsapp}
+⚡ vendedor: ${d.vendedor}<br>
+⚡ produto: ${d.produto}<br>
+⚡ valor: R$ ${d.valor}<br>
+⚡ descrição: ${d.descricao}<br>
+⚡ whatsapp: ${d.whatsapp}
 </div>`;
-
-if(d.tipo==="FREE") freeHTML+=card;
-if(d.tipo==="VIP") vipHTML+=card;
 });
-
-document.getElementById("free").innerHTML=freeHTML;
-document.getElementById("vip").innerHTML=vipHTML;
+document.getElementById("lista").innerHTML=html;
 });
-
-/* COMMENTS */
-const comments=["🔥 ótimo","💰 vende muito","🚀 perfeito","⭐ top demais","⚡ recomendo"];
-
-setInterval(()=>{
-let c=document.createElement("div");
-c.className="comment";
-c.innerText=comments[Math.floor(Math.random()*comments.length)];
-document.getElementById("comments").prepend(c);
-
-if(document.getElementById("comments").children.length>100){
-document.getElementById("comments").lastChild.remove();
-}
-},2000);
-
 </script>
 
 </body>
