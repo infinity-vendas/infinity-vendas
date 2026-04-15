@@ -6,176 +6,31 @@
 <title>INFINITY DIVULGAÇÕES</title>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#0d0d0d;
-color:#fff;
-}
+body{margin:0;font-family:Arial;background:#0d0d0d;color:#fff;}
+header{background:#b30000;padding:14px;text-align:center;font-weight:bold;}
+#ticker{background:#111;padding:10px;font-size:12px;color:#ff4d4d;text-align:center;}
+#products{padding:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
 
-/* HEADER */
-header{
-background:#b30000;
-padding:14px;
-text-align:center;
-font-weight:bold;
-}
+.card{background:#111;border:1px solid #333;border-radius:12px;padding:10px;font-size:12px;}
+.card b{color:#ff4d4d;}
 
-/* LETREIRO */
-#ticker{
-background:#111;
-padding:10px;
-font-size:12px;
-color:#ff4d4d;
-text-align:center;
-}
+button{width:100%;padding:7px;margin-top:6px;border:none;border-radius:8px;background:#ff4d4d;color:#fff;cursor:pointer;}
 
-/* GRID */
-#products{
-padding:12px;
-display:grid;
-grid-template-columns:repeat(2, 1fr);
-gap:10px;
-}
+#loginBtn{position:fixed;bottom:15px;right:70px;width:45px;height:45px;background:#ff4d4d;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0.5;}
+#loginBox{position:fixed;bottom:70px;right:15px;width:200px;background:#111;padding:10px;border-radius:10px;display:none;}
 
-/* CARD */
-.card{
-background:#111;
-border:1px solid #333;
-border-radius:12px;
-padding:10px;
-font-size:12px;
-opacity:0.95;
-}
-
-.card b{
-color:#ff4d4d;
-}
-
-/* BOTÃO */
-button{
-width:100%;
-padding:7px;
-margin-top:6px;
-border:none;
-border-radius:8px;
-background:#ff4d4d;
-color:#fff;
-cursor:pointer;
-}
-
-/* LOGIN BOTÃO */
-#loginBtn{
-position:fixed;
-bottom:15px;
-right:70px;
-width:45px;
-height:45px;
-background:#ff4d4d;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-opacity:0.5;
-z-index:999;
-}
-
-/* LOGIN BOX */
-#loginBox{
-position:fixed;
-bottom:70px;
-right:15px;
-width:200px;
-background:#111;
-padding:10px;
-border-radius:10px;
-border:1px solid #333;
-display:none;
-z-index:999;
-}
-
-/* ADMIN */
-#adminBtn{
-position:fixed;
-top:50%;
-right:10px;
-width:45px;
-height:45px;
-background:#ff4d4d;
-border-radius:50%;
-display:none;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-z-index:999;
-}
-
-#adminPanel{
-position:fixed;
-top:10%;
-right:-360px;
-width:320px;
-height:80%;
-background:#111;
-border-left:2px solid #ff4d4d;
-padding:10px;
-overflow:auto;
-transition:0.3s;
-z-index:998;
-}
-
+#adminBtn{position:fixed;top:50%;right:10px;width:45px;height:45px;background:#ff4d4d;border-radius:50%;display:none;align-items:center;justify-content:center;}
+#adminPanel{position:fixed;top:10%;right:-360px;width:320px;height:80%;background:#111;padding:10px;transition:0.3s;overflow:auto;}
 #adminPanel.open{right:0;}
 
-input{
-width:100%;
-padding:8px;
-margin:5px 0;
-border-radius:8px;
-border:1px solid #333;
-background:#000;
-color:#fff;
-}
+input{width:100%;padding:8px;margin:5px 0;border-radius:8px;background:#000;color:#fff;border:1px solid #333;}
 
-/* CHAT */
-#chatBtn{
-position:fixed;
-bottom:15px;
-left:15px;
-width:50px;
-height:50px;
-background:#ff4d4d;
-border-radius:50%;
-display:none;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-opacity:0.5;
-z-index:999;
-}
+#chatBtn{position:fixed;bottom:15px;left:15px;width:50px;height:50px;background:#ff4d4d;border-radius:50%;display:none;opacity:0.5;}
+#chatBox{position:fixed;bottom:80px;left:15px;width:220px;background:#111;padding:10px;display:none;opacity:0.5;}
 
-#chatBox{
-position:fixed;
-bottom:80px;
-left:15px;
-width:220px;
-background:#111;
-border:1px solid #333;
-border-radius:10px;
-padding:10px;
-display:none;
-opacity:0.5;
-z-index:999;
-}
+.chatItem{padding:6px;margin:5px 0;background:#000;border-radius:8px;}
 
-.chatItem{
-padding:6px;
-margin:5px 0;
-background:#000;
-border-radius:8px;
-cursor:pointer;
-font-size:12px;
-}
+.timer{color:#00ff55;font-size:11px;margin-top:4px;}
 </style>
 </head>
 
@@ -183,22 +38,17 @@ font-size:12px;
 
 <header>INFINITY DIVULGAÇÕES</header>
 
-<div id="ticker">
-Planos a partir de $0,97 • Vendas 24h • Segurança ponta a ponta
-</div>
+<div id="ticker">Planos a partir de $0,97 • Vendas 24h • Segurança total</div>
 
 <div id="products"></div>
 
-<!-- BOTÃO LOGIN -->
+<!-- LOGIN -->
 <div id="loginBtn" onclick="toggleLogin()">🔐</div>
 
-<!-- LOGIN -->
 <div id="loginBox">
-<b>ADMIN</b>
 <input id="user" placeholder="Usuário">
 <input id="pass" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
-<button onclick="toggleLogin()">Fechar</button>
 </div>
 
 <!-- CHAT -->
@@ -206,27 +56,32 @@ Planos a partir de $0,97 • Vendas 24h • Segurança ponta a ponta
 
 <div id="chatBox">
 <div class="chatItem" onclick="openWhats('suporte')">Suporte</div>
-<div class="chatItem" onclick="openWhats('denuncia vendedor')">Denunciar vendedor</div>
-<div class="chatItem" onclick="openWhats('spam')">Denunciar spam</div>
+<div class="chatItem" onclick="openWhats('denunciar')">Denunciar</div>
 </div>
 
 <!-- ADMIN -->
 <div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
+
 <h3>ADMIN</h3>
 
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
 <input id="estoque" placeholder="Estoque">
+<input id="tempo" placeholder="Tempo (segundos)">
 
 <button onclick="addProduct()">Criar produto</button>
 
 <hr>
 
-<input id="targetUID" placeholder="UID vendedor">
-<button onclick="setStatus('aprovado')">Aprovar</button>
+<input id="uid" placeholder="UID">
+
+<button onclick="updateStatus('aprovado')">Ativar</button>
+<button onclick="updateStatus('bloqueado')">Bloquear</button>
+<button onclick="deleteProduct()">Deletar</button>
+<button onclick="clearStore()">Limpar loja</button>
 
 </div>
 
@@ -234,96 +89,123 @@ Planos a partir de $0,97 • Vendas 24h • Segurança ponta a ponta
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-const firebaseConfig = {
-apiKey: "AIzaSyDXDca5ZxCZZ7lHUz4dlx0Qe6BarJSuA",
-authDomain: "infinity-vendas.firebaseapp.com",
-databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
-projectId: "infinity-vendas"
+const firebaseConfig={
+apiKey:"AIzaSyDX...",
+authDomain:"infinity-vendas.firebaseapp.com",
+databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const db=firebase.database();
 
 /* LOGIN */
 function toggleLogin(){
-let box = document.getElementById("loginBox");
-box.style.display = box.style.display==="block"?"none":"block";
+loginBox.style.display=loginBox.style.display==="block"?"none":"block";
 }
 
 function login(){
-let u = document.getElementById("user").value;
-let p = document.getElementById("pass").value;
-
-if(u==="INFINITY" && p==="CLIENTE"){
-document.getElementById("loginBox").style.display="none";
-document.getElementById("loginBtn").style.display="none";
-document.getElementById("adminBtn").style.display="flex";
-document.getElementById("chatBtn").style.display="flex";
-alert("Login OK");
-}else{
-alert("Login inválido");
+if(user.value==="INFINITY"&&pass.value==="CLIENTE"){
+loginBox.style.display="none";
+loginBtn.style.display="none";
+adminBtn.style.display="flex";
+chatBtn.style.display="flex";
 }
 }
 
 /* CHAT */
 function toggleChat(){
-let c = document.getElementById("chatBox");
-c.style.display = c.style.display==="block"?"none":"block";
+chatBox.style.display=chatBox.style.display==="block"?"none":"block";
 }
-
 function openWhats(msg){
-window.open("https://wa.me/51981528372?text="+encodeURIComponent(msg));
+window.open("https://wa.me/51981528372?text="+msg);
 }
 
 /* ADMIN */
 function toggleAdmin(){
-document.getElementById("adminPanel").classList.toggle("open");
+adminPanel.classList.toggle("open");
 }
 
 /* ADD */
 function addProduct(){
-let uid = "UID-" + Math.random().toString(36).substr(2,9);
+let id=db.ref("products").push().key;
 
-db.ref("products").push({
-uid: uid,
+db.ref("products/"+id).set({
+uid:id,
 produto:produto.value,
 valor:valor.value,
 descricao:descricao.value,
-estoque:estoque.value,
-status:"aprovado"
+estoque:parseInt(estoque.value),
+status:"aprovado",
+tempo:Date.now()+ (parseInt(tempo.value||3600)*1000)
 });
 }
 
-/* STATUS */
-function setStatus(status){
-let t = targetUID.value;
-
-db.ref("products").once("value",snap=>{
-snap.forEach(i=>{
-if(i.val().uid==t){
-i.ref.update({status});
+/* UPDATE */
+function updateStatus(status){
+db.ref("products/"+uid.value).update({status});
 }
+
+/* DELETE */
+function deleteProduct(){
+db.ref("products/"+uid.value).remove();
+}
+
+/* CLEAR */
+function clearStore(){
+db.ref("products").remove();
+}
+
+/* TIMER */
+function formatTime(ms){
+let s=Math.floor(ms/1000);
+let h=Math.floor(s/3600);
+let m=Math.floor((s%3600)/60);
+let sec=s%60;
+return h+"h "+m+"m "+sec+"s";
+}
+
+/* COMPRAR + ESTOQUE AUTO */
+function comprar(id){
+let ref=db.ref("products/"+id);
+
+ref.once("value",snap=>{
+let d=snap.val();
+
+if(d.estoque<=0){
+alert("Produto esgotado");
+return;
+}
+
+ref.update({
+estoque:d.estoque-1
 });
+
+window.open("https://wa.me/51981528372?text=Quero comprar "+d.produto);
 });
 }
 
 /* RENDER */
 db.ref("products").on("value",snap=>{
 let html="";
-
 snap.forEach(i=>{
 let d=i.val();
 if(d.status!=="aprovado") return;
+
+let left=d.tempo-Date.now();
 
 html+=`
 <div class="card">
 <b>${d.produto}</b><br>
 ${d.descricao}<br>
 R$ ${d.valor}<br>
-<button onclick="openWhats('${d.uid}')">Comprar</button>
+Estoque: ${d.estoque}<br>
+<div class="timer">${left>0?formatTime(left):"Expirado"}</div>
+
+<button onclick="comprar('${d.uid}')">
+Comprar
+</button>
 </div>`;
 });
-
 products.innerHTML=html;
 });
 </script>
