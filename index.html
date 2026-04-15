@@ -24,8 +24,8 @@ font-weight:bold;
 background:#111;
 padding:8px;
 font-size:12px;
-overflow:hidden;
 white-space:nowrap;
+overflow:hidden;
 border-bottom:1px solid #333;
 }
 
@@ -39,13 +39,6 @@ color:#ff9a00;
 @keyframes marquee{
 0%{transform:translateX(0);}
 100%{transform:translateX(-100%);}
-}
-
-#topList{
-padding:10px;
-font-size:12px;
-background:#0f0f0f;
-border-bottom:1px solid #222;
 }
 
 #products{
@@ -64,7 +57,9 @@ font-size:12px;
 }
 
 .card b{color:#ff9a00;}
+
 .small{font-size:11px;opacity:0.8}
+
 .timer{color:#ff3b3b;font-weight:bold;margin-top:5px}
 
 button{
@@ -139,18 +134,22 @@ color:#fff;
 border-radius:8px;
 }
 
-.expiredBox{
-position:fixed;
-top:20%;
-left:50%;
-transform:translateX(-50%);
-background:#111;
-border:1px solid red;
-padding:15px;
-width:280px;
-border-radius:10px;
-display:none;
-z-index:999;
+.sectionTitle{
+margin:10px 0;
+color:#ff9a00;
+font-size:13px;
+}
+
+footer{
+text-align:center;
+font-size:11px;
+padding:10px;
+opacity:0.6;
+}
+
+.status{
+font-size:11px;
+color:#00ff88;
 }
 </style>
 </head>
@@ -160,13 +159,7 @@ z-index:999;
 <header>INFINITY MARKET</header>
 
 <div id="ticker">
-<span>🔥 Sistema Hotmart Style • Vendas automáticas • Painel profissional • Produtos limitados 🔥</span>
-</div>
-
-<!-- PRODUTOS RESUMO -->
-<div id="topList">
-<b>Produtos cadastrados:</b>
-<div id="summary"></div>
+<span>🔥 Nova plataforma já no ar ! Divulgue seus produtos totalmente limitados • Ranking • Vendas • Sistema Hotmart Style 🔥</span>
 </div>
 
 <div id="products"></div>
@@ -177,7 +170,7 @@ z-index:999;
 <div id="loginBox">
 <input id="user" placeholder="Usuário">
 <input id="pass" type="password" placeholder="Senha">
-<button onclick="login()">Entrar</button>
+<button onclick="loginAdmin()">Entrar</button>
 </div>
 
 <!-- ADMIN -->
@@ -185,40 +178,35 @@ z-index:999;
 
 <div id="adminPanel">
 
-<h3>PAINEL ADMIN</h3>
+<h3>PAINEL ADMIN NOVO</h3>
+
+<div class="sectionTitle">📤 Enviar produto para análise</div>
 
 <input id="vendedor" placeholder="Vendedor">
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
 
-<select id="tipo">
-<option>APK</option>
-<option>ZIP</option>
-<option>ARQUIVO</option>
-</select>
-
 <input id="whatsapp" placeholder="WhatsApp">
+<input id="facebook" placeholder="Facebook">
 <input id="instagram" placeholder="Instagram">
-<input id="tiktok" placeholder="TikTok">
+<input id="youtube" placeholder="YouTube">
 
 <input id="tempo" placeholder="Tempo (segundos)">
-<input id="editTempo" placeholder="Alterar cronômetro (segundos)">
 
-<button onclick="addProduct()">Criar Produto</button>
+<button onclick="addProduct()">Enviar para análise</button>
 
 <hr>
 
-<input id="uid" placeholder="UID">
+<div class="sectionTitle">📦 Produtos cadastrados</div>
 
-<button onclick="updateStatus('aprovado')">Ativar</button>
-<button onclick="updateStatus('bloqueado')">Bloquear</button>
-<button onclick="updateTimer()">⏱ Alterar Cronômetro</button>
-<button onclick="deleteProduct()">🗑 Deletar Produto</button>
+<input id="uid" placeholder="UID do produto">
+
+<button onclick="updateStatus('aprovado')">✔ Aprovar</button>
+<button onclick="updateStatus('bloqueado')">⛔ Bloquear</button>
+<button onclick="deleteProduct()">🗑 Deletar</button>
 
 </div>
-
-<div id="expiredBox"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -233,26 +221,27 @@ databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
-let cache={};
-
 /* LOGIN */
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 
-function login(){
+function loginAdmin(){
 if(user.value==="INFINITY" && pass.value==="CLIENTE"){
 loginBox.style.display="none";
 loginBtn.style.display="none";
 adminBtn.style.display="flex";
-}else alert("Login inválido");
+}else{
+alert("Login inválido");
+}
 }
 
+/* ADMIN */
 function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
-/* ADD */
+/* ADD PRODUCT */
 function addProduct(){
 let id=db.ref("products").push().key;
 
@@ -262,24 +251,12 @@ vendedor:vendedor.value,
 produto:produto.value,
 valor:valor.value,
 descricao:descricao.value,
-tipo:tipo.value,
 whatsapp:whatsapp.value,
+facebook:facebook.value,
 instagram:instagram.value,
-tiktok:tiktok.value,
-status:"aprovado",
+youtube:youtube.value,
+status:"pendente",
 tempo:Date.now()+(parseInt(tempo.value||3600)*1000)
-});
-}
-
-/* ALTER TIMER */
-function updateTimer(){
-db.ref("products/"+uid.value).once("value",snap=>{
-let d=snap.val();
-if(!d) return;
-let newTime = parseInt(editTempo.value||0)*1000;
-db.ref("products/"+uid.value).update({
-tempo: Date.now() + newTime
-});
 });
 }
 
@@ -293,60 +270,34 @@ function deleteProduct(){
 db.ref("products/"+uid.value).remove();
 }
 
-/* FORMAT TIME */
+/* FORMAT hh:mm:ss */
 function formatTime(ms){
 let s=Math.floor(ms/1000);
 let h=Math.floor(s/3600);
 let m=Math.floor((s%3600)/60);
 let sec=s%60;
-return `${h}:${m}:${sec}`;
+
+return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-/* EXPIRADO ALERT */
-function showExpired(p){
-document.getElementById("expiredBox").style.display="block";
-document.getElementById("expiredBox").innerHTML=`
-<b>PRODUTO EXPIRADO</b><br><br>
-Produto: ${p.produto}<br>
-Vendedor: ${p.vendedor}<br>
-UID: ${p.uid}<br><br>
-<button onclick="expiredBox.style.display='none'">Fechar</button>
-`;
-}
-
-/* LOAD */
+/* RENDER */
 db.ref("products").on("value",snap=>{
-cache={};
-snap.forEach(i=>{
-cache[i.key]=i.val();
-});
-render();
-});
-
-/* RENDER REALTIME */
-function render(){
 let html="";
-let summary="";
 
-Object.values(cache).forEach(d=>{
+snap.forEach(i=>{
+let d=i.val();
+if(d.status!=="aprovado") return;
 
 let left=d.tempo-Date.now();
 
-summary+=`👤 ${d.vendedor} | ${d.produto} | R$ ${d.valor}<br>`;
-
-if(left<=0 && d.status==="aprovado"){
-showExpired(d);
-db.ref("products/"+d.uid).update({status:"expirado"});
-}
-
-if(d.status!=="aprovado") return;
-
 html+=`
 <div class="card">
-<b>${d.produto}</b><br>
+<b>${d.produto}</b>
 <div class="small">👤 ${d.vendedor} | UID: ${d.uid}</div>
 <div>${d.descricao}</div>
 <div>💰 R$ ${d.valor}</div>
+<div class="status">✔ PUBLICADO</div>
+
 <div class="timer">${formatTime(left)}</div>
 
 <button onclick="window.open('https://wa.me/'+d.whatsapp)">Comprar</button>
@@ -354,10 +305,7 @@ html+=`
 });
 
 products.innerHTML=html;
-summary.innerHTML=summary;
-}
-
-setInterval(render,1000);
+});
 </script>
 
 </body>
