@@ -13,6 +13,7 @@ background:#0b0b0b;
 color:#fff;
 }
 
+/* HEADER */
 header{
 background:linear-gradient(90deg,#ff5e00,#ff9a00);
 padding:14px;
@@ -20,27 +21,27 @@ text-align:center;
 font-weight:bold;
 }
 
+/* TICKER */
 #ticker{
 background:#111;
 padding:8px;
 font-size:12px;
-white-space:nowrap;
 overflow:hidden;
+white-space:nowrap;
 border-bottom:1px solid #333;
 }
-
 #ticker span{
 display:inline-block;
 padding-left:100%;
 animation:marquee 12s linear infinite;
 color:#ff9a00;
 }
-
 @keyframes marquee{
 0%{transform:translateX(0);}
 100%{transform:translateX(-100%);}
 }
 
+/* PRODUCTS */
 #products{
 padding:12px;
 display:flex;
@@ -48,21 +49,20 @@ flex-direction:column;
 gap:12px;
 }
 
+/* CARD */
 .card{
 background:#141414;
 border-left:4px solid #ff7a00;
 padding:12px;
 border-radius:10px;
 font-size:12px;
-cursor:pointer;
 }
 
 .card b{color:#ff9a00;}
-
 .small{font-size:11px;opacity:0.8}
-
 .timer{color:#ff3b3b;font-weight:bold;margin-top:5px}
 
+/* BUTTON */
 button{
 width:100%;
 padding:8px;
@@ -74,6 +74,7 @@ color:#fff;
 cursor:pointer;
 }
 
+/* LOGIN */
 #loginBtn{
 position:fixed;
 bottom:15px;
@@ -98,6 +99,7 @@ border-radius:10px;
 display:none;
 }
 
+/* ADMIN */
 #adminBtn{
 position:fixed;
 top:50%;
@@ -135,19 +137,26 @@ color:#fff;
 border-radius:8px;
 }
 
-.sectionTitle{
-margin:10px 0;
-color:#ff9a00;
-font-size:13px;
+/* EXPIRADO */
+.expiredBox{
+position:fixed;
+top:20%;
+left:50%;
+transform:translateX(-50%);
+background:#111;
+border:1px solid red;
+padding:15px;
+width:280px;
+border-radius:10px;
+display:none;
+z-index:999;
 }
 
-.status{
+footer{
+text-align:center;
 font-size:11px;
-color:#00ff88;
-}
-
-.selected{
-border:2px solid #00ff88;
+padding:10px;
+opacity:0.6;
 }
 </style>
 </head>
@@ -157,7 +166,7 @@ border:2px solid #00ff88;
 <header>INFINITY MARKET</header>
 
 <div id="ticker">
-<span>🔥 Nova plataforma já no ar ! Hotmart Style • Vendas • Ranking • Sistema Automático 🔥</span>
+<span>🔥 Sistema Hotmart Style • Vendas automáticas • Painel profissional • Produtos limitados 🔥</span>
 </div>
 
 <div id="products"></div>
@@ -168,7 +177,7 @@ border:2px solid #00ff88;
 <div id="loginBox">
 <input id="user" placeholder="Usuário">
 <input id="pass" type="password" placeholder="Senha">
-<button onclick="loginAdmin()">Entrar</button>
+<button onclick="login()">Entrar</button>
 </div>
 
 <!-- ADMIN -->
@@ -178,7 +187,7 @@ border:2px solid #00ff88;
 
 <h3>PAINEL ADMIN</h3>
 
-<input id="vendedor" placeholder="Nome vendedor">
+<input id="vendedor" placeholder="Vendedor">
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
@@ -192,22 +201,24 @@ border:2px solid #00ff88;
 <input id="whatsapp" placeholder="WhatsApp">
 <input id="instagram" placeholder="Instagram">
 <input id="tiktok" placeholder="TikTok">
-<input id="youtube" placeholder="YouTube">
-<input id="facebook" placeholder="Facebook">
 
 <input id="tempo" placeholder="Tempo (segundos)">
 
-<button onclick="addProduct()">Enviar para análise</button>
+<button onclick="addProduct()">Criar Produto</button>
 
 <hr>
 
-<button onclick="updateStatus('aprovado')">Aprovar selecionado</button>
-<button onclick="updateStatus('bloqueado')">Bloquear selecionado</button>
-<button onclick="deleteProduct()">🗑 Deletar selecionado</button>
+<input id="uid" placeholder="UID">
 
-<button onclick="clearStore()">Limpar tudo</button>
+<button onclick="updateStatus('aprovado')">Aprovar</button>
+<button onclick="updateStatus('bloqueado')">Bloquear</button>
+<button onclick="deleteProduct()">🗑 Deletar Produto</button>
+<button onclick="clearStore()">Limpar Tudo</button>
 
 </div>
+
+<!-- EXPIRADO -->
+<div id="expiredBox" class="expiredBox"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -222,14 +233,12 @@ databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
-let selectedUID = null;
-
 /* LOGIN */
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 
-function loginAdmin(){
+function login(){
 if(user.value==="INFINITY" && pass.value==="CLIENTE"){
 loginBox.style.display="none";
 loginBtn.style.display="none";
@@ -239,17 +248,12 @@ alert("Login inválido");
 }
 }
 
-/* ADMIN PANEL */
+/* ADMIN */
 function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
-/* SELECT PRODUCT */
-function selectProduct(uid){
-selectedUID = uid;
-}
-
-/* ADD PRODUCT */
+/* ADD */
 function addProduct(){
 let id=db.ref("products").push().key;
 
@@ -263,24 +267,19 @@ tipo:tipo.value,
 whatsapp:whatsapp.value,
 instagram:instagram.value,
 tiktok:tiktok.value,
-youtube:youtube.value,
-facebook:facebook.value,
-status:"pendente",
+status:"aprovado",
 tempo:Date.now()+(parseInt(tempo.value||3600)*1000)
 });
 }
 
-/* UPDATE STATUS SEM UID MANUAL */
+/* STATUS */
 function updateStatus(status){
-if(!selectedUID) return alert("Selecione um produto primeiro!");
-db.ref("products/"+selectedUID).update({status});
+db.ref("products/"+uid.value).update({status});
 }
 
-/* DELETE SEM UID MANUAL */
+/* DELETE */
 function deleteProduct(){
-if(!selectedUID) return alert("Selecione um produto primeiro!");
-db.ref("products/"+selectedUID).remove();
-selectedUID=null;
+db.ref("products/"+uid.value).remove();
 }
 
 /* CLEAR */
@@ -288,8 +287,8 @@ function clearStore(){
 db.ref("products").remove();
 }
 
-/* TIMER */
-function formatTime(ms){
+/* TIME FORMAT */
+function format(ms){
 let s=Math.floor(ms/1000);
 let h=Math.floor(s/3600);
 let m=Math.floor((s%3600)/60);
@@ -297,8 +296,20 @@ let sec=s%60;
 return `${h}h ${m}m ${sec}s`;
 }
 
-/* RENDER + SELECT CLICK */
-function render(){
+/* EXPIRED POPUP */
+function showExpired(p){
+let box=document.getElementById("expiredBox");
+box.style.display="block";
+box.innerHTML=`
+<b>PRODUTO EXPIRADO</b><br><br>
+Produto: ${p.produto}<br>
+Vendedor: ${p.vendedor}<br>
+UID: ${p.uid}<br><br>
+<button onclick="expiredBox.style.display='none'">Fechar</button>
+`;
+}
+
+/* RENDER */
 db.ref("products").on("value",snap=>{
 let html="";
 
@@ -306,33 +317,27 @@ snap.forEach(i=>{
 let d=i.val();
 let left=d.tempo-Date.now();
 
+if(left<=0 && d.status==="aprovado"){
+showExpired(d);
+db.ref("products/"+d.uid).update({status:"expirado"});
+}
+
 if(d.status!=="aprovado") return;
 
 html+=`
-<div class="card ${selectedUID===d.uid?'selected':''}" onclick="selectProduct('${d.uid}')">
-<b>${d.produto}</b>
+<div class="card">
+<b>${d.produto}</b><br>
 <div class="small">👤 ${d.vendedor} | UID: ${d.uid}</div>
 <div>${d.descricao}</div>
 <div>💰 R$ ${d.valor}</div>
-<div class="status">✔ ${d.tipo}</div>
-<div class="timer">${formatTime(left)}</div>
+<div class="timer">${format(left)}</div>
 
-<button onclick="event.stopPropagation();window.open('https://wa.me/'+d.whatsapp)">
-Comprar
-</button>
+<button onclick="window.open('https://wa.me/'+d.whatsapp)">Comprar</button>
 </div>`;
 });
 
 products.innerHTML=html;
 });
-}
-
-render();
-
-/* TIMER LIVE (SEM BUG DE LOOP) */
-setInterval(()=>{
-render();
-},5000);
 </script>
 
 </body>
