@@ -8,12 +8,20 @@
 <style>
 body{margin:0;font-family:Arial;background:#0d0d0d;color:#fff;}
 header{background:#b30000;padding:14px;text-align:center;font-weight:bold;}
-#ticker{background:#111;padding:10px;font-size:12px;color:#ff4d4d;text-align:center;}
+
+#ticker{background:#111;padding:10px;font-size:12px;color:#fff;text-align:center;}
+
+#online{
+text-align:center;
+padding:6px;
+font-size:12px;
+color:#00ff66;
+}
 
 #products{
 padding:12px;
 display:grid;
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:1fr;
 gap:10px;
 }
 
@@ -39,98 +47,60 @@ cursor:pointer;
 }
 
 #loginBtn{
-position:fixed;
-bottom:15px;
-right:70px;
-width:45px;
-height:45px;
-background:#ff4d4d;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-opacity:0.5;
+position:fixed;bottom:15px;right:70px;width:45px;height:45px;
+background:#ff4d4d;border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+opacity:0.6;
 }
 
 #loginBox{
-position:fixed;
-bottom:70px;
-right:15px;
-width:200px;
-background:#111;
-padding:10px;
-border-radius:10px;
-display:none;
+position:fixed;bottom:70px;right:15px;width:220px;
+background:#111;padding:10px;border-radius:10px;display:none;
 }
 
 #adminBtn{
-position:fixed;
-top:50%;
-right:10px;
-width:45px;
-height:45px;
-background:#ff4d4d;
-border-radius:50%;
-display:none;
-align-items:center;
-justify-content:center;
+position:fixed;top:50%;right:10px;width:45px;height:45px;
+background:#ff4d4d;border-radius:50%;
+display:none;align-items:center;justify-content:center;
 }
 
 #adminPanel{
-position:fixed;
-top:10%;
-right:-360px;
-width:320px;
-height:80%;
-background:#111;
-padding:10px;
-transition:0.3s;
-overflow:auto;
+position:fixed;top:10%;right:-360px;width:320px;height:80%;
+background:#111;padding:10px;transition:0.3s;overflow:auto;
 }
 
 #adminPanel.open{right:0;}
 
-input{
-width:100%;
-padding:8px;
-margin:5px 0;
-border-radius:8px;
-background:#000;
-color:#fff;
-border:1px solid #333;
+input,select{
+width:100%;padding:8px;margin:5px 0;
+border-radius:8px;background:#000;color:#fff;border:1px solid #333;
 }
 
 #chatBtn{
-position:fixed;
-bottom:15px;
-left:15px;
-width:50px;
-height:50px;
-background:#ff4d4d;
-border-radius:50%;
-display:none;
-opacity:0.5;
+position:fixed;bottom:15px;left:15px;width:50px;height:50px;
+background:#ff4d4d;border-radius:50%;
+display:none;opacity:0.6;
 }
 
 #chatBox{
-position:fixed;
-bottom:80px;
-left:15px;
-width:220px;
-background:#111;
-padding:10px;
-display:none;
-opacity:0.5;
+position:fixed;bottom:80px;left:15px;width:220px;
+background:#111;padding:10px;display:none;opacity:0.6;
 }
 
 .chatItem{
-padding:6px;
-margin:5px 0;
-background:#000;
-border-radius:8px;
+padding:6px;margin:5px 0;background:#000;border-radius:8px;
+cursor:pointer;
 }
 
-.timer{color:#00ff55;font-size:11px;margin-top:4px;}
+.timer{color:#ff4d4d;font-size:11px;margin-top:4px;}
+
+footer{
+text-align:center;
+font-size:11px;
+padding:10px;
+color:#fff;
+opacity:0.6;
+}
 
 .expiredBox{
 position:fixed;
@@ -151,7 +121,12 @@ z-index:9999;
 <body>
 
 <header>INFINITY DIVULGAÇÕES</header>
-<div id="ticker">Planos a partir de $0,97 • Vendas 24h • Segurança total</div>
+
+<div id="ticker">
+Planos VIP • Divulgação automática • Sistema seguro
+</div>
+
+<div id="online">👥 Online: <span id="onlineCount">1</span></div>
 
 <div id="products"></div>
 
@@ -169,7 +144,7 @@ z-index:9999;
 
 <div id="chatBox">
 <div class="chatItem" onclick="openWhats('suporte')">Suporte</div>
-<div class="chatItem" onclick="openWhats('denunciar')">Denunciar</div>
+<div class="chatItem" onclick="openWhats('denuncia')">Denunciar</div>
 </div>
 
 <!-- ADMIN -->
@@ -177,12 +152,18 @@ z-index:9999;
 
 <div id="adminPanel">
 
-<h3>ADMIN</h3>
+<h3>ADMIN PAINEL</h3>
 
+<input id="vendedor" placeholder="Vendedor">
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
-<input id="estoque" placeholder="Estoque">
+<input id="tipo" placeholder="Tipo (APK / ZIP / ARQUIVO)">
+<input id="whatsapp" placeholder="WhatsApp DDD+">
+<input id="instagram" placeholder="Instagram (opcional)">
+<input id="tiktok" placeholder="TikTok (opcional)">
+<input id="kwai" placeholder="Kwai (opcional)">
+<input id="cupom" placeholder="Cupom (opcional)">
 <input id="tempo" placeholder="Tempo (segundos)">
 
 <button onclick="addProduct()">Criar produto</button>
@@ -198,23 +179,34 @@ z-index:9999;
 
 </div>
 
-<!-- EXPIRADO ALERT -->
+<!-- EXPIRADO -->
 <div id="expiredBox" class="expiredBox"></div>
+
+<footer>
+Site criado por: 51981528372 <br><br>
+Todos os direitos preservados ® FAELZIN VENDAS E DIVULGAÇÕES
+</footer>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-const firebaseConfig={
+const firebaseConfig = {
 apiKey:"AIzaSyDX...",
 authDomain:"infinity-vendas.firebaseapp.com",
 databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db=firebase.database();
+const db = firebase.database();
 
-/* LOGIN FIX */
+/* ONLINE FAKE COUNTER */
+setInterval(()=>{
+document.getElementById("onlineCount").innerText =
+Math.floor(Math.random()*20)+1;
+},3000);
+
+/* LOGIN */
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
@@ -225,6 +217,8 @@ loginBox.style.display="none";
 loginBtn.style.display="none";
 adminBtn.style.display="flex";
 chatBtn.style.display="flex";
+}else{
+alert("Login inválido");
 }
 }
 
@@ -248,16 +242,22 @@ let id = db.ref("products").push().key;
 
 db.ref("products/"+id).set({
 uid:id,
+vendedor:vendedor.value,
 produto:produto.value,
 valor:valor.value,
 descricao:descricao.value,
-estoque:estoque.value,
-status:"aprovado",
-tempo:Date.now() + (parseInt(tempo.value||3600)*1000)
+tipo:tipo.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
+tiktok:tiktok.value,
+kwai:kwai.value,
+cupom:cupom.value,
+tempo:Date.now() + (parseInt(tempo.value||3600)*1000),
+status:"aprovado"
 });
 }
 
-/* UPDATE */
+/* STATUS */
 function updateStatus(status){
 db.ref("products/"+uid.value).update({status});
 }
@@ -272,39 +272,37 @@ function clearStore(){
 db.ref("products").remove();
 }
 
-/* FORMAT TIME */
-function formatTime(ms){
+/* TIMER */
+function format(ms){
 let s=Math.floor(ms/1000);
 let h=Math.floor(s/3600);
 let m=Math.floor((s%3600)/60);
 let sec=s%60;
-return h+"h "+m+"m "+sec+"s";
+return `${h}h ${m}m ${sec}s`;
 }
 
-/* EXPIRATION ALERT */
+/* EXPIRED POPUP */
 function showExpired(p){
-const box=document.getElementById("expiredBox");
+let box=document.getElementById("expiredBox");
 box.style.display="block";
 box.innerHTML=`
-<b>⚠ PRODUTO EXPIRADO</b><br><br>
+<b>PRODUTO EXPIRADO</b><br><br>
 Produto: ${p.produto}<br>
-Vendedor: ${p.uid}<br>
-Plano: Expirado !<br><br>
-<button onclick="document.getElementById('expiredBox').style.display='none'">Fechar</button>
+Vendedor: ${p.vendedor}<br>
+UID: ${p.uid}<br><br>
+<button onclick="expiredBox.style.display='none'">Fechar</button>
 `;
 }
 
-/* RENDER + TIMER LIVE */
-function render(){
+/* RENDER REALTIME */
 db.ref("products").on("value",snap=>{
 let html="";
 
 snap.forEach(i=>{
 let d=i.val();
-
 let left = d.tempo - Date.now();
 
-if(left <= 0 && d.status==="aprovado"){
+if(left<=0 && d.status==="aprovado"){
 showExpired(d);
 db.ref("products/"+d.uid).update({status:"expirado"});
 }
@@ -315,20 +313,16 @@ html+=`
 <div class="card">
 <b>${d.produto}</b><br>
 ${d.descricao}<br>
-R$ ${d.valor}<br>
-<div class="timer">${left>0?formatTime(left):"Expirado"}</div>
-<button onclick="openWhats('${d.uid}')">Comprar</button>
+💰 R$ ${d.valor}<br>
+👤 ${d.vendedor}<br>
+📱 ${d.whatsapp}<br>
+⏳ <span class="timer">${format(left)}</span><br>
+<button onclick="openWhats(d.whatsapp)">Comprar</button>
 </div>`;
 });
 
 products.innerHTML=html;
 });
-}
-
-render();
-
-/* TIMER LIVE UPDATE */
-setInterval(()=>render(),1000);
 </script>
 
 </body>
