@@ -6,8 +6,14 @@
 <title>INFINITY VENDAS ON-LINE</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#000;color:#ff2e2e;}
+body{
+margin:0;
+font-family:Arial;
+background:#000;
+color:#ff2e2e;
+}
 
+/* HEADER ORIGINAL ESTILO SH0PEE */
 header{
 background:#8b0000;
 color:#fff;
@@ -16,7 +22,12 @@ text-align:center;
 font-weight:bold;
 }
 
-#products{padding:10px;display:grid;gap:10px;}
+/* PRODUTOS */
+#products{
+padding:10px;
+display:grid;
+gap:10px;
+}
 
 .card{
 background:#111;
@@ -26,10 +37,12 @@ border-radius:6px;
 font-size:12px;
 }
 
+/* STATUS */
 .ativo{border-color:#00ff55;}
 .desativado{border-color:orange;}
 .bloqueado{border-color:gray;}
 
+/* ADMIN BUTTON */
 #adminBtn{
 position:fixed;
 top:50%;
@@ -43,8 +56,10 @@ align-items:center;
 justify-content:center;
 cursor:pointer;
 color:#fff;
+z-index:999;
 }
 
+/* ADMIN PANEL */
 #adminPanel{
 position:fixed;
 top:10%;
@@ -56,9 +71,11 @@ border-left:2px solid red;
 padding:10px;
 overflow:auto;
 transition:0.4s;
+z-index:998;
 }
 #adminPanel.open{right:0;}
 
+/* INPUTS */
 input,select,button{
 width:100%;
 padding:7px;
@@ -69,22 +86,34 @@ border:1px solid red;
 font-size:12px;
 }
 
-button{background:red;color:#fff;cursor:pointer;}
+button{
+background:red;
+color:#fff;
+cursor:pointer;
+}
 
+/* LOGIN (corrigido para não travar tela) */
 #login{
 position:fixed;
-top:0;left:0;
-width:100%;height:100%;
+top:0;
+left:0;
+width:100%;
+height:100%;
 background:#000;
 display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
-z-index:999;
+z-index:1000;
 }
 
-#login input{width:200px;margin:5px;}
+#login input{
+width:220px;
+margin:5px;
+padding:8px;
+}
 
+/* WHATSAPP */
 .whatsapp{
 position:fixed;
 bottom:10px;
@@ -100,17 +129,20 @@ font-size:18px;
 color:#fff;
 opacity:0.7;
 cursor:pointer;
+z-index:999;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN ADMIN -->
+<!-- LOGIN -->
 <div id="login">
 <h3>LOGIN ADMIN</h3>
-<input id="user" placeholder="Usuário">
-<input id="pass" type="password" placeholder="Senha">
+
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Senha">
+
 <button onclick="login()">Entrar</button>
 </div>
 
@@ -118,6 +150,7 @@ cursor:pointer;
 
 <div id="products"></div>
 
+<!-- ADMIN -->
 <div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
@@ -140,7 +173,7 @@ cursor:pointer;
 <hr>
 
 <h4>Controle por Vendedor</h4>
-<input id="targetUID" placeholder="Vendedor (UID)">
+<input id="targetUID" placeholder="Vendedor">
 
 <button onclick="setStatus('ativo')">Ativar</button>
 <button onclick="setStatus('desativado')">Desativar</button>
@@ -148,17 +181,19 @@ cursor:pointer;
 
 <hr>
 
-<h4>⏱ Alterar Cronômetro</h4>
-<input id="editUID" placeholder="Vendedor (UID)">
+<h4>⏱ Cronômetro</h4>
+<input id="editUID" placeholder="Vendedor">
 <input id="editTime" placeholder="Novo tempo (segundos)">
 <button onclick="updateTimer()">Atualizar cronômetro</button>
 
 </div>
 
+<!-- WHATSAPP FLUTUANTE -->
 <div class="whatsapp">💬</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -172,18 +207,32 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.database();
+const auth = firebase.auth();
 
-/* LOGIN */
+/* LOGIN FIREBASE AUTH */
 function login(){
-if(user.value==="INFINITY" && pass.value==="CLIENTE"){
-login.style.display="none";
-}else{
-alert("Acesso negado");
-}
+let email = document.getElementById("email").value;
+let pass = document.getElementById("password").value;
+
+auth.signInWithEmailAndPassword(email,pass)
+.then(()=>{
+document.getElementById("login").style.display="none";
+})
+.catch(err=>{
+alert(err.message);
+});
 }
 
-/* ADMIN */
+/* AUTO LOGIN */
+auth.onAuthStateChanged(user=>{
+if(user){
+document.getElementById("login").style.display="none";
+}
+});
+
+/* ADMIN PANEL */
 function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
@@ -204,7 +253,6 @@ status:"ativo",
 created:Date.now(),
 expira:expira.value ? Date.now() + (expira.value*1000) : null
 });
-alert("Produto adicionado!");
 }
 
 /* STATUS */
@@ -233,25 +281,23 @@ i.ref.remove();
 });
 }
 
-/* CRONÔMETRO POR VENDEDOR */
+/* CRONÔMETRO */
 function updateTimer(){
 let uid = editUID.value;
 let time = parseInt(editTime.value);
 
 db.ref("products").once("value",snap=>{
 snap.forEach(i=>{
-if(i.val().vendedor == uid){
+if(i.val().vendedor==uid){
 i.ref.update({
-expira: Date.now() + (time * 1000)
+expira: Date.now() + (time*1000)
 });
 }
 });
 });
-
-alert("Cronômetro atualizado!");
 }
 
-/* ADQUIRIR */
+/* BUY */
 function buy(num){
 window.open("https://wa.me/"+num,"_blank");
 }
@@ -264,14 +310,14 @@ let h=Math.floor(ms/3600000);
 return `${h}h ${m}m ${s}s`;
 }
 
-/* RENDER + CRONÔMETRO REAL */
+/* RENDER EM TEMPO REAL */
+function render(){
 db.ref("products").on("value",snap=>{
 let html="";
 
 snap.forEach(i=>{
 let d=i.val();
-
-let restante = d.expira ? (d.expira - Date.now()) : null;
+let restante = d.expira ? (d.expira-Date.now()) : null;
 if(restante < 0) restante = 0;
 
 html+=`
@@ -282,7 +328,7 @@ R$ ${d.valor}<br>
 Vendedor: ${d.vendedor}<br>
 Whats: ${d.whatsapp}<br>
 Tipo: ${d.tipo}<br>
-⏳ Tempo: ${restante!==null ? format(restante) : "Sem limite"}<br>
+⏳ ${restante!==null ? format(restante) : "Sem limite"}<br>
 
 <button onclick="buy('${d.whatsapp}')">Adquirir produto</button>
 </div>`;
@@ -290,6 +336,11 @@ Tipo: ${d.tipo}<br>
 
 products.innerHTML=html;
 });
+}
+
+setInterval(render,1000);
+render();
+
 </script>
 
 </body>
