@@ -3,130 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INFINITY DIVULGAÇÕES</title>
+<title>INFINITY MARKET</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0d0d0d;color:#fff;}
-header{background:#b30000;padding:14px;text-align:center;font-weight:bold;}
-
-#ticker{background:#111;padding:10px;font-size:12px;color:#fff;text-align:center;}
-
-#online{
-text-align:center;
-padding:6px;
-font-size:12px;
-color:#00ff66;
+body{
+margin:0;
+font-family:Arial;
+background:#0b0b0b;
+color:#fff;
 }
 
+/* HEADER */
+header{
+background:linear-gradient(90deg,#ff5e00,#ff9a00);
+padding:14px;
+text-align:center;
+font-weight:bold;
+}
+
+/* LETREIRO ANIMADO */
+#ticker{
+background:#111;
+padding:8px;
+font-size:12px;
+white-space:nowrap;
+overflow:hidden;
+border-bottom:1px solid #333;
+}
+
+#ticker span{
+display:inline-block;
+padding-left:100%;
+animation:marquee 12s linear infinite;
+color:#ff9a00;
+}
+
+@keyframes marquee{
+0%{transform:translateX(0);}
+100%{transform:translateX(-100%);}
+}
+
+/* PRODUTOS */
 #products{
 padding:12px;
-display:grid;
-grid-template-columns:1fr;
-gap:10px;
+display:flex;
+flex-direction:column;
+gap:12px;
 }
 
+/* CARD HOTMART STYLE */
 .card{
-background:#111;
-border:1px solid #333;
-border-radius:12px;
-padding:10px;
+background:#141414;
+border-left:4px solid #ff7a00;
+padding:12px;
+border-radius:10px;
 font-size:12px;
 }
 
-.card b{color:#00ff66;}
+.card b{color:#ff9a00;}
 
+.small{font-size:11px;opacity:0.8}
+
+.timer{color:#ff3b3b;font-weight:bold;margin-top:5px}
+
+/* BOTÕES */
 button{
 width:100%;
-padding:7px;
+padding:8px;
 margin-top:6px;
 border:none;
 border-radius:8px;
-background:#ff4d4d;
+background:#ff7a00;
 color:#fff;
 cursor:pointer;
 }
 
+/* LOGIN */
 #loginBtn{
-position:fixed;bottom:15px;right:70px;width:45px;height:45px;
-background:#ff4d4d;border-radius:50%;
-display:flex;align-items:center;justify-content:center;
-opacity:0.6;
+position:fixed;
+bottom:15px;
+right:15px;
+width:45px;
+height:45px;
+background:#ff7a00;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
 #loginBox{
-position:fixed;bottom:70px;right:15px;width:220px;
-background:#111;padding:10px;border-radius:10px;display:none;
+position:fixed;
+bottom:70px;
+right:15px;
+width:220px;
+background:#111;
+padding:10px;
+border-radius:10px;
+display:none;
 }
 
+/* ADMIN */
 #adminBtn{
-position:fixed;top:50%;right:10px;width:45px;height:45px;
-background:#ff4d4d;border-radius:50%;
-display:none;align-items:center;justify-content:center;
+position:fixed;
+top:50%;
+right:10px;
+width:45px;
+height:45px;
+background:#ff7a00;
+border-radius:50%;
+display:none;
+align-items:center;
+justify-content:center;
 }
 
 #adminPanel{
-position:fixed;top:10%;right:-360px;width:320px;height:80%;
-background:#111;padding:10px;transition:0.3s;overflow:auto;
+position:fixed;
+top:10%;
+right:-380px;
+width:340px;
+height:80%;
+background:#111;
+padding:10px;
+transition:0.3s;
+overflow:auto;
 }
 
 #adminPanel.open{right:0;}
 
 input,select{
-width:100%;padding:8px;margin:5px 0;
-border-radius:8px;background:#000;color:#fff;border:1px solid #333;
+width:100%;
+padding:8px;
+margin:5px 0;
+background:#000;
+border:1px solid #333;
+color:#fff;
+border-radius:8px;
 }
 
-#chatBtn{
-position:fixed;bottom:15px;left:15px;width:50px;height:50px;
-background:#ff4d4d;border-radius:50%;
-display:none;opacity:0.6;
+/* EXPANDIDO CATÁLOGO */
+.sectionTitle{
+margin:10px 0;
+color:#ff9a00;
+font-size:13px;
 }
 
-#chatBox{
-position:fixed;bottom:80px;left:15px;width:220px;
-background:#111;padding:10px;display:none;opacity:0.6;
-}
-
-.chatItem{
-padding:6px;margin:5px 0;background:#000;border-radius:8px;
-cursor:pointer;
-}
-
-.timer{color:#ff4d4d;font-size:11px;margin-top:4px;}
-
+/* FOOTER */
 footer{
 text-align:center;
 font-size:11px;
 padding:10px;
-color:#fff;
 opacity:0.6;
 }
 
-.expiredBox{
-position:fixed;
-top:20%;
-left:50%;
-transform:translateX(-50%);
-background:#111;
-border:1px solid red;
-padding:15px;
-width:280px;
-border-radius:10px;
-display:none;
-z-index:9999;
+/* STATUS */
+.status{
+font-size:11px;
+color:#00ff88;
 }
 </style>
 </head>
 
 <body>
 
-<header>INFINITY DIVULGAÇÕES</header>
+<header>INFINITY MARKET</header>
 
 <div id="ticker">
-Planos VIP • Divulgação automática • Sistema seguro
+<span>🔥 Nova plataforma já no ar ! Divulgue seus produtos totalmente limitados • Ranking • Vendas • Sistema Hotmart Style • Garantia de qualidade 🔥</span>
 </div>
-
-<div id="online">👥 Online: <span id="onlineCount">1</span></div>
 
 <div id="products"></div>
 
@@ -139,72 +183,58 @@ Planos VIP • Divulgação automática • Sistema seguro
 <button onclick="loginAdmin()">Entrar</button>
 </div>
 
-<!-- CHAT -->
-<div id="chatBtn" onclick="toggleChat()">💬</div>
-
-<div id="chatBox">
-<div class="chatItem" onclick="openWhats('suporte')">Suporte</div>
-<div class="chatItem" onclick="openWhats('denuncia')">Denunciar</div>
-</div>
-
 <!-- ADMIN -->
 <div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
 
-<h3>ADMIN PAINEL</h3>
+<h3>PAINEL ADMIN</h3>
 
-<input id="vendedor" placeholder="Vendedor">
+<input id="vendedor" placeholder="Nome vendedor">
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
-<input id="tipo" placeholder="Tipo (APK / ZIP / ARQUIVO)">
-<input id="whatsapp" placeholder="WhatsApp DDD+">
-<input id="instagram" placeholder="Instagram (opcional)">
-<input id="tiktok" placeholder="TikTok (opcional)">
-<input id="kwai" placeholder="Kwai (opcional)">
-<input id="cupom" placeholder="Cupom (opcional)">
+
+<select id="tipo">
+<option>APK</option>
+<option>ZIP</option>
+<option>ARQUIVO</option>
+</select>
+
+<input id="whatsapp" placeholder="WhatsApp">
+<input id="instagram" placeholder="Instagram">
+<input id="tiktok" placeholder="TikTok">
+<input id="youtube" placeholder="YouTube">
+<input id="facebook" placeholder="Facebook">
+
 <input id="tempo" placeholder="Tempo (segundos)">
 
-<button onclick="addProduct()">Criar produto</button>
+<button onclick="addProduct()">Enviar para análise</button>
 
 <hr>
 
 <input id="uid" placeholder="UID">
 
-<button onclick="updateStatus('aprovado')">Ativar</button>
+<button onclick="updateStatus('aprovado')">Aprovar</button>
 <button onclick="updateStatus('bloqueado')">Bloquear</button>
 <button onclick="deleteProduct()">Deletar</button>
-<button onclick="clearStore()">Limpar loja</button>
+<button onclick="clearStore()">Limpar tudo</button>
 
 </div>
 
-<!-- EXPIRADO -->
-<div id="expiredBox" class="expiredBox"></div>
-
-<footer>
-Site criado por: 51981528372 <br><br>
-Todos os direitos preservados ® FAELZIN VENDAS E DIVULGAÇÕES
-</footer>
-
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-const firebaseConfig = {
+const firebaseConfig={
 apiKey:"AIzaSyDX...",
 authDomain:"infinity-vendas.firebaseapp.com",
 databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-/* ONLINE FAKE COUNTER */
-setInterval(()=>{
-document.getElementById("onlineCount").innerText =
-Math.floor(Math.random()*20)+1;
-},3000);
+const db=firebase.database();
 
 /* LOGIN */
 function toggleLogin(){
@@ -216,29 +246,19 @@ if(user.value==="INFINITY" && pass.value==="CLIENTE"){
 loginBox.style.display="none";
 loginBtn.style.display="none";
 adminBtn.style.display="flex";
-chatBtn.style.display="flex";
 }else{
 alert("Login inválido");
 }
 }
 
-/* CHAT */
-function toggleChat(){
-chatBox.style.display = chatBox.style.display==="block"?"none":"block";
-}
-
-function openWhats(msg){
-window.open("https://wa.me/51981528372?text="+encodeURIComponent(msg));
-}
-
-/* ADMIN */
+/* ADMIN PANEL */
 function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
 /* ADD PRODUCT */
 function addProduct(){
-let id = db.ref("products").push().key;
+let id=db.ref("products").push().key;
 
 db.ref("products/"+id).set({
 uid:id,
@@ -250,10 +270,10 @@ tipo:tipo.value,
 whatsapp:whatsapp.value,
 instagram:instagram.value,
 tiktok:tiktok.value,
-kwai:kwai.value,
-cupom:cupom.value,
-tempo:Date.now() + (parseInt(tempo.value||3600)*1000),
-status:"aprovado"
+youtube:youtube.value,
+facebook:facebook.value,
+status:"pendente",
+tempo:Date.now()+(parseInt(tempo.value||3600)*1000)
 });
 }
 
@@ -272,8 +292,8 @@ function clearStore(){
 db.ref("products").remove();
 }
 
-/* TIMER */
-function format(ms){
+/* FORMAT TIMER */
+function formatTime(ms){
 let s=Math.floor(ms/1000);
 let h=Math.floor(s/3600);
 let m=Math.floor((s%3600)/60);
@@ -281,43 +301,27 @@ let sec=s%60;
 return `${h}h ${m}m ${sec}s`;
 }
 
-/* EXPIRED POPUP */
-function showExpired(p){
-let box=document.getElementById("expiredBox");
-box.style.display="block";
-box.innerHTML=`
-<b>PRODUTO EXPIRADO</b><br><br>
-Produto: ${p.produto}<br>
-Vendedor: ${p.vendedor}<br>
-UID: ${p.uid}<br><br>
-<button onclick="expiredBox.style.display='none'">Fechar</button>
-`;
-}
-
-/* RENDER REALTIME */
+/* RENDER */
 db.ref("products").on("value",snap=>{
 let html="";
 
 snap.forEach(i=>{
 let d=i.val();
-let left = d.tempo - Date.now();
-
-if(left<=0 && d.status==="aprovado"){
-showExpired(d);
-db.ref("products/"+d.uid).update({status:"expirado"});
-}
+let left=d.tempo-Date.now();
 
 if(d.status!=="aprovado") return;
 
 html+=`
 <div class="card">
-<b>${d.produto}</b><br>
-${d.descricao}<br>
-💰 R$ ${d.valor}<br>
-👤 ${d.vendedor}<br>
-📱 ${d.whatsapp}<br>
-⏳ <span class="timer">${format(left)}</span><br>
-<button onclick="openWhats(d.whatsapp)">Comprar</button>
+<b>${d.produto}</b>
+<div class="small">👤 ${d.vendedor} | UID: ${d.uid}</div>
+<div>${d.descricao}</div>
+<div>💰 R$ ${d.valor}</div>
+<div class="status">✔ ${d.tipo}</div>
+
+<div class="timer">${formatTime(left)}</div>
+
+<button onclick="window.open('https://wa.me/'+d.whatsapp)">Comprar</button>
 </div>`;
 });
 
