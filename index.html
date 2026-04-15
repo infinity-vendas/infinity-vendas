@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INFINITY NEXT LEVEL</title>
+<title>INFINITY VENDAS</title>
 
 <style>
 body{
@@ -16,33 +16,42 @@ color:#fff;
 /* HEADER */
 header{
 background:#111827;
-padding:16px;
+padding:15px;
 text-align:center;
 font-weight:bold;
 }
 
-/* PRODUCTS */
+/* GRID CATÁLOGO SHOOPEE STYLE */
 #products{
-padding:15px;
+padding:12px;
 display:grid;
-gap:12px;
+grid-template-columns:repeat(2, 1fr);
+gap:10px;
 }
 
+/* CARD QUADRADO */
 .card{
 background:#111827;
 border:1px solid #1f2937;
 border-radius:12px;
-padding:12px;
-opacity:0.97;
+padding:10px;
+font-size:12px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+min-height:120px;
 }
 
-.card b{color:#22c55e;}
+.card b{
+color:#22c55e;
+font-size:13px;
+}
 
-/* BUTTON */
+/* BOTÃO */
 button{
 width:100%;
-padding:8px;
-margin-top:8px;
+padding:7px;
+margin-top:6px;
 border:none;
 border-radius:8px;
 background:#22c55e;
@@ -94,10 +103,9 @@ overflow:auto;
 transition:0.3s;
 z-index:998;
 }
-
 #adminPanel.open{right:0;}
 
-/* INPUTS */
+/* INPUT */
 input{
 width:100%;
 padding:8px;
@@ -162,29 +170,12 @@ justify-content:center;
 cursor:pointer;
 z-index:999;
 }
-
-/* ADMIN MSG */
-#adminMsg{
-position:fixed;
-top:10px;
-left:50%;
-transform:translateX(-50%);
-background:#ef4444;
-color:#fff;
-padding:10px;
-border-radius:10px;
-display:none;
-z-index:9999;
-font-size:12px;
-}
 </style>
 </head>
 
 <body>
 
-<header>INFINITY NEXT LEVEL 14.0</header>
-
-<div id="adminMsg"></div>
+<header>INFINITY VENDAS ON-LINE</header>
 
 <div id="products"></div>
 
@@ -213,7 +204,7 @@ font-size:12px;
 
 <h3>ADMIN</h3>
 
-<input id="vendedor" placeholder="Vendedor UID">
+<input id="vendedor" placeholder="Vendedor">
 <input id="valor" placeholder="Valor">
 <input id="produto" placeholder="Produto">
 <input id="descricao" placeholder="Descrição">
@@ -226,10 +217,6 @@ font-size:12px;
 <input id="targetUID" placeholder="Vendedor UID">
 <button onclick="setStatus('aprovado')">Aprovar</button>
 <button onclick="setStatus('reprovado')">Reprovar</button>
-
-<hr>
-
-<button onclick="resetStore()">Reset loja</button>
 
 </div>
 
@@ -252,9 +239,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* LOGIN */
+/* LOGIN RESTAURADO */
 function login(){
-if(user.value==="ADMIN_INFINITY" && pass.value==="2026CLIENTE"){
+if(user.value==="INFINITY" && pass.value==="CLIENTE"){
 login.style.display="none";
 adminBtn.style.display="flex";
 chatBtn.style.display="flex";
@@ -303,19 +290,13 @@ i.ref.update({status});
 });
 }
 
-/* RESET */
-function resetStore(){
-if(confirm("Apagar loja?")){
-db.ref("products").remove();
-}
-}
-
-/* RENDER */
+/* RENDER GRID */
 db.ref("products").on("value",snap=>{
 let html="";
 
 snap.forEach(i=>{
 let d=i.val();
+
 if(d.status !== "aprovado") return;
 
 html+=`
@@ -323,7 +304,6 @@ html+=`
 <b>${d.produto}</b><br>
 ${d.descricao}<br>
 R$ ${d.valor}<br>
-Vendedor: ${d.vendedor}<br>
 
 <button onclick="window.open('https://wa.me/'+d.whatsapp)">
 Comprar
