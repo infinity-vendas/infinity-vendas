@@ -52,11 +52,6 @@ opacity:0.95;
 color:#ff4d4d;
 }
 
-/* STATUS */
-.pendente{border-color:orange;}
-.aprovado{border-color:#00ff55;}
-.bloqueado{opacity:0.5;border-color:red;}
-
 /* BOTÃO */
 button{
 width:100%;
@@ -69,21 +64,38 @@ color:#fff;
 cursor:pointer;
 }
 
-/* LOGIN ADMIN */
-#login{
+/* LOGIN BOTÃO */
+#loginBtn{
 position:fixed;
 bottom:15px;
+right:70px;
+width:45px;
+height:45px;
+background:#ff4d4d;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+opacity:0.5;
+z-index:999;
+}
+
+/* LOGIN BOX */
+#loginBox{
+position:fixed;
+bottom:70px;
 right:15px;
 width:200px;
 background:#111;
 padding:10px;
 border-radius:10px;
 border:1px solid #333;
+display:none;
 z-index:999;
-opacity:0.95;
 }
 
-/* ADMIN PANEL */
+/* ADMIN */
 #adminBtn{
 position:fixed;
 top:50%;
@@ -97,7 +109,6 @@ align-items:center;
 justify-content:center;
 cursor:pointer;
 z-index:999;
-opacity:0.95;
 }
 
 #adminPanel{
@@ -112,12 +123,10 @@ padding:10px;
 overflow:auto;
 transition:0.3s;
 z-index:998;
-opacity:0.97;
 }
 
 #adminPanel.open{right:0;}
 
-/* INPUTS */
 input{
 width:100%;
 padding:8px;
@@ -167,23 +176,6 @@ border-radius:8px;
 cursor:pointer;
 font-size:12px;
 }
-
-/* WHATSAPP */
-.whatsapp{
-position:fixed;
-bottom:15px;
-right:15px;
-width:45px;
-height:45px;
-background:#ff4d4d;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-opacity:0.5;
-cursor:pointer;
-z-index:999;
-}
 </style>
 </head>
 
@@ -192,17 +184,21 @@ z-index:999;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div id="ticker">
-Planos a partir de $0,97 • Vendas 24h • Segurança ponta a ponta • Sistema sem bugs
+Planos a partir de $0,97 • Vendas 24h • Segurança ponta a ponta
 </div>
 
 <div id="products"></div>
 
+<!-- BOTÃO LOGIN -->
+<div id="loginBtn" onclick="toggleLogin()">🔐</div>
+
 <!-- LOGIN -->
-<div id="login">
-<b>ADMIN LOGIN</b>
+<div id="loginBox">
+<b>ADMIN</b>
 <input id="user" placeholder="Usuário">
 <input id="pass" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
+<button onclick="toggleLogin()">Fechar</button>
 </div>
 
 <!-- CHAT -->
@@ -218,14 +214,11 @@ Planos a partir de $0,97 • Vendas 24h • Segurança ponta a ponta • Sistema
 <div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
-
 <h3>ADMIN</h3>
 
-<input id="vendedor" placeholder="UID vendedor (auto)">
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
-<input id="tipo" placeholder="Tipo (APK / Arquivos)">
 <input id="estoque" placeholder="Estoque">
 
 <button onclick="addProduct()">Criar produto</button>
@@ -234,36 +227,39 @@ Planos a partir de $0,97 • Vendas 24h • Segurança ponta a ponta • Sistema
 
 <input id="targetUID" placeholder="UID vendedor">
 <button onclick="setStatus('aprovado')">Aprovar</button>
-<button onclick="setStatus('pendente')">Pendente</button>
-<button onclick="setStatus('bloqueado')">Bloquear</button>
 
 </div>
-
-<div class="whatsapp">💬</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyDXDca5ZxCZZ7lHUz4dlx0Qe6BarJSuA",
-  authDomain: "infinity-vendas.firebaseapp.com",
-  databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
-  projectId: "infinity-vendas",
-  storageBucket: "infinity-vendas.firebasestorage.app",
-  messagingSenderId: "613112794080",
-  appId: "1:613112794080:web:acd63b723aec957b21f985"
+apiKey: "AIzaSyDXDca5ZxCZZ7lHUz4dlx0Qe6BarJSuA",
+authDomain: "infinity-vendas.firebaseapp.com",
+databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
+projectId: "infinity-vendas"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-/* LOGIN ADMIN */
+/* LOGIN */
+function toggleLogin(){
+let box = document.getElementById("loginBox");
+box.style.display = box.style.display==="block"?"none":"block";
+}
+
 function login(){
-if(user.value==="INFINITY" && pass.value==="CLIENTE"){
-login.style.display="none";
-adminBtn.style.display="flex";
-chatBtn.style.display="flex";
+let u = document.getElementById("user").value;
+let p = document.getElementById("pass").value;
+
+if(u==="INFINITY" && p==="CLIENTE"){
+document.getElementById("loginBox").style.display="none";
+document.getElementById("loginBtn").style.display="none";
+document.getElementById("adminBtn").style.display="flex";
+document.getElementById("chatBtn").style.display="flex";
+alert("Login OK");
 }else{
 alert("Login inválido");
 }
@@ -271,7 +267,8 @@ alert("Login inválido");
 
 /* CHAT */
 function toggleChat(){
-chatBox.style.display = chatBox.style.display==="block"?"none":"block";
+let c = document.getElementById("chatBox");
+c.style.display = c.style.display==="block"?"none":"block";
 }
 
 function openWhats(msg){
@@ -280,23 +277,20 @@ window.open("https://wa.me/51981528372?text="+encodeURIComponent(msg));
 
 /* ADMIN */
 function toggleAdmin(){
-adminPanel.classList.toggle("open");
+document.getElementById("adminPanel").classList.toggle("open");
 }
 
-/* ADD PRODUCT */
+/* ADD */
 function addProduct(){
 let uid = "UID-" + Math.random().toString(36).substr(2,9);
 
 db.ref("products").push({
 uid: uid,
-vendedor:vendedor.value || uid,
 produto:produto.value,
 valor:valor.value,
 descricao:descricao.value,
-tipo:tipo.value,
 estoque:estoque.value,
-status:"pendente",
-tempo:Date.now()
+status:"aprovado"
 });
 }
 
@@ -306,7 +300,7 @@ let t = targetUID.value;
 
 db.ref("products").once("value",snap=>{
 snap.forEach(i=>{
-if(i.val().vendedor==t){
+if(i.val().uid==t){
 i.ref.update({status});
 }
 });
@@ -322,15 +316,11 @@ let d=i.val();
 if(d.status!=="aprovado") return;
 
 html+=`
-<div class="card aprovado">
+<div class="card">
 <b>${d.produto}</b><br>
 ${d.descricao}<br>
 R$ ${d.valor}<br>
-Estoque: ${d.estoque}<br>
-
-<button onclick="openWhats('${d.vendedor}')">
-Comprar
-</button>
+<button onclick="openWhats('${d.uid}')">Comprar</button>
 </div>`;
 });
 
