@@ -13,24 +13,8 @@ background:#8b0000;
 color:#fff;
 padding:15px;
 text-align:center;
-font-size:18px;
 font-weight:bold;
 }
-
-.marquee{
-background:#111;
-color:#00aaff;
-padding:6px;
-white-space:nowrap;
-overflow:hidden;
-}
-.marquee span{
-display:inline-block;
-padding-left:100%;
-animation:move 18s linear infinite;
-font-size:12px;
-}
-@keyframes move{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
 
 #products{padding:10px;display:grid;gap:10px;}
 
@@ -53,12 +37,12 @@ right:10px;
 width:45px;
 height:45px;
 background:red;
-color:#fff;
 border-radius:50%;
 display:flex;
 align-items:center;
 justify-content:center;
 cursor:pointer;
+color:#fff;
 }
 
 #adminPanel{
@@ -75,17 +59,6 @@ transition:0.4s;
 }
 #adminPanel.open{right:0;}
 
-#minBtn{
-position:absolute;
-top:5px;
-right:5px;
-background:red;
-color:#fff;
-font-size:10px;
-padding:3px;
-cursor:pointer;
-}
-
 input,select,button{
 width:100%;
 padding:7px;
@@ -98,30 +71,34 @@ font-size:12px;
 
 button{background:red;color:#fff;cursor:pointer;}
 
-#cart{
+#login{
 position:fixed;
-bottom:80px;
-right:10px;
-background:#111;
-border:1px solid red;
-padding:10px;
-width:200px;
-font-size:11px;
+top:0;left:0;
+width:100%;height:100%;
+background:#000;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:999;
 }
+
+#login input{width:200px;margin:5px;}
 
 .whatsapp{
 position:fixed;
-bottom:15px;
-right:15px;
-width:55px;
-height:55px;
+bottom:10px;
+right:10px;
+width:40px;
+height:40px;
 background:red;
-color:#fff;
 border-radius:50%;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:25px;
+font-size:18px;
+color:#fff;
+opacity:0.7;
 cursor:pointer;
 }
 </style>
@@ -129,67 +106,56 @@ cursor:pointer;
 
 <body>
 
+<!-- LOGIN ADMIN -->
+<div id="login">
+<h3>LOGIN ADMIN</h3>
+<input id="user" placeholder="Usuário">
+<input id="pass" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+</div>
+
 <header>🔥 INFINITY VENDAS ON-LINE 🔥</header>
 
-<div class="marquee">
-<span>Bem-vindo à plataforma • Não coletamos dados • Ganhe 20% por indicação ⚡</span>
-</div>
-
 <div id="products"></div>
-
-<div id="cart">
-<b>Carrinho</b>
-<div id="cartItems"></div>
-</div>
 
 <div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
-<div id="minBtn" onclick="toggleAdmin()">–</div>
 
-<h3>ADMIN</h3>
+<h3>ADMIN PAINEL</h3>
 
-<input id="uid" placeholder="UID vendedor">
 <input id="vendedor" placeholder="Vendedor">
 <input id="valor" placeholder="Valor">
 <input id="produto" placeholder="Produto">
 <input id="descricao" placeholder="Descrição">
-<input id="whatsapp" placeholder="WhatsApp">
+<input id="whatsapp" placeholder="WhatsApp (DDD+número)">
+<input id="rede" placeholder="Rede social (opcional)">
+<input id="idade" placeholder="Idade (opcional)">
+<input id="tipo" placeholder="Tipo: APK / ARQUIVOS">
+<input id="parceria" placeholder="Parcerias (opcional)">
 <input id="expira" placeholder="Tempo expiração (segundos)">
-
-<select id="tipo">
-<option>Padrão</option>
-<option>Destaque</option>
-<option>Premium</option>
-</select>
 
 <button onclick="addProduct()">Adicionar Produto</button>
 
 <hr>
 
-<h4>Controle por UID</h4>
-<input id="targetUID" placeholder="UID alvo">
+<h4>Controle por Vendedor</h4>
+<input id="targetUID" placeholder="Vendedor (UID)">
 
 <button onclick="setStatus('ativo')">Ativar</button>
 <button onclick="setStatus('desativado')">Desativar</button>
-<button onclick="setStatus('bloqueado')">Bloquear</button>
 <button onclick="deleteByUID()">Deletar</button>
 
 <hr>
 
-<h4>Data / Hora / Cronômetro</h4>
+<h4>⏱ Alterar Cronômetro</h4>
+<input id="editUID" placeholder="Vendedor (UID)">
+<input id="editTime" placeholder="Novo tempo (segundos)">
+<button onclick="updateTimer()">Atualizar cronômetro</button>
 
-<input id="newDate" placeholder="Data (ex: 2026-04-15)">
-<input id="newTime" placeholder="Hora (ex: 14:30:00)">
-<input id="newExpire" placeholder="Tempo (segundos)">
-<input id="targetUIDTime" placeholder="UID vendedor">
-
-<button onclick="updateTime()">Atualizar tempo</button>
-
-<button onclick="resetAll()">Resetar loja</button>
 </div>
 
-<div class="whatsapp" onclick="window.open('https://wa.me/5551981528372')">💬</div>
+<div class="whatsapp">💬</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -202,94 +168,112 @@ const firebaseConfig = {
   projectId: "infinity-vendas",
   storageBucket: "infinity-vendas.firebasestorage.app",
   messagingSenderId: "613112794080",
-  appId: "1:613112794080:web:acd63b723aec957b21f985",
-  measurementId: "G-Z04RV95D3Z"
+  appId: "1:613112794080:web:acd63b723aec957b21f985"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let cart=[];
-
-function toggleAdmin(){
-document.getElementById("adminPanel").classList.toggle("open");
+/* LOGIN */
+function login(){
+if(user.value==="INFINITY" && pass.value==="CLIENTE"){
+login.style.display="none";
+}else{
+alert("Acesso negado");
+}
 }
 
+/* ADMIN */
+function toggleAdmin(){
+adminPanel.classList.toggle("open");
+}
+
+/* ADD PRODUCT */
 function addProduct(){
 db.ref("products").push({
-uid:uid.value,
 vendedor:vendedor.value,
 valor:valor.value,
 produto:produto.value,
 descricao:descricao.value,
 whatsapp:whatsapp.value,
+rede:rede.value,
+idade:idade.value,
 tipo:tipo.value,
+parceria:parceria.value,
 status:"ativo",
 created:Date.now(),
-expira:expira.value?Date.now()+expira.value*1000:null
+expira:expira.value ? Date.now() + (expira.value*1000) : null
 });
 alert("Produto adicionado!");
 }
 
+/* STATUS */
 function setStatus(status){
 let t=targetUID.value;
-db.ref("products").once("value",s=>{
-s.forEach(i=>{
-if(i.val().uid==t){
+
+db.ref("products").once("value",snap=>{
+snap.forEach(i=>{
+if(i.val().vendedor==t){
 i.ref.update({status});
 }
 });
 });
 }
 
+/* DELETE */
 function deleteByUID(){
 let t=targetUID.value;
-db.ref("products").once("value",s=>{
-s.forEach(i=>{
-if(i.val().uid==t){
+
+db.ref("products").once("value",snap=>{
+snap.forEach(i=>{
+if(i.val().vendedor==t){
 i.ref.remove();
 }
 });
 });
 }
 
-function resetAll(){
-db.ref().set(null);
-}
+/* CRONÔMETRO POR VENDEDOR */
+function updateTimer(){
+let uid = editUID.value;
+let time = parseInt(editTime.value);
 
-function addToCart(p){
-cart.push(p);
-renderCart();
-}
-
-function renderCart(){
-cartItems.innerHTML=cart.map(c=>`<div>${c.produto} - R$ ${c.valor}</div>`).join("");
-}
-
-function updateTime(){
-let uid=targetUIDTime.value;
-let date=newDate.value;
-let time=newTime.value;
-let exp=newExpire.value;
-
-db.ref("products").once("value",s=>{
-s.forEach(i=>{
-if(i.val().uid==uid){
+db.ref("products").once("value",snap=>{
+snap.forEach(i=>{
+if(i.val().vendedor == uid){
 i.ref.update({
-data:date,
-hora:time,
-expira:exp?Date.now()+exp*1000:null
+expira: Date.now() + (time * 1000)
 });
 }
 });
 });
-alert("Atualizado!");
+
+alert("Cronômetro atualizado!");
 }
 
+/* ADQUIRIR */
+function buy(num){
+window.open("https://wa.me/"+num,"_blank");
+}
+
+/* FORMAT TIME */
+function format(ms){
+let s=Math.floor(ms/1000)%60;
+let m=Math.floor(ms/60000)%60;
+let h=Math.floor(ms/3600000);
+return `${h}h ${m}m ${s}s`;
+}
+
+/* RENDER + CRONÔMETRO REAL */
 db.ref("products").on("value",snap=>{
 let html="";
+
 snap.forEach(i=>{
 let d=i.val();
+
+let restante = d.expira ? (d.expira - Date.now()) : null;
+if(restante < 0) restante = 0;
+
 html+=`
 <div class="card ${d.status}">
 <b>${d.produto}</b><br>
@@ -297,14 +281,16 @@ ${d.descricao}<br>
 R$ ${d.valor}<br>
 Vendedor: ${d.vendedor}<br>
 Whats: ${d.whatsapp}<br>
-Status: ${d.status}<br>
-${d.data||""} ${d.hora||""}<br>
-<button onclick='addToCart(${JSON.stringify(d)})'>Carrinho</button>
+Tipo: ${d.tipo}<br>
+⏳ Tempo: ${restante!==null ? format(restante) : "Sem limite"}<br>
+
+<button onclick="buy('${d.whatsapp}')">Adquirir produto</button>
 </div>`;
 });
+
 products.innerHTML=html;
 });
 </script>
 
 </body>
-                                                                                </html>
+  </html>
