@@ -231,7 +231,7 @@ function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
-/* ADD */
+/* ADD PRODUCT */
 function addProduct(){
 let id=db.ref("products").push().key;
 
@@ -252,17 +252,19 @@ tempo:Date.now()+(parseInt(tempo.value||3600)*1000)
 });
 }
 
-/* STATUS */
+/* ATIVAR / BLOQUEAR */
 function updateStatus(status){
+if(!uid.value) return alert("Informe o UID");
 db.ref("products/"+uid.value).update({status});
 }
 
-/* DELETE */
+/* DELETE FIX */
 function deleteProduct(){
+if(!uid.value) return alert("Informe o UID");
 db.ref("products/"+uid.value).remove();
 }
 
-/* FORMAT */
+/* TIMER */
 function formatTime(ms){
 if(!ms || ms<=0) return "Expirado";
 
@@ -274,7 +276,8 @@ let sec=s%60;
 return `${h}h ${m}m ${sec}s`;
 }
 
-/* RENDER FIXED */
+/* RENDER HOTMART STYLE FIX */
+function render(){
 db.ref("products").on("value",snap=>{
 let html="";
 
@@ -282,9 +285,10 @@ snap.forEach(i=>{
 let d=i.val();
 if(!d) return;
 
+/* segurança contra erro */
 if(d.status!=="aprovado") return;
 
-let left = (d.tempo || 0) - Date.now();
+let left = (d.tempo || Date.now()) - Date.now();
 
 html+=`
 <div class="card">
@@ -296,12 +300,17 @@ html+=`
 
 <div class="timer">${formatTime(left)}</div>
 
-<button onclick="window.open('https://wa.me/'+(d.whatsapp||''))">Comprar</button>
+<button onclick="window.open('https://wa.me/'+(d.whatsapp||''))">
+Comprar
+</button>
 </div>`;
 });
 
 products.innerHTML=html;
 });
+}
+
+render();
 </script>
 
 </body>
