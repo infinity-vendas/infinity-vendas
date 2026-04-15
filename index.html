@@ -134,6 +134,19 @@ color:#fff;
 border-radius:8px;
 }
 
+.sectionTitle{
+margin:10px 0;
+color:#ff9a00;
+font-size:13px;
+}
+
+footer{
+text-align:center;
+font-size:11px;
+padding:10px;
+opacity:0.6;
+}
+
 .status{
 font-size:11px;
 color:#00ff88;
@@ -146,7 +159,7 @@ color:#00ff88;
 <header>INFINITY MARKET</header>
 
 <div id="ticker">
-<span>🔥 Nova plataforma já no ar ! Divulgue seus produtos totalmente limitados • Ranking • Vendas 🔥</span>
+<span>🔥 Nova plataforma já no ar ! Divulgue seus produtos totalmente limitados • Ranking • Vendas • Sistema Hotmart Style 🔥</span>
 </div>
 
 <div id="products"></div>
@@ -190,11 +203,18 @@ color:#00ff88;
 
 <hr>
 
-<input id="uid" placeholder="UID">
+<input id="uid" placeholder="UID / VENDEDOR">
 
-<button onclick="updateStatus('aprovado')">Ativar produto</button>
-<button onclick="updateStatus('bloqueado')">Bloquear produto</button>
-<button onclick="deleteProduct()">Deletar produto</button>
+<button onclick="updateStatus('aprovado')">Aprovar Produto</button>
+<button onclick="updateStatus('bloqueado')">Bloquear Produto</button>
+<button onclick="updateStatus('desativado')">Desativar Produto</button>
+
+<button onclick="deleteProduct()">🗑 Deletar Produto</button>
+<button onclick="deleteVendor()">👤 Deletar Vendedor</button>
+<button onclick="toggleVendor('ativo')">Ativar Vendedor</button>
+<button onclick="toggleVendor('desativado')">Desativar Vendedor</button>
+
+<button onclick="clearStore()">Limpar tudo</button>
 
 </div>
 
@@ -226,89 +246,123 @@ alert("Login inválido");
 }
 }
 
-/* ADMIN */
 function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
-/* ADD PRODUCT */
+/* ADD */
 function addProduct(){
 let id=db.ref("products").push().key;
 
 db.ref("products/"+id).set({
 uid:id,
-vendedor:vendedor.value || "Não informado",
-produto:produto.value || "Sem produto",
-valor:valor.value || "0",
-descricao:descricao.value || "Sem descrição",
-tipo:tipo.value || "N/A",
-whatsapp:whatsapp.value || "",
-instagram:instagram.value || "",
-tiktok:tiktok.value || "",
-youtube:youtube.value || "",
-facebook:facebook.value || "",
+vendedor:vendedor.value,
+produto:produto.value,
+valor:valor.value,
+descricao:descricao.value,
+tipo:tipo.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
+tiktok:tiktok.value,
+youtube:youtube.value,
+facebook:facebook.value,
 status:"pendente",
-tempo:Date.now()+(parseInt(tempo.value||3600)*1000)
+tempo:Date.now()+(parseInt(tempo.value||3600)*1000),
+vendorStatus:"ativo"
 });
 }
 
-/* STATUS */
+/* STATUS PRODUTO */
 function updateStatus(status){
-if(!uid.value) return alert("Informe o UID");
 db.ref("products/"+uid.value).update({status});
 }
 
-/* DELETE */
+/* DELETE PRODUTO */
 function deleteProduct(){
-if(!uid.value) return alert("Informe o UID");
 db.ref("products/"+uid.value).remove();
 }
 
-/* TIMER */
-function formatTime(ms){
-if(!ms || ms<=0) return "Expirado";
+/* DELETE VENDEDOR */
+function deleteVendor(){
+db.ref("products").once("value",snap=>{
+snap.forEach(i=>{
+let d=i.val();
+if(d.vendedor === uid.value){
+db.ref("products/"+d.uid).remove();
+}
+});
+});
+}
 
-let s=Math.floor(ms/1000);
-let h=Math.floor(s/3600);
+/* STATUS VENDEDOR */
+function toggleVendor(status){
+db.ref("products").once("value",snap=>{
+snap.forEach(i=>{
+let d=i.val();
+if(d.vendedor === uid.value){
+db.ref("products/"+d.uid).update({vendorStatus:status});
+}
+});
+});
+}
+
+/* CLEAR */
+function clearStore(){
+db.ref("products").remove();
+}
+
+/* TIMER FORMAT COMPLETO */
+function formatTime(ms){
+let date = new Date(ms);
+
+let d = date.toLocaleDateString();
+let h = date.toLocaleTimeString();
+
+let diff = ms - Date.now();
+let s=Math.floor(diff/1000);
+let hh=Math.floor(s/3600);
 let m=Math.floor((s%3600)/60);
 let sec=s%60;
 
-return `${h}h ${m}m ${sec}s`;
+return `${hh}h ${m}m ${sec}s | Expira: ${d} ${h}`;
 }
 
-/* 🔥 FIX DEFINITIVO RENDER */
-const productsDiv = document.getElementById("products");
+/* RENDER */
+function render(){
+db.ref("products").on("value",snap=>{
+let html="";
 
-db.ref("products").on("value", snap => {
-let html = "";
+snap.forEach(i=>{
+let d=i.val();
+let left = d.tempo - Date.now();
 
-snap.forEach(child => {
-const d = child.val();
-if(!d) return;
+if(d.status!=="aprovado") return;
 
-if(d.status !== "aprovado") return;
-
-let left = (d.tempo || Date.now()) - Date.now();
-
-html += `
+html+=`
 <div class="card">
-<b>${d.produto ?? "Sem produto"}</b>
-<div class="small">👤 ${d.vendedor ?? "Desconhecido"} | UID: ${d.uid ?? ""}</div>
-<div>${d.descricao ?? ""}</div>
-<div>💰 R$ ${d.valor ?? "0"}</div>
-<div class="status">✔ ${d.tipo ?? ""}</div>
+<b>${d.produto}</b><br>
 
-<div class="timer">${formatTime(left)}</div>
-
-<button onclick="window.open('https://wa.me/'+(d.whatsapp||''))">
-Comprar
-</button>
+<div class="small">
+👤 ${d.vendedor} | UID: ${d.uid}<br>
+📊 Status Vendedor: ${d.vendorStatus || "ativo"}
 </div>
-`;
+
+<div>${d.descricao}</div>
+<div>💰 R$ ${d.valor}</div>
+<div class="status">✔ ${d.tipo}</div>
+
+<div class="timer">${formatTime(d.tempo)}</div>
+
+<button onclick="window.open('https://wa.me/'+d.whatsapp)">Comprar</button>
+</div>`;
 });
 
-productsDiv.innerHTML = html;
+products.innerHTML=html;
 });
+}
+
+render();
+setInterval(render,5000);
 </script>
 
 </body>
