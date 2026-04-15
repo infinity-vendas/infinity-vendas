@@ -13,7 +13,6 @@ background:#000;
 color:#ff2e2e;
 }
 
-/* HEADER ORIGINAL ESTILO SH0PEE */
 header{
 background:#8b0000;
 color:#fff;
@@ -22,7 +21,6 @@ text-align:center;
 font-weight:bold;
 }
 
-/* PRODUTOS */
 #products{
 padding:10px;
 display:grid;
@@ -37,7 +35,6 @@ border-radius:6px;
 font-size:12px;
 }
 
-/* STATUS */
 .ativo{border-color:#00ff55;}
 .desativado{border-color:orange;}
 .bloqueado{border-color:gray;}
@@ -92,25 +89,24 @@ color:#fff;
 cursor:pointer;
 }
 
-/* LOGIN (corrigido para não travar tela) */
+/* 🔥 LOGIN AGORA É BOLHA */
 #login{
 position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:#000;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
+bottom:70px;
+right:10px;
+width:220px;
+background:#111;
+border:1px solid red;
+border-radius:12px;
+padding:10px;
 z-index:1000;
+box-shadow:0 0 10px red;
 }
 
 #login input{
-width:220px;
-margin:5px;
-padding:8px;
+width:100%;
+margin:4px 0;
+padding:6px;
 }
 
 /* WHATSAPP */
@@ -136,13 +132,11 @@ z-index:999;
 
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN BOLHA -->
 <div id="login">
-<h3>LOGIN ADMIN</h3>
-
+<b>LOGIN ADMIN</b>
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Senha">
-
 <button onclick="login()">Entrar</button>
 </div>
 
@@ -155,7 +149,7 @@ z-index:999;
 
 <div id="adminPanel">
 
-<h3>ADMIN PAINEL</h3>
+<h3>ADMIN</h3>
 
 <input id="vendedor" placeholder="Vendedor">
 <input id="valor" placeholder="Valor">
@@ -172,7 +166,7 @@ z-index:999;
 
 <hr>
 
-<h4>Controle por Vendedor</h4>
+<h4>Controle</h4>
 <input id="targetUID" placeholder="Vendedor">
 
 <button onclick="setStatus('ativo')">Ativar</button>
@@ -183,12 +177,11 @@ z-index:999;
 
 <h4>⏱ Cronômetro</h4>
 <input id="editUID" placeholder="Vendedor">
-<input id="editTime" placeholder="Novo tempo (segundos)">
-<button onclick="updateTimer()">Atualizar cronômetro</button>
+<input id="editTime" placeholder="Tempo (segundos)">
+<button onclick="updateTimer()">Atualizar</button>
 
 </div>
 
-<!-- WHATSAPP FLUTUANTE -->
 <div class="whatsapp">💬</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -211,7 +204,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-/* LOGIN FIREBASE AUTH */
+/* LOGIN CORRIGIDO */
 function login(){
 let email = document.getElementById("email").value;
 let pass = document.getElementById("password").value;
@@ -221,7 +214,7 @@ auth.signInWithEmailAndPassword(email,pass)
 document.getElementById("login").style.display="none";
 })
 .catch(err=>{
-alert(err.message);
+alert("Erro: " + err.message);
 });
 }
 
@@ -232,7 +225,7 @@ document.getElementById("login").style.display="none";
 }
 });
 
-/* ADMIN PANEL */
+/* ADMIN */
 function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
@@ -281,7 +274,7 @@ i.ref.remove();
 });
 }
 
-/* CRONÔMETRO */
+/* TIMER */
 function updateTimer(){
 let uid = editUID.value;
 let time = parseInt(editTime.value);
@@ -302,15 +295,7 @@ function buy(num){
 window.open("https://wa.me/"+num,"_blank");
 }
 
-/* FORMAT TIME */
-function format(ms){
-let s=Math.floor(ms/1000)%60;
-let m=Math.floor(ms/60000)%60;
-let h=Math.floor(ms/3600000);
-return `${h}h ${m}m ${s}s`;
-}
-
-/* RENDER EM TEMPO REAL */
+/* RENDER */
 function render(){
 db.ref("products").on("value",snap=>{
 let html="";
@@ -328,7 +313,7 @@ R$ ${d.valor}<br>
 Vendedor: ${d.vendedor}<br>
 Whats: ${d.whatsapp}<br>
 Tipo: ${d.tipo}<br>
-⏳ ${restante!==null ? format(restante) : "Sem limite"}<br>
+⏳ ${restante ? Math.floor(restante/1000)+"s" : "Sem limite"}<br>
 
 <button onclick="buy('${d.whatsapp}')">Adquirir produto</button>
 </div>`;
