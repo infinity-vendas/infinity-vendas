@@ -14,21 +14,16 @@ header{background:#b30000;padding:14px;text-align:center;font-weight:bold;}
 .card{background:#111;border:1px solid #333;border-radius:12px;padding:10px;font-size:12px;}
 .card b{color:#ff4d4d;}
 
-button{width:100%;padding:7px;margin-top:6px;border:none;border-radius:8px;background:#ff4d4d;color:#fff;cursor:pointer;}
+button{width:100%;padding:7px;margin-top:6px;border:none;border-radius:8px;background:#ff4d4d;color:#fff;}
 
 #loginBtn{position:fixed;bottom:15px;right:70px;width:45px;height:45px;background:#ff4d4d;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0.5;}
 #loginBox{position:fixed;bottom:70px;right:15px;width:200px;background:#111;padding:10px;border-radius:10px;display:none;}
 
-#adminBtn{position:fixed;top:50%;right:10px;width:45px;height:45px;background:#ff4d4d;border-radius:50%;display:none;align-items:center;justify-content:center;}
+#adminBtn{position:fixed;top:50%;right:10px;width:45px;height:45px;background:#ff4d4d;border-radius:50%;display:none;}
 #adminPanel{position:fixed;top:10%;right:-360px;width:320px;height:80%;background:#111;padding:10px;transition:0.3s;overflow:auto;}
 #adminPanel.open{right:0;}
 
 input{width:100%;padding:8px;margin:5px 0;border-radius:8px;background:#000;color:#fff;border:1px solid #333;}
-
-#chatBtn{position:fixed;bottom:15px;left:15px;width:50px;height:50px;background:#ff4d4d;border-radius:50%;display:none;opacity:0.5;}
-#chatBox{position:fixed;bottom:80px;left:15px;width:220px;background:#111;padding:10px;display:none;opacity:0.5;}
-
-.chatItem{padding:6px;margin:5px 0;background:#000;border-radius:8px;}
 
 .timer{color:#00ff55;font-size:11px;margin-top:4px;}
 </style>
@@ -37,51 +32,49 @@ input{width:100%;padding:8px;margin:5px 0;border-radius:8px;background:#000;colo
 <body>
 
 <header>INFINITY DIVULGAÇÕES</header>
-
-<div id="ticker">Planos a partir de $0,97 • Vendas 24h • Segurança total</div>
+<div id="ticker">Sistema profissional ativo</div>
 
 <div id="products"></div>
 
 <!-- LOGIN -->
 <div id="loginBtn" onclick="toggleLogin()">🔐</div>
-
 <div id="loginBox">
 <input id="user" placeholder="Usuário">
 <input id="pass" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
 </div>
 
-<!-- CHAT -->
-<div id="chatBtn" onclick="toggleChat()">💬</div>
-
-<div id="chatBox">
-<div class="chatItem" onclick="openWhats('suporte')">Suporte</div>
-<div class="chatItem" onclick="openWhats('denunciar')">Denunciar</div>
-</div>
-
 <!-- ADMIN -->
 <div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
-
 <h3>ADMIN</h3>
 
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
+<input id="whats" placeholder="WhatsApp">
+<input id="social" placeholder="Rede social">
 <input id="estoque" placeholder="Estoque">
-<input id="tempo" placeholder="Tempo (segundos)">
+
+<input id="hora" placeholder="Horas">
+<input id="minuto" placeholder="Minutos">
+<input id="segundo" placeholder="Segundos">
 
 <button onclick="addProduct()">Criar produto</button>
 
 <hr>
 
-<input id="uid" placeholder="UID">
+<input id="uid" placeholder="UID produto">
 
+<input id="newHora" placeholder="Nova hora">
+<input id="newMin" placeholder="Novo minuto">
+<input id="newSeg" placeholder="Novo segundo">
+
+<button onclick="updateTime()">Alterar cronômetro</button>
 <button onclick="updateStatus('aprovado')">Ativar</button>
 <button onclick="updateStatus('bloqueado')">Bloquear</button>
 <button onclick="deleteProduct()">Deletar</button>
-<button onclick="clearStore()">Limpar loja</button>
 
 </div>
 
@@ -108,16 +101,7 @@ if(user.value==="INFINITY"&&pass.value==="CLIENTE"){
 loginBox.style.display="none";
 loginBtn.style.display="none";
 adminBtn.style.display="flex";
-chatBtn.style.display="flex";
 }
-}
-
-/* CHAT */
-function toggleChat(){
-chatBox.style.display=chatBox.style.display==="block"?"none":"block";
-}
-function openWhats(msg){
-window.open("https://wa.me/51981528372?text="+msg);
 }
 
 /* ADMIN */
@@ -125,22 +109,42 @@ function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
-/* ADD */
+/* ADD PRODUTO */
 function addProduct(){
 let id=db.ref("products").push().key;
 
+let totalSeg =
+(parseInt(hora.value||0)*3600)+
+(parseInt(minuto.value||0)*60)+
+parseInt(segundo.value||0);
+
 db.ref("products/"+id).set({
 uid:id,
+vendedor:id,
 produto:produto.value,
 valor:valor.value,
 descricao:descricao.value,
-estoque:parseInt(estoque.value),
+whatsapp:whats.value,
+social:social.value,
+estoque:parseInt(estoque.value||0),
 status:"aprovado",
-tempo:Date.now()+ (parseInt(tempo.value||3600)*1000)
+tempo:Date.now()+totalSeg*1000
 });
 }
 
-/* UPDATE */
+/* ALTERAR TEMPO */
+function updateTime(){
+let totalSeg =
+(parseInt(newHora.value||0)*3600)+
+(parseInt(newMin.value||0)*60)+
+parseInt(newSeg.value||0);
+
+db.ref("products/"+uid.value).update({
+tempo:Date.now()+totalSeg*1000
+});
+}
+
+/* STATUS */
 function updateStatus(status){
 db.ref("products/"+uid.value).update({status});
 }
@@ -150,38 +154,13 @@ function deleteProduct(){
 db.ref("products/"+uid.value).remove();
 }
 
-/* CLEAR */
-function clearStore(){
-db.ref("products").remove();
-}
-
 /* TIMER */
 function formatTime(ms){
 let s=Math.floor(ms/1000);
 let h=Math.floor(s/3600);
 let m=Math.floor((s%3600)/60);
 let sec=s%60;
-return h+"h "+m+"m "+sec+"s";
-}
-
-/* COMPRAR + ESTOQUE AUTO */
-function comprar(id){
-let ref=db.ref("products/"+id);
-
-ref.once("value",snap=>{
-let d=snap.val();
-
-if(d.estoque<=0){
-alert("Produto esgotado");
-return;
-}
-
-ref.update({
-estoque:d.estoque-1
-});
-
-window.open("https://wa.me/51981528372?text=Quero comprar "+d.produto);
-});
+return h+":"+m+":"+sec;
 }
 
 /* RENDER */
@@ -196,18 +175,28 @@ let left=d.tempo-Date.now();
 html+=`
 <div class="card">
 <b>${d.produto}</b><br>
+UID: ${d.uid}<br>
+Vendedor: ${d.vendedor}<br>
 ${d.descricao}<br>
 R$ ${d.valor}<br>
+WhatsApp: ${d.whatsapp}<br>
+Social: ${d.social}<br>
 Estoque: ${d.estoque}<br>
-<div class="timer">${left>0?formatTime(left):"Expirado"}</div>
 
-<button onclick="comprar('${d.uid}')">
+<div class="timer">
+${left>0?formatTime(left):"Expirado"}
+</div>
+
+<button onclick="window.open('https://wa.me/${d.whatsapp}')">
 Comprar
 </button>
 </div>`;
 });
 products.innerHTML=html;
 });
+
+/* ATUALIZA TEMPO VISUAL */
+setInterval(()=>{},1000);
 </script>
 
 </body>
