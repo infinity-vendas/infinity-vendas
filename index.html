@@ -3,66 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INFINITY VENDAS ON-LINE</title>
+<title>INFINITY NEXT LEVEL</title>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
-background:#000;
-color:#ff2e2e;
+background:#0b0f14;
+color:#fff;
 }
 
 /* HEADER */
 header{
-background:#8b0000;
-color:#fff;
-padding:15px;
+background:#111827;
+padding:16px;
 text-align:center;
 font-weight:bold;
 }
 
-/* AVISO */
-#notice{
-padding:10px;
-background:#111;
-border-bottom:1px solid red;
-font-size:12px;
-}
-
-/* PRODUTOS */
+/* PRODUCTS */
 #products{
-padding:10px;
+padding:15px;
 display:grid;
-gap:10px;
+gap:12px;
 }
 
 .card{
-background:#111;
-border-left:4px solid red;
-padding:10px;
-border-radius:6px;
-font-size:12px;
+background:#111827;
+border:1px solid #1f2937;
+border-radius:12px;
+padding:12px;
+opacity:0.97;
 }
 
-.aprovado{border-color:#00ff55;}
-.pendente{border-color:orange;}
-.reprovado{border-color:red;opacity:0.5;}
+.card b{color:#22c55e;}
+
+/* BUTTON */
+button{
+width:100%;
+padding:8px;
+margin-top:8px;
+border:none;
+border-radius:8px;
+background:#22c55e;
+color:#000;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* LOGIN */
+#login{
+position:fixed;
+bottom:15px;
+right:15px;
+width:200px;
+background:#111827;
+padding:10px;
+border-radius:12px;
+border:1px solid #1f2937;
+z-index:999;
+}
 
 /* ADMIN BUTTON */
 #adminBtn{
 position:fixed;
 top:50%;
-right:10px;
+right:15px;
 width:45px;
 height:45px;
-background:red;
+background:#22c55e;
 border-radius:50%;
-display:flex;
+display:none;
 align-items:center;
 justify-content:center;
 cursor:pointer;
-color:#fff;
 z-index:999;
 }
 
@@ -71,149 +85,125 @@ z-index:999;
 position:fixed;
 top:10%;
 right:-360px;
-width:340px;
+width:320px;
 height:80%;
-background:#0a0a0a;
-border-left:2px solid red;
+background:#111827;
+border-left:2px solid #22c55e;
 padding:10px;
 overflow:auto;
-transition:0.4s;
+transition:0.3s;
 z-index:998;
 }
+
 #adminPanel.open{right:0;}
 
 /* INPUTS */
-input,button{
+input{
 width:100%;
-padding:7px;
-margin:4px 0;
-background:#000;
-color:#ff4d4d;
-border:1px solid red;
-font-size:12px;
-}
-
-button{
-background:red;
+padding:8px;
+margin:5px 0;
+border-radius:8px;
+border:1px solid #374151;
+background:#0b0f14;
 color:#fff;
-cursor:pointer;
-}
-
-/* LOGIN */
-#login{
-position:fixed;
-bottom:70px;
-right:10px;
-width:200px;
-background:#111;
-border:1px solid red;
-border-radius:12px;
-padding:10px;
-z-index:1000;
 }
 
 /* CHAT */
-#chatSupport{
+#chatBtn{
 position:fixed;
-bottom:120px;
-right:10px;
-width:200px;
-background:#111;
-border:1px solid red;
-border-radius:12px;
-padding:10px;
-z-index:1000;
+bottom:15px;
+left:15px;
+width:50px;
+height:50px;
+background:#22c55e;
+border-radius:50%;
+display:none;
+align-items:center;
+justify-content:center;
+font-size:20px;
+cursor:pointer;
+z-index:999;
 }
 
-.chatBtn{
-width:100%;
-margin:3px 0;
-padding:5px;
-font-size:11px;
-background:#000;
-border:1px solid red;
-color:#fff;
+#chatBox{
+position:fixed;
+bottom:80px;
+left:15px;
+width:220px;
+background:#111827;
+border:1px solid #1f2937;
+border-radius:10px;
+padding:10px;
+display:none;
+z-index:999;
+}
+
+.chatItem{
+padding:6px;
+margin:5px 0;
+background:#0b0f14;
+border-radius:8px;
 cursor:pointer;
+font-size:12px;
 }
 
 /* WHATS */
 .whatsapp{
 position:fixed;
-bottom:10px;
-right:10px;
-width:40px;
-height:40px;
-background:red;
+bottom:15px;
+right:15px;
+width:45px;
+height:45px;
+background:#22c55e;
 border-radius:50%;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:18px;
-color:#fff;
-opacity:0.7;
 cursor:pointer;
 z-index:999;
 }
 
-/* ALERTA ADMIN */
+/* ADMIN MSG */
 #adminMsg{
 position:fixed;
 top:10px;
 left:50%;
 transform:translateX(-50%);
-background:#ff0000;
+background:#ef4444;
 color:#fff;
 padding:10px;
-border-radius:8px;
-font-size:12px;
+border-radius:10px;
 display:none;
 z-index:9999;
+font-size:12px;
 }
 </style>
 </head>
 
 <body>
 
+<header>INFINITY NEXT LEVEL 14.0</header>
+
 <div id="adminMsg"></div>
-
-<!-- AVISO -->
-<div id="notice">
-⚡ INFINITY VENDAS ⚡<br>
-Venda segura e confiável<br>
-Plataforma 2026 🚀
-</div>
-
-<header>🔥 INFINITY VENDAS ON-LINE 🔥</header>
 
 <div id="products"></div>
 
 <!-- LOGIN -->
 <div id="login">
-<b>LOGIN ADMIN</b>
+<b>ADMIN LOGIN</b>
 <input id="user" placeholder="Login">
 <input id="pass" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
 </div>
 
 <!-- CHAT -->
-<div id="chatSupport">
-<b>SUPORTE</b>
+<div id="chatBtn" onclick="toggleChat()">💬</div>
 
-<button class="chatBtn" onclick="openWhats('compre e não recebi o produto')">
-📦 Não recebi produto
-</button>
-
-<button class="chatBtn" onclick="openWhats('recebi produto falso')">
-❌ Produto falso
-</button>
-
-<button class="chatBtn" onclick="openWhats('solicitar reembolso')">
-💰 Reembolso
-</button>
-
-<button class="chatBtn" onclick="openWhats('quero ser parceiro INFINITY')">
-🤝 Parceiro INFINITY
-</button>
+<div id="chatBox">
+<div class="chatItem" onclick="openWhats('nao recebi produto')">📦 Não recebi produto</div>
+<div class="chatItem" onclick="openWhats('produto falso')">❌ Produto falso</div>
+<div class="chatItem" onclick="openWhats('reembolso')">💰 Reembolso</div>
+<div class="chatItem" onclick="openWhats('parceria')">🤝 Parceiro</div>
 </div>
 
 <!-- ADMIN -->
@@ -221,7 +211,7 @@ Plataforma 2026 🚀
 
 <div id="adminPanel">
 
-<h3>ADMIN PAINEL</h3>
+<h3>ADMIN</h3>
 
 <input id="vendedor" placeholder="Vendedor UID">
 <input id="valor" placeholder="Valor">
@@ -229,28 +219,17 @@ Plataforma 2026 🚀
 <input id="descricao" placeholder="Descrição">
 <input id="whatsapp" placeholder="WhatsApp">
 
-<button onclick="addProduct()">Enviar (PENDENTE)</button>
+<button onclick="addProduct()">Enviar produto</button>
 
 <hr>
 
-<h4>MODERAÇÃO</h4>
 <input id="targetUID" placeholder="Vendedor UID">
-
-<button onclick="setStatus('aprovado')">✔️ Aprovar</button>
-<button onclick="setStatus('reprovado')">❌ Reprovar</button>
-
-<hr>
-
-<h4>🚫 BAN SYSTEM</h4>
-<input id="banUID" placeholder="Banir UID">
-
-<button onclick="banUser()">Banir vendedor</button>
-<button onclick="unbanUser()">Desbanir vendedor</button>
+<button onclick="setStatus('aprovado')">Aprovar</button>
+<button onclick="setStatus('reprovado')">Reprovar</button>
 
 <hr>
 
-<h4>🗑 RESET LOJA</h4>
-<button onclick="resetStore()">Resetar produtos</button>
+<button onclick="resetStore()">Reset loja</button>
 
 </div>
 
@@ -275,44 +254,31 @@ const db = firebase.database();
 
 /* LOGIN */
 function login(){
-if(user.value==="INFINITY" && pass.value==="CLIENTE"){
+if(user.value==="ADMIN_INFINITY" && pass.value==="2026CLIENTE"){
 login.style.display="none";
+adminBtn.style.display="flex";
+chatBtn.style.display="flex";
 }else{
 alert("Login inválido");
 }
 }
 
-/* WHATS */
+/* CHAT */
+function toggleChat(){
+chatBox.style.display = chatBox.style.display==="block"?"none":"block";
+}
+
 function openWhats(msg){
 window.open("https://wa.me/51981528372?text="+encodeURIComponent(msg));
 }
 
-/* BAN SYSTEM */
-function banUser(){
-db.ref("banned/"+banUID.value).set({banned:true});
-alert("Vendedor banido");
+/* ADMIN */
+function toggleAdmin(){
+adminPanel.classList.toggle("open");
 }
 
-function unbanUser(){
-db.ref("banned/"+banUID.value).remove();
-alert("Vendedor liberado");
-}
-
-function checkBan(uid,cb){
-db.ref("banned/"+uid).once("value",snap=>{
-cb(!snap.exists());
-});
-}
-
-/* ADD PRODUCT */
+/* ADD */
 function addProduct(){
-
-checkBan(vendedor.value,(ok)=>{
-if(!ok){
-alert("Vendedor BANIDO!");
-return;
-}
-
 db.ref("products").push({
 vendedor:vendedor.value,
 valor:valor.value,
@@ -322,10 +288,6 @@ whatsapp:whatsapp.value,
 status:"pendente",
 created:Date.now()
 });
-
-alert("Produto enviado!");
-});
-
 }
 
 /* STATUS */
@@ -343,22 +305,10 @@ i.ref.update({status});
 
 /* RESET */
 function resetStore(){
-if(confirm("Apagar tudo?")){
+if(confirm("Apagar loja?")){
 db.ref("products").remove();
 }
 }
-
-/* AVISO ADMIN */
-db.ref("warnings").on("value",snap=>{
-snap.forEach(i=>{
-adminMsg.innerText = i.val().msg;
-adminMsg.style.display="block";
-
-setTimeout(()=>{
-adminMsg.style.display="none";
-},60000);
-});
-});
 
 /* RENDER */
 db.ref("products").on("value",snap=>{
@@ -366,18 +316,17 @@ let html="";
 
 snap.forEach(i=>{
 let d=i.val();
-
 if(d.status !== "aprovado") return;
 
 html+=`
-<div class="card aprovado">
+<div class="card">
 <b>${d.produto}</b><br>
 ${d.descricao}<br>
 R$ ${d.valor}<br>
 Vendedor: ${d.vendedor}<br>
 
 <button onclick="window.open('https://wa.me/'+d.whatsapp)">
-Adquirir produto
+Comprar
 </button>
 </div>`;
 });
