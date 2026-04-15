@@ -73,6 +73,7 @@ color:#fff;
 cursor:pointer;
 }
 
+/* LOGIN */
 #loginBtn{
 position:fixed;
 bottom:15px;
@@ -97,6 +98,7 @@ border-radius:10px;
 display:none;
 }
 
+/* ADMIN */
 #adminBtn{
 position:fixed;
 top:50%;
@@ -153,7 +155,7 @@ color:#00ff88;
 <header>INFINITY MARKET</header>
 
 <div id="ticker">
-<span>🔥 Nova plataforma já no ar • Sistema Hotmart Style • Vendas automáticas 🔥</span>
+<span>🔥 Nova plataforma já no ar • Sistema de vendas automático • Catálogo atualizado • Hotmart Style 🔥</span>
 </div>
 
 <div id="products"></div>
@@ -186,34 +188,28 @@ color:#00ff88;
 </select>
 
 <input id="whatsapp" placeholder="WhatsApp">
+<input id="instagram" placeholder="Instagram">
+<input id="tiktok" placeholder="TikTok">
+<input id="youtube" placeholder="YouTube">
+<input id="facebook" placeholder="Facebook">
 
-<input id="tempo" placeholder="Tempo (segundos)">
-
-<button onclick="addProduct()">Enviar para análise</button>
-
-<hr>
-
-<input id="uid" placeholder="UID">
-
-<button onclick="updateStatus('aprovado')">Aprovar</button>
-<button onclick="updateStatus('bloqueado')">Bloquear</button>
-<button onclick="deleteProduct()">Deletar</button>
-<button onclick="clearStore()">Limpar tudo</button>
+<button onclick="addProduct()">Salvar Produto</button>
 
 </div>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-const firebaseConfig = {
+const firebaseConfig={
 apiKey:"AIzaSyDX...",
 authDomain:"infinity-vendas.firebaseapp.com",
 databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const db=firebase.database();
 
 /* LOGIN */
 function toggleLogin(){
@@ -225,8 +221,6 @@ if(user.value==="INFINITY" && pass.value==="CLIENTE"){
 loginBox.style.display="none";
 loginBtn.style.display="none";
 adminBtn.style.display="flex";
-}else{
-alert("Login inválido");
 }
 }
 
@@ -235,79 +229,48 @@ function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
-/* ADD PRODUCT */
+/* ADD PRODUCT (SEM UID) */
 function addProduct(){
-let id = db.ref("products").push().key;
-
-db.ref("products/"+id).set({
-uid:id,
-vendedor:vendedor.value || "sem nome",
-produto:produto.value || "sem produto",
-valor:valor.value || "0",
-descricao:descricao.value || "",
-tipo:tipo.value || "",
-whatsapp:whatsapp.value || "",
-tempo:Date.now() + (parseInt(tempo.value || 3600)*1000),
-status:"pendente"
+db.ref("products").push({
+vendedor:vendedor.value,
+produto:produto.value,
+valor:valor.value,
+descricao:descricao.value,
+tipo:tipo.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
+tiktok:tiktok.value,
+youtube:youtube.value,
+facebook:facebook.value,
+status:"aprovado",
+tempo:Date.now() + (3600*1000)
 });
+
+alert("Produto salvo com sucesso!");
 }
 
-/* UPDATE */
-function updateStatus(status){
-db.ref("products/"+uid.value).update({status});
-}
-
-/* DELETE */
-function deleteProduct(){
-db.ref("products/"+uid.value).remove();
-}
-
-/* CLEAR */
-function clearStore(){
-db.ref("products").remove();
-}
-
-/* FORMAT TIME SAFE */
-function formatTime(ms){
-let s = Math.max(0, Math.floor(ms/1000));
-let h = Math.floor(s/3600);
-let m = Math.floor((s%3600)/60);
-let sec = s%60;
-return `${h}h ${m}m ${sec}s`;
-}
-
-/* RENDER FIXED */
-db.ref("products").on("value", snap=>{
+/* RENDER */
+db.ref("products").on("value",snap=>{
 let html="";
 
 snap.forEach(i=>{
 let d=i.val();
-if(!d) return;
-
-let left = (d.tempo || Date.now()) - Date.now();
-
-if(d.status !== "aprovado") return;
 
 html+=`
 <div class="card">
-<b>${d.produto || "Produto"}</b>
-<div class="small">👤 ${d.vendedor || "N/A"} | UID: ${d.uid || i.key}</div>
-<div>${d.descricao || ""}</div>
-<div>💰 R$ ${d.valor || "0"}</div>
-<div class="status">✔ ${d.tipo || ""}</div>
+<b>${d.produto}</b>
+<div class="small">👤 ${d.vendedor}</div>
+<div>${d.descricao}</div>
+<div>💰 R$ ${d.valor}</div>
+<div class="status">✔ ${d.tipo}</div>
 
-<div class="timer">
-${left > 0 ? formatTime(left) : "EXPIRADO"}
-</div>
-
-<button onclick="window.open('https://wa.me/${d.whatsapp || ''}')">
+<button onclick="window.open('https://wa.me/'+d.whatsapp)">
 Comprar
 </button>
-</div>
-`;
+</div>`;
 });
 
-products.innerHTML = html;
+products.innerHTML=html;
 });
 </script>
 
