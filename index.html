@@ -13,6 +13,7 @@ background:#000;
 color:#ff2e2e;
 }
 
+/* HEADER */
 header{
 background:#8b0000;
 color:#fff;
@@ -21,6 +22,15 @@ text-align:center;
 font-weight:bold;
 }
 
+/* AVISO */
+#notice{
+padding:10px;
+background:#111;
+border-bottom:1px solid red;
+font-size:12px;
+}
+
+/* PRODUTOS */
 #products{
 padding:10px;
 display:grid;
@@ -35,9 +45,9 @@ border-radius:6px;
 font-size:12px;
 }
 
-.ativo{border-color:#00ff55;}
-.desativado{border-color:orange;}
-.bloqueado{border-color:gray;}
+.aprovado{border-color:#00ff55;}
+.pendente{border-color:orange;}
+.reprovado{border-color:red;opacity:0.5;}
 
 /* ADMIN BUTTON */
 #adminBtn{
@@ -60,8 +70,8 @@ z-index:999;
 #adminPanel{
 position:fixed;
 top:10%;
-right:-340px;
-width:320px;
+right:-360px;
+width:340px;
 height:80%;
 background:#0a0a0a;
 border-left:2px solid red;
@@ -73,7 +83,7 @@ z-index:998;
 #adminPanel.open{right:0;}
 
 /* INPUTS */
-input,select,button{
+input,button{
 width:100%;
 padding:7px;
 margin:4px 0;
@@ -89,27 +99,44 @@ color:#fff;
 cursor:pointer;
 }
 
-/* 🔥 LOGIN AGORA É BOLHA */
+/* LOGIN */
 #login{
 position:fixed;
 bottom:70px;
 right:10px;
-width:220px;
+width:200px;
 background:#111;
 border:1px solid red;
 border-radius:12px;
 padding:10px;
 z-index:1000;
-box-shadow:0 0 10px red;
 }
 
-#login input{
+/* CHAT */
+#chatSupport{
+position:fixed;
+bottom:120px;
+right:10px;
+width:200px;
+background:#111;
+border:1px solid red;
+border-radius:12px;
+padding:10px;
+z-index:1000;
+}
+
+.chatBtn{
 width:100%;
-margin:4px 0;
-padding:6px;
+margin:3px 0;
+padding:5px;
+font-size:11px;
+background:#000;
+border:1px solid red;
+color:#fff;
+cursor:pointer;
 }
 
-/* WHATSAPP */
+/* WHATS */
 .whatsapp{
 position:fixed;
 bottom:10px;
@@ -127,58 +154,103 @@ opacity:0.7;
 cursor:pointer;
 z-index:999;
 }
+
+/* ALERTA ADMIN */
+#adminMsg{
+position:fixed;
+top:10px;
+left:50%;
+transform:translateX(-50%);
+background:#ff0000;
+color:#fff;
+padding:10px;
+border-radius:8px;
+font-size:12px;
+display:none;
+z-index:9999;
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN BOLHA -->
-<div id="login">
-<b>LOGIN ADMIN</b>
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Senha">
-<button onclick="login()">Entrar</button>
+<div id="adminMsg"></div>
+
+<!-- AVISO -->
+<div id="notice">
+⚡ INFINITY VENDAS ⚡<br>
+Venda segura e confiável<br>
+Plataforma 2026 🚀
 </div>
 
 <header>🔥 INFINITY VENDAS ON-LINE 🔥</header>
 
 <div id="products"></div>
 
+<!-- LOGIN -->
+<div id="login">
+<b>LOGIN ADMIN</b>
+<input id="user" placeholder="Login">
+<input id="pass" type="password" placeholder="Senha">
+<button onclick="login()">Entrar</button>
+</div>
+
+<!-- CHAT -->
+<div id="chatSupport">
+<b>SUPORTE</b>
+
+<button class="chatBtn" onclick="openWhats('compre e não recebi o produto')">
+📦 Não recebi produto
+</button>
+
+<button class="chatBtn" onclick="openWhats('recebi produto falso')">
+❌ Produto falso
+</button>
+
+<button class="chatBtn" onclick="openWhats('solicitar reembolso')">
+💰 Reembolso
+</button>
+
+<button class="chatBtn" onclick="openWhats('quero ser parceiro INFINITY')">
+🤝 Parceiro INFINITY
+</button>
+</div>
+
 <!-- ADMIN -->
 <div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
 
-<h3>ADMIN</h3>
+<h3>ADMIN PAINEL</h3>
 
-<input id="vendedor" placeholder="Vendedor">
+<input id="vendedor" placeholder="Vendedor UID">
 <input id="valor" placeholder="Valor">
 <input id="produto" placeholder="Produto">
 <input id="descricao" placeholder="Descrição">
-<input id="whatsapp" placeholder="WhatsApp (DDD+número)">
-<input id="rede" placeholder="Rede social (opcional)">
-<input id="idade" placeholder="Idade (opcional)">
-<input id="tipo" placeholder="Tipo: APK / ARQUIVOS">
-<input id="parceria" placeholder="Parcerias (opcional)">
-<input id="expira" placeholder="Tempo expiração (segundos)">
+<input id="whatsapp" placeholder="WhatsApp">
 
-<button onclick="addProduct()">Adicionar Produto</button>
+<button onclick="addProduct()">Enviar (PENDENTE)</button>
 
 <hr>
 
-<h4>Controle</h4>
-<input id="targetUID" placeholder="Vendedor">
+<h4>MODERAÇÃO</h4>
+<input id="targetUID" placeholder="Vendedor UID">
 
-<button onclick="setStatus('ativo')">Ativar</button>
-<button onclick="setStatus('desativado')">Desativar</button>
-<button onclick="deleteByUID()">Deletar</button>
+<button onclick="setStatus('aprovado')">✔️ Aprovar</button>
+<button onclick="setStatus('reprovado')">❌ Reprovar</button>
 
 <hr>
 
-<h4>⏱ Cronômetro</h4>
-<input id="editUID" placeholder="Vendedor">
-<input id="editTime" placeholder="Tempo (segundos)">
-<button onclick="updateTimer()">Atualizar</button>
+<h4>🚫 BAN SYSTEM</h4>
+<input id="banUID" placeholder="Banir UID">
+
+<button onclick="banUser()">Banir vendedor</button>
+<button onclick="unbanUser()">Desbanir vendedor</button>
+
+<hr>
+
+<h4>🗑 RESET LOJA</h4>
+<button onclick="resetStore()">Resetar produtos</button>
 
 </div>
 
@@ -186,7 +258,6 @@ z-index:999;
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -200,57 +271,66 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.database();
-const auth = firebase.auth();
 
-/* LOGIN CORRIGIDO */
+/* LOGIN */
 function login(){
-let email = document.getElementById("email").value;
-let pass = document.getElementById("password").value;
-
-auth.signInWithEmailAndPassword(email,pass)
-.then(()=>{
-document.getElementById("login").style.display="none";
-})
-.catch(err=>{
-alert("Erro: " + err.message);
-});
+if(user.value==="INFINITY" && pass.value==="CLIENTE"){
+login.style.display="none";
+}else{
+alert("Login inválido");
+}
 }
 
-/* AUTO LOGIN */
-auth.onAuthStateChanged(user=>{
-if(user){
-document.getElementById("login").style.display="none";
+/* WHATS */
+function openWhats(msg){
+window.open("https://wa.me/51981528372?text="+encodeURIComponent(msg));
 }
-});
 
-/* ADMIN */
-function toggleAdmin(){
-adminPanel.classList.toggle("open");
+/* BAN SYSTEM */
+function banUser(){
+db.ref("banned/"+banUID.value).set({banned:true});
+alert("Vendedor banido");
+}
+
+function unbanUser(){
+db.ref("banned/"+banUID.value).remove();
+alert("Vendedor liberado");
+}
+
+function checkBan(uid,cb){
+db.ref("banned/"+uid).once("value",snap=>{
+cb(!snap.exists());
+});
 }
 
 /* ADD PRODUCT */
 function addProduct(){
+
+checkBan(vendedor.value,(ok)=>{
+if(!ok){
+alert("Vendedor BANIDO!");
+return;
+}
+
 db.ref("products").push({
 vendedor:vendedor.value,
 valor:valor.value,
 produto:produto.value,
 descricao:descricao.value,
 whatsapp:whatsapp.value,
-rede:rede.value,
-idade:idade.value,
-tipo:tipo.value,
-parceria:parceria.value,
-status:"ativo",
-created:Date.now(),
-expira:expira.value ? Date.now() + (expira.value*1000) : null
+status:"pendente",
+created:Date.now()
 });
+
+alert("Produto enviado!");
+});
+
 }
 
 /* STATUS */
 function setStatus(status){
-let t=targetUID.value;
+let t = targetUID.value;
 
 db.ref("products").once("value",snap=>{
 snap.forEach(i=>{
@@ -261,71 +341,49 @@ i.ref.update({status});
 });
 }
 
-/* DELETE */
-function deleteByUID(){
-let t=targetUID.value;
+/* RESET */
+function resetStore(){
+if(confirm("Apagar tudo?")){
+db.ref("products").remove();
+}
+}
 
-db.ref("products").once("value",snap=>{
+/* AVISO ADMIN */
+db.ref("warnings").on("value",snap=>{
 snap.forEach(i=>{
-if(i.val().vendedor==t){
-i.ref.remove();
-}
-});
-});
-}
+adminMsg.innerText = i.val().msg;
+adminMsg.style.display="block";
 
-/* TIMER */
-function updateTimer(){
-let uid = editUID.value;
-let time = parseInt(editTime.value);
-
-db.ref("products").once("value",snap=>{
-snap.forEach(i=>{
-if(i.val().vendedor==uid){
-i.ref.update({
-expira: Date.now() + (time*1000)
-});
-}
+setTimeout(()=>{
+adminMsg.style.display="none";
+},60000);
 });
 });
-}
-
-/* BUY */
-function buy(num){
-window.open("https://wa.me/"+num,"_blank");
-}
 
 /* RENDER */
-function render(){
 db.ref("products").on("value",snap=>{
 let html="";
 
 snap.forEach(i=>{
 let d=i.val();
-let restante = d.expira ? (d.expira-Date.now()) : null;
-if(restante < 0) restante = 0;
+
+if(d.status !== "aprovado") return;
 
 html+=`
-<div class="card ${d.status}">
+<div class="card aprovado">
 <b>${d.produto}</b><br>
 ${d.descricao}<br>
 R$ ${d.valor}<br>
 Vendedor: ${d.vendedor}<br>
-Whats: ${d.whatsapp}<br>
-Tipo: ${d.tipo}<br>
-⏳ ${restante ? Math.floor(restante/1000)+"s" : "Sem limite"}<br>
 
-<button onclick="buy('${d.whatsapp}')">Adquirir produto</button>
+<button onclick="window.open('https://wa.me/'+d.whatsapp)">
+Adquirir produto
+</button>
 </div>`;
 });
 
 products.innerHTML=html;
 });
-}
-
-setInterval(render,1000);
-render();
-
 </script>
 
 </body>
