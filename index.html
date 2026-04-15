@@ -54,6 +54,7 @@ border-left:4px solid #ff7a00;
 padding:12px;
 border-radius:10px;
 font-size:12px;
+cursor:pointer;
 }
 
 .card b{color:#ff9a00;}
@@ -134,9 +135,19 @@ color:#fff;
 border-radius:8px;
 }
 
+.sectionTitle{
+margin:10px 0;
+color:#ff9a00;
+font-size:13px;
+}
+
 .status{
 font-size:11px;
 color:#00ff88;
+}
+
+.selected{
+border:2px solid #00ff88;
 }
 </style>
 </head>
@@ -146,7 +157,7 @@ color:#00ff88;
 <header>INFINITY MARKET</header>
 
 <div id="ticker">
-<span>🔥 Nova plataforma no ar • Hotmart Style • Vendas e Divulgação • Sistema seguro 🔥</span>
+<span>🔥 Nova plataforma já no ar ! Hotmart Style • Vendas • Ranking • Sistema Automático 🔥</span>
 </div>
 
 <div id="products"></div>
@@ -171,17 +182,30 @@ color:#00ff88;
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
-<input id="tipo" placeholder="Tipo (APK / ZIP / ARQUIVO)">
+
+<select id="tipo">
+<option>APK</option>
+<option>ZIP</option>
+<option>ARQUIVO</option>
+</select>
+
 <input id="whatsapp" placeholder="WhatsApp">
+<input id="instagram" placeholder="Instagram">
+<input id="tiktok" placeholder="TikTok">
+<input id="youtube" placeholder="YouTube">
+<input id="facebook" placeholder="Facebook">
+
 <input id="tempo" placeholder="Tempo (segundos)">
+
+<button onclick="addProduct()">Enviar para análise</button>
 
 <hr>
 
-<input id="uid" placeholder="UID">
+<button onclick="updateStatus('aprovado')">Aprovar selecionado</button>
+<button onclick="updateStatus('bloqueado')">Bloquear selecionado</button>
+<button onclick="deleteProduct()">🗑 Deletar selecionado</button>
 
-<button onclick="updateStatus('aprovado')">Ativar produto</button>
-<button onclick="updateStatus('bloqueado')">Desativar produto</button>
-<button onclick="deleteProduct()">Deletar produto</button>
+<button onclick="clearStore()">Limpar tudo</button>
 
 </div>
 
@@ -198,6 +222,8 @@ databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
+let selectedUID = null;
+
 /* LOGIN */
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
@@ -208,12 +234,19 @@ if(user.value==="INFINITY" && pass.value==="CLIENTE"){
 loginBox.style.display="none";
 loginBtn.style.display="none";
 adminBtn.style.display="flex";
+}else{
+alert("Login inválido");
 }
 }
 
-/* ADMIN */
+/* ADMIN PANEL */
 function toggleAdmin(){
 adminPanel.classList.toggle("open");
+}
+
+/* SELECT PRODUCT */
+function selectProduct(uid){
+selectedUID = uid;
 }
 
 /* ADD PRODUCT */
@@ -222,30 +255,41 @@ let id=db.ref("products").push().key;
 
 db.ref("products/"+id).set({
 uid:id,
-vendedor:vendedor.value || "Sem nome",
-produto:produto.value || "Sem produto",
-valor:valor.value || "0",
-descricao:descricao.value || "Sem descrição",
-tipo:tipo.value || "ARQUIVO",
-whatsapp:whatsapp.value || "",
+vendedor:vendedor.value,
+produto:produto.value,
+valor:valor.value,
+descricao:descricao.value,
+tipo:tipo.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
+tiktok:tiktok.value,
+youtube:youtube.value,
+facebook:facebook.value,
 status:"pendente",
-tempo:Date.now() + (parseInt(tempo.value||3600)*1000)
+tempo:Date.now()+(parseInt(tempo.value||3600)*1000)
 });
 }
 
-/* STATUS */
+/* UPDATE STATUS SEM UID MANUAL */
 function updateStatus(status){
-db.ref("products/"+uid.value).update({status});
+if(!selectedUID) return alert("Selecione um produto primeiro!");
+db.ref("products/"+selectedUID).update({status});
 }
 
-/* DELETE */
+/* DELETE SEM UID MANUAL */
 function deleteProduct(){
-db.ref("products/"+uid.value).remove();
+if(!selectedUID) return alert("Selecione um produto primeiro!");
+db.ref("products/"+selectedUID).remove();
+selectedUID=null;
 }
 
-/* FORMAT TIMER */
+/* CLEAR */
+function clearStore(){
+db.ref("products").remove();
+}
+
+/* TIMER */
 function formatTime(ms){
-if(ms<=0) return "Expirado";
 let s=Math.floor(ms/1000);
 let h=Math.floor(s/3600);
 let m=Math.floor((s%3600)/60);
@@ -253,34 +297,42 @@ let sec=s%60;
 return `${h}h ${m}m ${sec}s`;
 }
 
-/* RENDER */
+/* RENDER + SELECT CLICK */
+function render(){
 db.ref("products").on("value",snap=>{
 let html="";
 
 snap.forEach(i=>{
 let d=i.val();
-
-let left = (d.tempo || 0) - Date.now();
+let left=d.tempo-Date.now();
 
 if(d.status!=="aprovado") return;
 
 html+=`
-<div class="card">
+<div class="card ${selectedUID===d.uid?'selected':''}" onclick="selectProduct('${d.uid}')">
 <b>${d.produto}</b>
 <div class="small">👤 ${d.vendedor} | UID: ${d.uid}</div>
 <div>${d.descricao}</div>
 <div>💰 R$ ${d.valor}</div>
 <div class="status">✔ ${d.tipo}</div>
-
 <div class="timer">${formatTime(left)}</div>
 
-<button onclick="window.open('https://wa.me/'+d.whatsapp)">Comprar</button>
+<button onclick="event.stopPropagation();window.open('https://wa.me/'+d.whatsapp)">
+Comprar
+</button>
 </div>`;
 });
 
-document.getElementById("products").innerHTML=html;
+products.innerHTML=html;
 });
+}
 
+render();
+
+/* TIMER LIVE (SEM BUG DE LOOP) */
+setInterval(()=>{
+render();
+},5000);
 </script>
 
 </body>
