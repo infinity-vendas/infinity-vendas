@@ -13,7 +13,6 @@ background:#0b0b0b;
 color:#fff;
 }
 
-/* HEADER */
 header{
 background:linear-gradient(90deg,#ff5e00,#ff9a00);
 padding:14px;
@@ -21,7 +20,6 @@ text-align:center;
 font-weight:bold;
 }
 
-/* LETREIRO ANIMADO */
 #ticker{
 background:#111;
 padding:8px;
@@ -43,7 +41,6 @@ color:#ff9a00;
 100%{transform:translateX(-100%);}
 }
 
-/* PRODUTOS */
 #products{
 padding:12px;
 display:flex;
@@ -51,7 +48,6 @@ flex-direction:column;
 gap:12px;
 }
 
-/* CARD HOTMART STYLE */
 .card{
 background:#141414;
 border-left:4px solid #ff7a00;
@@ -66,7 +62,6 @@ font-size:12px;
 
 .timer{color:#ff3b3b;font-weight:bold;margin-top:5px}
 
-/* BOTÕES */
 button{
 width:100%;
 padding:8px;
@@ -78,7 +73,6 @@ color:#fff;
 cursor:pointer;
 }
 
-/* LOGIN */
 #loginBtn{
 position:fixed;
 bottom:15px;
@@ -103,7 +97,6 @@ border-radius:10px;
 display:none;
 }
 
-/* ADMIN */
 #adminBtn{
 position:fixed;
 top:50%;
@@ -141,14 +134,12 @@ color:#fff;
 border-radius:8px;
 }
 
-/* EXPANDIDO CATÁLOGO */
 .sectionTitle{
 margin:10px 0;
 color:#ff9a00;
 font-size:13px;
 }
 
-/* FOOTER */
 footer{
 text-align:center;
 font-size:11px;
@@ -156,7 +147,6 @@ padding:10px;
 opacity:0.6;
 }
 
-/* STATUS */
 .status{
 font-size:11px;
 color:#00ff88;
@@ -215,14 +205,15 @@ color:#00ff88;
 
 <input id="uid" placeholder="UID">
 
-<button onclick="updateStatus('aprovado')">Aprovar</button>
-<button onclick="updateStatus('bloqueado')">Bloquear</button>
-<button onclick="deleteProduct()">Deletar</button>
+<!-- 🔥 NOVAS FUNÇÕES ADICIONADAS -->
+<button onclick="updateStatus('aprovado')">Ativar produto</button>
+<button onclick="updateStatus('bloqueado')">Bloquear produto</button>
+<button onclick="deleteProduct()">Deletar produto</button>
+
 <button onclick="clearStore()">Limpar tudo</button>
 
 </div>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
