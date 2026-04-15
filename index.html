@@ -6,38 +6,143 @@
 <title>INFINITY DIVULGAÇÕES</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0d0d0d;color:#fff;}
+body{margin:0;font-family:Arial;background:#0d0d0d;color:#00ff55;}
+
 header{background:#b30000;padding:14px;text-align:center;font-weight:bold;}
-#ticker{background:#111;padding:10px;font-size:12px;color:#ff4d4d;text-align:center;}
-#products{padding:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
 
-.card{background:#111;border:1px solid #333;border-radius:12px;padding:10px;font-size:12px;}
-.card b{color:#ff4d4d;}
+#ticker{
+background:#111;
+padding:10px;
+font-size:12px;
+color:#ff4d4d;
+text-align:center;
+}
 
-button{width:100%;padding:7px;margin-top:6px;border:none;border-radius:8px;background:#ff4d4d;color:#fff;}
+/* NOVO LETREIRO */
+#promo{
+background:#000;
+padding:8px;
+font-size:11px;
+text-align:center;
+color:#00ff55;
+}
 
-#loginBtn{position:fixed;bottom:15px;right:70px;width:45px;height:45px;background:#ff4d4d;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0.5;}
-#loginBox{position:fixed;bottom:70px;right:15px;width:200px;background:#111;padding:10px;border-radius:10px;display:none;}
+#products{
+padding:12px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
 
-#adminBtn{position:fixed;top:50%;right:10px;width:45px;height:45px;background:#ff4d4d;border-radius:50%;display:none;}
-#adminPanel{position:fixed;top:10%;right:-360px;width:320px;height:80%;background:#111;padding:10px;transition:0.3s;overflow:auto;}
+/* CARD */
+.card{
+background:#111;
+border:1px solid #333;
+border-radius:12px;
+padding:10px;
+font-size:12px;
+}
+
+.card b{color:#00ff55;}
+
+button{
+width:100%;
+padding:7px;
+margin-top:6px;
+border:none;
+border-radius:8px;
+background:#b30000;
+color:#fff;
+cursor:pointer;
+}
+
+.timer{
+color:#ff0000;
+font-size:11px;
+margin-top:4px;
+}
+
+/* LOGIN */
+#loginBtn{
+position:fixed;
+bottom:15px;
+right:70px;
+width:45px;
+height:45px;
+background:#b30000;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+opacity:0.5;
+}
+
+#loginBox{
+position:fixed;
+bottom:70px;
+right:15px;
+width:200px;
+background:#111;
+padding:10px;
+border-radius:10px;
+display:none;
+}
+
+/* ADMIN */
+#adminBtn{
+position:fixed;
+top:50%;
+right:10px;
+width:45px;
+height:45px;
+background:#b30000;
+border-radius:50%;
+display:none;
+}
+
+#adminPanel{
+position:fixed;
+top:10%;
+right:-360px;
+width:320px;
+height:80%;
+background:#111;
+padding:10px;
+transition:0.3s;
+overflow:auto;
+}
+
 #adminPanel.open{right:0;}
 
-input{width:100%;padding:8px;margin:5px 0;border-radius:8px;background:#000;color:#fff;border:1px solid #333;}
-
-.timer{color:#00ff55;font-size:11px;margin-top:4px;}
+input{
+width:100%;
+padding:8px;
+margin:5px 0;
+border-radius:8px;
+background:#000;
+color:#00ff55;
+border:1px solid #333;
+}
 </style>
 </head>
 
 <body>
 
 <header>INFINITY DIVULGAÇÕES</header>
-<div id="ticker">Sistema profissional ativo</div>
+
+<div id="ticker">
+Planos a partir de $0,97 • Vendas 24h • Segurança total
+</div>
+
+<div id="promo">
+Melhor painel de vendas e divulgações atualizado • Plano VIP mensal $29,97 • semanal $14,85 • trial $4,99
+</div>
 
 <div id="products"></div>
 
 <!-- LOGIN -->
 <div id="loginBtn" onclick="toggleLogin()">🔐</div>
+
 <div id="loginBox">
 <input id="user" placeholder="Usuário">
 <input id="pass" type="password" placeholder="Senha">
@@ -48,18 +153,23 @@ input{width:100%;padding:8px;margin:5px 0;border-radius:8px;background:#000;colo
 <div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
 
 <div id="adminPanel">
+
 <h3>ADMIN</h3>
 
+<input id="nome" placeholder="Nome vendedor">
+<input id="idade" placeholder="Idade">
 <input id="produto" placeholder="Produto">
-<input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
-<input id="whats" placeholder="WhatsApp">
-<input id="social" placeholder="Rede social">
+<input id="valor" placeholder="Valor">
+<input id="whatsapp" placeholder="WhatsApp DDD+">
+<input id="instagram" placeholder="Instagram">
+<input id="tiktok" placeholder="TikTok">
+<input id="kwai" placeholder="Kwai">
+<input id="tipo" placeholder="Tipo (APK/ZIP)">
+<input id="vip" placeholder="VIP / Free">
+<input id="desconto" placeholder="Desconto">
 <input id="estoque" placeholder="Estoque">
-
-<input id="hora" placeholder="Horas">
-<input id="minuto" placeholder="Minutos">
-<input id="segundo" placeholder="Segundos">
+<input id="tempo" placeholder="Tempo segundos">
 
 <button onclick="addProduct()">Criar produto</button>
 
@@ -67,11 +177,6 @@ input{width:100%;padding:8px;margin:5px 0;border-radius:8px;background:#000;colo
 
 <input id="uid" placeholder="UID produto">
 
-<input id="newHora" placeholder="Nova hora">
-<input id="newMin" placeholder="Novo minuto">
-<input id="newSeg" placeholder="Novo segundo">
-
-<button onclick="updateTime()">Alterar cronômetro</button>
 <button onclick="updateStatus('aprovado')">Ativar</button>
 <button onclick="updateStatus('bloqueado')">Bloquear</button>
 <button onclick="deleteProduct()">Deletar</button>
@@ -109,38 +214,27 @@ function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
-/* ADD PRODUTO */
+/* ADD */
 function addProduct(){
 let id=db.ref("products").push().key;
 
-let totalSeg =
-(parseInt(hora.value||0)*3600)+
-(parseInt(minuto.value||0)*60)+
-parseInt(segundo.value||0);
-
 db.ref("products/"+id).set({
 uid:id,
-vendedor:id,
+nome:nome.value,
+idade:idade.value,
 produto:produto.value,
-valor:valor.value,
 descricao:descricao.value,
-whatsapp:whats.value,
-social:social.value,
-estoque:parseInt(estoque.value||0),
+valor:valor.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
+tiktok:tiktok.value,
+kwai:kwai.value,
+tipo:tipo.value,
+vip:vip.value,
+desconto:desconto.value,
+estoque:estoque.value,
 status:"aprovado",
-tempo:Date.now()+totalSeg*1000
-});
-}
-
-/* ALTERAR TEMPO */
-function updateTime(){
-let totalSeg =
-(parseInt(newHora.value||0)*3600)+
-(parseInt(newMin.value||0)*60)+
-parseInt(newSeg.value||0);
-
-db.ref("products/"+uid.value).update({
-tempo:Date.now()+totalSeg*1000
+tempo:Date.now()+ (parseInt(tempo.value||3600)*1000)
 });
 }
 
@@ -175,12 +269,24 @@ let left=d.tempo-Date.now();
 html+=`
 <div class="card">
 <b>${d.produto}</b><br>
+
 UID: ${d.uid}<br>
-Vendedor: ${d.vendedor}<br>
+Vendedor: ${d.nome}<br>
+Idade: ${d.idade||"-"}<br>
+
 ${d.descricao}<br>
-R$ ${d.valor}<br>
+
+Valor: R$ ${d.valor}<br>
+Tipo: ${d.tipo}<br>
+Plano: ${d.vip}<br>
+Desconto: ${d.desconto}<br>
+
+Instagram: ${d.instagram||"-"}<br>
+TikTok: ${d.tiktok||"-"}<br>
+Kwai: ${d.kwai||"-"}<br>
+
 WhatsApp: ${d.whatsapp}<br>
-Social: ${d.social}<br>
+
 Estoque: ${d.estoque}<br>
 
 <div class="timer">
@@ -192,11 +298,9 @@ Comprar
 </button>
 </div>`;
 });
+
 products.innerHTML=html;
 });
-
-/* ATUALIZA TEMPO VISUAL */
-setInterval(()=>{},1000);
 </script>
 
 </body>
