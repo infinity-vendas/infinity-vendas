@@ -252,13 +252,13 @@ tempo:Date.now()+(parseInt(tempo.value||3600)*1000)
 });
 }
 
-/* ATIVAR / BLOQUEAR */
+/* STATUS */
 function updateStatus(status){
 if(!uid.value) return alert("Informe o UID");
 db.ref("products/"+uid.value).update({status});
 }
 
-/* DELETE FIX */
+/* DELETE */
 function deleteProduct(){
 if(!uid.value) return alert("Informe o UID");
 db.ref("products/"+uid.value).remove();
@@ -276,41 +276,39 @@ let sec=s%60;
 return `${h}h ${m}m ${sec}s`;
 }
 
-/* RENDER HOTMART STYLE FIX */
-function render(){
-db.ref("products").on("value",snap=>{
-let html="";
+/* 🔥 FIX DEFINITIVO RENDER */
+const productsDiv = document.getElementById("products");
 
-snap.forEach(i=>{
-let d=i.val();
+db.ref("products").on("value", snap => {
+let html = "";
+
+snap.forEach(child => {
+const d = child.val();
 if(!d) return;
 
-/* segurança contra erro */
-if(d.status!=="aprovado") return;
+if(d.status !== "aprovado") return;
 
 let left = (d.tempo || Date.now()) - Date.now();
 
-html+=`
+html += `
 <div class="card">
-<b>${d.produto || "Sem produto"}</b>
-<div class="small">👤 ${d.vendedor || "Desconhecido"} | UID: ${d.uid || ""}</div>
-<div>${d.descricao || ""}</div>
-<div>💰 R$ ${d.valor || "0"}</div>
-<div class="status">✔ ${d.tipo || ""}</div>
+<b>${d.produto ?? "Sem produto"}</b>
+<div class="small">👤 ${d.vendedor ?? "Desconhecido"} | UID: ${d.uid ?? ""}</div>
+<div>${d.descricao ?? ""}</div>
+<div>💰 R$ ${d.valor ?? "0"}</div>
+<div class="status">✔ ${d.tipo ?? ""}</div>
 
 <div class="timer">${formatTime(left)}</div>
 
 <button onclick="window.open('https://wa.me/'+(d.whatsapp||''))">
 Comprar
 </button>
-</div>`;
+</div>
+`;
 });
 
-products.innerHTML=html;
+productsDiv.innerHTML = html;
 });
-}
-
-render();
 </script>
 
 </body>
