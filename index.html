@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINITY VENDAS</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#000;color:#ff2e2e;}
+header{background:#990000;padding:15px;text-align:center;color:#fff;font-weight:bold;font-size:18px;}
+.marquee{background:#111;border-bottom:2px solid red;overflow:hidden;white-space:nowrap;padding:6px;}
+.marquee span{display:inline-block;padding-left:100%;animation:move 20s linear infinite;color:#00aaff;font-size:12px;}
+@keyframes move{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
+.warning{background:#1a0000;color:#ff4d4d;text-align:center;padding:10px;font-size:12px;border-bottom:1px solid red;}
+#products{display:grid;gap:10px;padding:10px;}
+.card{background:#0f0f0f;border-left:4px solid red;padding:10px;border-radius:6px;font-size:12px;}
+.ativo{border-left-color:#00ff55;}
+.desativado{border-left-color:orange;}
+.bloqueado{border-left-color:gray;}
+#adminBtn{position:fixed;top:50%;right:10px;transform:translateY(-50%);background:red;color:#fff;width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+#adminPanel{position:fixed;top:10%;right:-330px;width:310px;height:80%;background:#0a0a0a;border-left:2px solid red;padding:10px;transition:0.4s;overflow:auto;}
+#adminPanel.open{right:0;}
+#minBtn{position:absolute;top:5px;right:5px;background:red;color:#fff;padding:3px 7px;font-size:10px;cursor:pointer;border-radius:4px;}
+input,select,button{width:100%;padding:8px;margin:5px 0;background:#000;color:#ff4d4d;border:1px solid red;font-size:12px;}
+button{background:red;color:#fff;border:none;cursor:pointer;}
+.whatsapp{position:fixed;bottom:15px;right:15px;width:55px;height:55px;background:red;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:25px;cursor:pointer;}
+</style>
+</head>
+
+<body>
+
+<header>🔥 INFINITY VENDAS 🔥</header>
+
+<div class="marquee">
+<span>Seja bem-vindo à nossa plataforma • Não coletamos dados • Acesse instagram @infinity_vendas_oficial</span>
+</div>
+
+<div class="warning">
+⚠️ AVISO: Plataforma em desenvolvimento • Ganhe 20% por indicação ⚡
+</div>
+
+<div id="products"></div>
+
+<div id="adminBtn" onclick="toggleAdmin()">⚙️</div>
+
+<div id="adminPanel">
+<div id="minBtn" onclick="toggleAdmin()">–</div>
+
+<h3>PAINEL ADMIN</h3>
+
+<input id="uid" placeholder="UID vendedor">
+<input id="vendedor" placeholder="Nome vendedor">
+<input id="valor" placeholder="Valor">
+<input id="produto" placeholder="Produto">
+<input id="descricao" placeholder="Descrição">
+<input id="whatsapp" placeholder="WhatsApp">
+
+<select id="tipo">
+<option>anúncio padrão</option>
+<option>destaque</option>
+<option>premium</option>
+</select>
+
+<button onclick="addProduct()">Ativar produto</button>
+
+<input id="targetUID" placeholder="UID alvo">
+
+<button onclick="setStatus('ativo')">Ativar</button>
+<button onclick="setStatus('desativado')">Desativar</button>
+<button onclick="setStatus('bloqueado')">Bloquear</button>
+<button onclick="deleteByUID()">Deletar</button>
+
+<button onclick="resetAll()">Resetar loja</button>
+</div>
+
+<div class="whatsapp" onclick="window.open('https://wa.me/5551981528372')">💬</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDXDca5ZxCZKZz7lHUz4dlx0Qe6BarJSuA",
+  authDomain: "infinity-vendas.firebaseapp.com",
+  databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
+  projectId: "infinity-vendas",
+  storageBucket: "infinity-vendas.firebasestorage.app",
+  messagingSenderId: "613112794080",
+  appId: "1:613112794080:web:acd63b723aec957b21f985",
+  measurementId: "G-Z04RV95D3Z"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function toggleAdmin(){
+document.getElementById("adminPanel").classList.toggle("open");
+}
+
+function addProduct(){
+let uid=document.getElementById("uid").value;
+let vendedor=document.getElementById("vendedor").value;
+let valor=document.getElementById("valor").value;
+let produto=document.getElementById("produto").value;
+let descricao=document.getElementById("descricao").value;
+let whatsapp=document.getElementById("whatsapp").value;
+let tipo=document.getElementById("tipo").value;
+
+if(!uid || !produto){
+alert("Preencha UID e Produto");
+return;
+}
+
+db.ref("products").push({
+uid,vendedor,valor,produto,descricao,whatsapp,tipo,status:"ativo"
+});
+
+alert("Produto ativado!");
+}
+
+function setStatus(status){
+let target=document.getElementById("targetUID").value;
+
+db.ref("products").once("value",snap=>{
+snap.forEach(item=>{
+if(item.val().uid===target){
+item.ref.update({status});
+}
+});
+});
+}
+
+function deleteByUID(){
+let target=document.getElementById("targetUID").value;
+
+db.ref("products").once("value",snap=>{
+snap.forEach(item=>{
+if(item.val().uid===target){
+item.ref.remove();
+}
+});
+});
+}
+
+function resetAll(){
+db.ref().set(null);
+}
+
+db.ref("products").on("value",snap=>{
+let html="";
+snap.forEach(item=>{
+let d=item.val();
+
+html+=`
+<div class="card ${d.status}">
+<b>UID:</b> ${d.uid}<br>
+<b>Vendedor:</b> ${d.vendedor}<br>
+<b>Valor:</b> ${d.valor}<br>
+<b>Produto:</b> ${d.produto}<br>
+<b>Descrição:</b> ${d.descricao}<br>
+<b>WhatsApp:</b> ${d.whatsapp}<br>
+<b>Tipo:</b> ${d.tipo}<br>
+<b>Status:</b> ${d.status}
+</div>`;
+});
+document.getElementById("products").innerHTML=html;
+});
+</script>
+
+</body>
+  </html>
