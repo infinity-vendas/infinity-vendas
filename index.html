@@ -134,19 +134,6 @@ color:#fff;
 border-radius:8px;
 }
 
-.sectionTitle{
-margin:10px 0;
-color:#ff9a00;
-font-size:13px;
-}
-
-footer{
-text-align:center;
-font-size:11px;
-padding:10px;
-opacity:0.6;
-}
-
 .status{
 font-size:11px;
 color:#00ff88;
@@ -159,7 +146,7 @@ color:#00ff88;
 <header>INFINITY MARKET</header>
 
 <div id="ticker">
-<span>🔥 Nova plataforma já no ar ! Divulgue seus produtos totalmente limitados • Ranking • Vendas • Sistema Hotmart Style 🔥</span>
+<span>🔥 Nova plataforma no ar • Hotmart Style • Vendas e Divulgação • Sistema seguro 🔥</span>
 </div>
 
 <div id="products"></div>
@@ -184,37 +171,17 @@ color:#00ff88;
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
-
-<select id="tipo">
-<option>APK</option>
-<option>ZIP</option>
-<option>ARQUIVO</option>
-</select>
-
+<input id="tipo" placeholder="Tipo (APK / ZIP / ARQUIVO)">
 <input id="whatsapp" placeholder="WhatsApp">
-<input id="instagram" placeholder="Instagram">
-<input id="tiktok" placeholder="TikTok">
-<input id="youtube" placeholder="YouTube">
-<input id="facebook" placeholder="Facebook">
-
 <input id="tempo" placeholder="Tempo (segundos)">
-
-<button onclick="addProduct()">Enviar para análise</button>
 
 <hr>
 
-<input id="uid" placeholder="UID / VENDEDOR">
+<input id="uid" placeholder="UID">
 
-<button onclick="updateStatus('aprovado')">Aprovar Produto</button>
-<button onclick="updateStatus('bloqueado')">Bloquear Produto</button>
-<button onclick="updateStatus('desativado')">Desativar Produto</button>
-
-<button onclick="deleteProduct()">🗑 Deletar Produto</button>
-<button onclick="deleteVendor()">👤 Deletar Vendedor</button>
-<button onclick="toggleVendor('ativo')">Ativar Vendedor</button>
-<button onclick="toggleVendor('desativado')">Desativar Vendedor</button>
-
-<button onclick="clearStore()">Limpar tudo</button>
+<button onclick="updateStatus('aprovado')">Ativar produto</button>
+<button onclick="updateStatus('bloqueado')">Desativar produto</button>
+<button onclick="deleteProduct()">Deletar produto</button>
 
 </div>
 
@@ -241,128 +208,79 @@ if(user.value==="INFINITY" && pass.value==="CLIENTE"){
 loginBox.style.display="none";
 loginBtn.style.display="none";
 adminBtn.style.display="flex";
-}else{
-alert("Login inválido");
 }
 }
 
+/* ADMIN */
 function toggleAdmin(){
 adminPanel.classList.toggle("open");
 }
 
-/* ADD */
+/* ADD PRODUCT */
 function addProduct(){
 let id=db.ref("products").push().key;
 
 db.ref("products/"+id).set({
 uid:id,
-vendedor:vendedor.value,
-produto:produto.value,
-valor:valor.value,
-descricao:descricao.value,
-tipo:tipo.value,
-whatsapp:whatsapp.value,
-instagram:instagram.value,
-tiktok:tiktok.value,
-youtube:youtube.value,
-facebook:facebook.value,
+vendedor:vendedor.value || "Sem nome",
+produto:produto.value || "Sem produto",
+valor:valor.value || "0",
+descricao:descricao.value || "Sem descrição",
+tipo:tipo.value || "ARQUIVO",
+whatsapp:whatsapp.value || "",
 status:"pendente",
-tempo:Date.now()+(parseInt(tempo.value||3600)*1000),
-vendorStatus:"ativo"
+tempo:Date.now() + (parseInt(tempo.value||3600)*1000)
 });
 }
 
-/* STATUS PRODUTO */
+/* STATUS */
 function updateStatus(status){
 db.ref("products/"+uid.value).update({status});
 }
 
-/* DELETE PRODUTO */
+/* DELETE */
 function deleteProduct(){
 db.ref("products/"+uid.value).remove();
 }
 
-/* DELETE VENDEDOR */
-function deleteVendor(){
-db.ref("products").once("value",snap=>{
-snap.forEach(i=>{
-let d=i.val();
-if(d.vendedor === uid.value){
-db.ref("products/"+d.uid).remove();
-}
-});
-});
-}
-
-/* STATUS VENDEDOR */
-function toggleVendor(status){
-db.ref("products").once("value",snap=>{
-snap.forEach(i=>{
-let d=i.val();
-if(d.vendedor === uid.value){
-db.ref("products/"+d.uid).update({vendorStatus:status});
-}
-});
-});
-}
-
-/* CLEAR */
-function clearStore(){
-db.ref("products").remove();
-}
-
-/* TIMER FORMAT COMPLETO */
+/* FORMAT TIMER */
 function formatTime(ms){
-let date = new Date(ms);
-
-let d = date.toLocaleDateString();
-let h = date.toLocaleTimeString();
-
-let diff = ms - Date.now();
-let s=Math.floor(diff/1000);
-let hh=Math.floor(s/3600);
+if(ms<=0) return "Expirado";
+let s=Math.floor(ms/1000);
+let h=Math.floor(s/3600);
 let m=Math.floor((s%3600)/60);
 let sec=s%60;
-
-return `${hh}h ${m}m ${sec}s | Expira: ${d} ${h}`;
+return `${h}h ${m}m ${sec}s`;
 }
 
 /* RENDER */
-function render(){
 db.ref("products").on("value",snap=>{
 let html="";
 
 snap.forEach(i=>{
 let d=i.val();
-let left = d.tempo - Date.now();
+
+let left = (d.tempo || 0) - Date.now();
 
 if(d.status!=="aprovado") return;
 
 html+=`
 <div class="card">
-<b>${d.produto}</b><br>
-
-<div class="small">
-👤 ${d.vendedor} | UID: ${d.uid}<br>
-📊 Status Vendedor: ${d.vendorStatus || "ativo"}
-</div>
-
+<b>${d.produto}</b>
+<div class="small">👤 ${d.vendedor} | UID: ${d.uid}</div>
 <div>${d.descricao}</div>
 <div>💰 R$ ${d.valor}</div>
 <div class="status">✔ ${d.tipo}</div>
 
-<div class="timer">${formatTime(d.tempo)}</div>
+<div class="timer">${formatTime(left)}</div>
 
 <button onclick="window.open('https://wa.me/'+d.whatsapp)">Comprar</button>
 </div>`;
 });
 
-products.innerHTML=html;
+document.getElementById("products").innerHTML=html;
 });
-}
 
-render();
-setInterval(render,5000);
 </script>
 
 </body>
