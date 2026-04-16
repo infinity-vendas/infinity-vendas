@@ -9,7 +9,7 @@
 body{margin:0;font-family:Arial;background:#000;color:#ff7a00;}
 header{background:#111;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
 
-.marquee {
+.marquee{
 background:#000;
 color:#ff7a00;
 padding:8px;
@@ -28,14 +28,6 @@ animation:scroll 18s linear infinite;
 }
 
 .container{padding:15px;}
-
-.notice{
-background:#111;
-padding:10px;
-border-radius:10px;
-border-left:4px solid #ff7a00;
-margin-bottom:15px;
-}
 
 input{
 width:100%;
@@ -65,19 +57,6 @@ margin-bottom:10px;
 }
 
 button{cursor:pointer;}
-
-#loginBtn{
-position:fixed;
-bottom:15px;
-right:15px;
-width:50px;
-height:50px;
-background:#ff7a00;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-}
 
 #adminBtn{
 position:fixed;
@@ -111,7 +90,7 @@ right:15px;
 width:220px;
 background:#111;
 padding:10px;
-display:none;
+display:block;
 border-radius:10px;
 }
 </style>
@@ -126,8 +105,6 @@ border-radius:10px;
 </div>
 
 <div class="container">
-
-<div class="notice">Seja Bem-vindo</div>
 
 <h3>Produtos cadastrados</h3>
 <div id="lista"></div>
@@ -160,16 +137,15 @@ border-radius:10px;
 <div id="adminLista"></div>
 </div>
 
-<!-- LOGIN -->
-<div id="loginBtn" onclick="toggleLogin()">L</div>
-
+<!-- LOGIN FIREBASE -->
 <div id="loginBox">
-<input id="user" placeholder="Usuário">
-<input id="pass" type="password" placeholder="Senha">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
@@ -180,24 +156,50 @@ databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 };
 
 firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
 const db = firebase.database();
 
-/* ELEMENTOS */
-const lista = document.getElementById("lista");
-const adminLista = document.getElementById("adminLista");
-const loginBox = document.getElementById("loginBox");
+/* 🔐 SEU UID ADMIN */
+const ADMIN_UID = "64fFaqDHvIU9d6ggPJaNGid7A242";
 
 let isAdmin = false;
+
+const lista = document.getElementById("lista");
+const adminLista = document.getElementById("adminLista");
+
+/* LOGIN REAL FIREBASE */
+function login(){
+const email = document.getElementById("email").value;
+const pass = document.getElementById("password").value;
+
+auth.signInWithEmailAndPassword(email, pass)
+.then(user => {
+
+if(user.user.uid === ADMIN_UID){
+isAdmin = true;
+document.getElementById("adminBtn").style.display="flex";
+alert("ADMIN LIBERADO");
+}else{
+isAdmin = false;
+alert("Login realizado (usuário normal)");
+}
+
+})
+.catch(err=>{
+alert(err.message);
+});
+}
 
 /* ENVIAR */
 function enviarProduto(){
 db.ref("products").push({
-vendedor: document.getElementById("vendedor").value,
-produto: document.getElementById("produto").value,
-descricao: document.getElementById("descricao").value,
-valor: document.getElementById("valor").value,
-whatsapp: document.getElementById("whatsapp").value,
-instagram: document.getElementById("instagram").value,
+vendedor: vendedor.value,
+produto: produto.value,
+descricao: descricao.value,
+valor: valor.value,
+whatsapp: whatsapp.value,
+instagram: instagram.value,
 status:"pendente"
 });
 
@@ -219,6 +221,7 @@ html+=`
 <div class="card">
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
+${d.valor}
 </div>`;
 }
 
@@ -266,25 +269,6 @@ snap.forEach(c=>c.ref.update({status:"desativado"}));
 
 function deletarTodos(){
 db.ref("products").remove();
-}
-
-/* LOGIN */
-function toggleLogin(){
-loginBox.style.display = loginBox.style.display==="block"?"none":"block";
-}
-
-function login(){
-const u=document.getElementById("user").value;
-const p=document.getElementById("pass").value;
-
-if(
-(u==="INFINITY" && p==="CLIENTE") ||
-(u==="administrador" && p==="38645920")
-){
-isAdmin=true;
-document.getElementById("adminBtn").style.display="flex";
-alert("ADMIN LIBERADO");
-}
 }
 
 /* ADMIN PANEL */
