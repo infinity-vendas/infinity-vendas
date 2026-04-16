@@ -29,6 +29,7 @@ display:inline-block;
 padding-left:100%;
 animation:scroll 25s linear infinite;
 }
+
 @keyframes scroll {
 0%{transform:translateX(0);}
 100%{transform:translateX(-100%);}
@@ -82,7 +83,6 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* ADMIN */
 #adminPanel{
 position:fixed;
 top:0;
@@ -105,11 +105,10 @@ border:none;
 border-radius:6px;
 margin:2px;
 cursor:pointer;
-font-size:12px;
+font-size:11px;
 width:48%;
 }
 
-/* LOGIN */
 #loginBox{
 position:fixed;
 bottom:80px;
@@ -161,10 +160,10 @@ text-align:center;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 SISTEMA ATIVO • VENDAS EM TEMPO REAL • ANUNCIE AGORA ⚡</span>
+<span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h, venda rápido e conquiste novos clientes ⚡ WhatsApp: 51981528372 @infinity_site_oficial</span>
 </div>
 
-<div id="popup">Adquira versão VIP ilimitado publicações ⚡</div>
+<div id="popup">⚡ adquira versão clientes 90% descontos ⚡😱</div>
 
 <div class="container">
 
@@ -185,13 +184,11 @@ text-align:center;
 
 </div>
 
-<!-- ADMIN -->
 <div id="adminPanel">
 <h3>ADMIN</h3>
 <div id="adminLista"></div>
 </div>
 
-<!-- LOGIN -->
 <div id="loginBox">
 <input id="email" placeholder="Email">
 <input id="pass" type="password" placeholder="Senha">
@@ -206,7 +203,7 @@ text-align:center;
 
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyDXDca5ZxCZKZz7lHUz4dlx0Qe6BarJSuA",
+apiKey: "AIzaSy...",
 authDomain: "infinity-vendas.firebaseapp.com",
 databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
 projectId: "infinity-vendas",
@@ -222,7 +219,6 @@ const db = firebase.database();
 let isAdmin=false;
 let cache={};
 
-/* LOGIN */
 function login(){
 auth.signInWithEmailAndPassword(email.value, pass.value)
 .then(()=>{
@@ -233,7 +229,6 @@ loginBox.style.display="none";
 .catch(e=>alert("Erro login: "+e.message));
 }
 
-/* ENVIAR */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
@@ -248,13 +243,11 @@ expiresAt:expire
 });
 }
 
-/* LISTA */
 db.ref("products").on("value",snap=>{
 cache = snap.val() || {};
 render();
 });
 
-/* RENDER */
 function render(){
 let html="";
 let adminHTML="";
@@ -286,8 +279,16 @@ if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
-Status: ${d.status}<br>
 ⏱ ${tempo}<br>
+
+<button class="smallBtn" onclick="resetar('${id}',1)">1MIN</button>
+<button class="smallBtn" onclick="resetar('${id}',60)">1H</button>
+<button class="smallBtn" onclick="resetar('${id}',1440)">24H</button>
+<button class="smallBtn" onclick="resetar('${id}',2880)">48H</button>
+<button class="smallBtn" onclick="resetar('${id}',20160)">14D</button>
+<button class="smallBtn" onclick="resetar('${id}',30240)">21D</button>
+<button class="smallBtn" onclick="resetar('${id}',44640)">31D</button>
+
 <button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
@@ -301,9 +302,7 @@ lista.innerHTML=html;
 adminLista.innerHTML=adminHTML;
 }
 
-/* CONTADOR */
 function countdown(exp){
-if(!exp) return "sem tempo";
 let diff = exp - Date.now();
 if(diff<=0) return "EXPIRADO ❌";
 
@@ -314,24 +313,30 @@ let h=Math.floor(m/60);
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* ADMIN */
-function deletar(id){db.ref("products/"+id).remove();}
+function resetar(id,minutes){
+let ms = minutes * 60 * 1000;
 
-/* LOGIN TOGGLE */
+db.ref("products/"+id).update({
+expiresAt: Date.now()+ms
+});
+}
+
+function deletar(id){
+db.ref("products/"+id).remove();
+}
+
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 
-/* AUTO UPDATE */
 setInterval(render,1000);
 
-/* POPUP */
 function showPopup(){
 popup.style.display="block";
-setTimeout(()=>popup.style.display="none",4000);
+setTimeout(()=>popup.style.display="none",3000);
 }
 showPopup();
-setInterval(showPopup,60000);
+setInterval(showPopup,10000);
 </script>
 
 </body>
