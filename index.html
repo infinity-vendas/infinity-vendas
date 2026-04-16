@@ -7,27 +7,14 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#000;color:#ff7a00;}
+header{background:#111;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
 
-header{
-background:#111;
-padding:15px;
-text-align:center;
-font-size:20px;
-font-weight:bold;
-}
-
-/* LETREIRO ORIGINAL */
 .marquee{
-background:#000;
-color:#ff7a00;
-padding:8px;
-white-space:nowrap;
-overflow:hidden;
-border-bottom:1px solid #222;
+background:#000;color:#ff7a00;padding:8px;
+white-space:nowrap;overflow:hidden;border-bottom:1px solid #222;
 }
 .marquee span{
-display:inline-block;
-padding-left:100%;
+display:inline-block;padding-left:100%;
 animation:scroll 25s linear infinite;
 }
 @keyframes scroll{
@@ -38,115 +25,60 @@ animation:scroll 25s linear infinite;
 .container{padding:15px;}
 
 input{
-width:100%;
-padding:10px;
-margin:6px 0;
-border-radius:8px;
-border:1px solid #333;
-background:#111;
-color:#fff;
+width:100%;padding:10px;margin:6px 0;
+border-radius:8px;border:1px solid #333;
+background:#111;color:#fff;
 }
 
 .btn{
-background:#ff7a00;
-color:#000;
-padding:12px;
-border:none;
-border-radius:8px;
-width:100%;
-cursor:pointer;
-font-weight:bold;
+background:#ff7a00;color:#000;padding:12px;
+border:none;border-radius:8px;width:100%;
+cursor:pointer;font-weight:bold;
 }
 
 .card{
-background:#111;
-padding:12px;
-border-radius:10px;
-margin-bottom:10px;
+background:#111;padding:12px;
+border-radius:10px;margin-bottom:10px;
 }
 
 .buyBtn{
-background:#ff7a00;
-color:#000;
-padding:10px;
-border:none;
-border-radius:8px;
-width:100%;
-margin-top:8px;
-cursor:pointer;
-font-weight:bold;
+background:#ff7a00;color:#000;padding:10px;
+border:none;border-radius:8px;width:100%;
+margin-top:8px;cursor:pointer;font-weight:bold;
 }
 
-/* ADMIN */
 #adminPanel{
-position:fixed;
-top:0;
-right:-340px;
-width:320px;
-height:100%;
-background:#111;
-padding:10px;
-transition:0.3s;
-overflow:auto;
-z-index:9999;
+position:fixed;top:0;right:-340px;width:320px;height:100%;
+background:#111;padding:10px;transition:0.3s;
+overflow:auto;z-index:9999;
 }
 #adminPanel.open{right:0;}
 
 .smallBtn{
-background:#333;
-color:#fff;
-padding:6px;
-border:none;
-border-radius:6px;
-margin:2px;
-cursor:pointer;
-font-size:12px;
-width:48%;
+background:#333;color:#fff;padding:6px;
+border:none;border-radius:6px;margin:2px;
+cursor:pointer;font-size:12px;width:48%;
 }
 
-/* LOGIN */
 #loginBox{
-position:fixed;
-bottom:80px;
-right:15px;
-width:220px;
-background:#111;
-padding:10px;
-display:none;
-border-radius:10px;
-z-index:9999;
+position:fixed;bottom:80px;right:15px;width:220px;
+background:#111;padding:10px;display:none;
+border-radius:10px;z-index:9999;
 }
 
 #loginBtn{
-position:fixed;
-bottom:15px;
-right:15px;
-width:50px;
-height:50px;
-background:#ff7a00;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-font-weight:bold;
-color:#000;
+position:fixed;bottom:15px;right:15px;width:50px;height:50px;
+background:#ff7a00;border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+cursor:pointer;font-weight:bold;color:#000;
 }
 
 #popup{
-position:fixed;
-top:20px;
-left:50%;
+position:fixed;top:20px;left:50%;
 transform:translateX(-50%);
-background:#ff7a00;
-color:#000;
-padding:15px;
-border-radius:10px;
-font-weight:bold;
-display:none;
-width:90%;
-z-index:99999;
-text-align:center;
+background:#ff7a00;color:#000;padding:15px;
+border-radius:10px;font-weight:bold;display:none;
+width:90%;z-index:99999;text-align:center;
 }
 </style>
 </head>
@@ -162,7 +94,6 @@ text-align:center;
 <div id="popup">Adquira versão VIP ilimitado publicações ⚡</div>
 
 <div class="container">
-
 <h3>Produtos cadastrados</h3>
 <div id="lista"></div>
 
@@ -177,7 +108,6 @@ text-align:center;
 <input id="whatsapp">
 
 <button class="btn" onclick="enviarProduto()">ENVIAR PRODUTO</button>
-
 </div>
 
 <!-- ADMIN -->
@@ -189,7 +119,6 @@ text-align:center;
 <button class="smallBtn" onclick="deletarTodos()">Deletar</button>
 
 <br><br>
-
 <div id="adminLista"></div>
 </div>
 
@@ -218,19 +147,24 @@ appId: "1:613112794080:web:acd63b723aec957b21f985"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.database();
 
-let isAdmin = false;
-let cache = {};
+let isAdmin=false;
+let cache={};
 
-/* LOGIN */
+/* LOGIN CORRIGIDO */
 function login(){
-auth.signInWithEmailAndPassword(email.value, pass.value)
+let email = document.getElementById("email").value;
+let pass = document.getElementById("pass").value;
+
+auth.signInWithEmailAndPassword(email, pass)
 .then(()=>{
-isAdmin = true;
+isAdmin=true;
 document.getElementById("adminPanel").classList.add("open");
+})
+.catch(e=>{
+alert("Erro login: "+e.message);
 });
 }
 
@@ -245,7 +179,7 @@ valor:valor.value,
 descricao:descricao.value,
 whatsapp:whatsapp.value,
 status:"pendente",
-expiresAt: expire
+expiresAt:expire
 });
 }
 
@@ -255,13 +189,13 @@ cache = snap.val() || {};
 render();
 });
 
-/* RENDER */
+/* RENDER CORRIGIDO */
 function render(){
 let html="";
 let adminHTML="";
 
 for(let id in cache){
-let d = cache[id];
+let d=cache[id];
 if(!d) continue;
 
 let tempo = countdown(d.expiresAt);
@@ -287,58 +221,58 @@ Status: ${d.status}<br>
 
 <button class="smallBtn" onclick="resetar('${id}',10)">10MIN</button>
 <button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
-<button class="smallBtn" onclick="resetar('${id}',3*24)">3D</button>
-<button class="smallBtn" onclick="resetar('${id}',7*24)">7D</button>
-<button class="smallBtn" onclick="resetar('${id}',14*24)">14D</button>
-<button class="smallBtn" onclick="resetar('${id}',21*24)">21D</button>
-<button class="smallBtn" onclick="resetar('${id}',31*24)">31D</button>
+<button class="smallBtn" onclick="resetar('${id}',72)">3D</button>
+<button class="smallBtn" onclick="resetar('${id}',168)">7D</button>
+<button class="smallBtn" onclick="resetar('${id}',336)">14D</button>
+<button class="smallBtn" onclick="resetar('${id}',504)">21D</button>
+<button class="smallBtn" onclick="resetar('${id}',744)">31D</button>
 <button class="smallBtn" onclick="editar('${id}')">Editar</button>
 <button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
 }
 
-lista.innerHTML=html;
-adminLista.innerHTML=adminHTML;
+document.getElementById("lista").innerHTML=html;
+document.getElementById("adminLista").innerHTML=adminHTML;
 }
 
-/* CONTADOR CORRIGIDO (REGRESSIVO REAL) */
+/* CONTADOR */
 function countdown(exp){
 if(!exp) return "sem tempo";
 
 let diff = exp - Date.now();
 if(diff <= 0) return "EXPIRADO ❌";
 
-let s = Math.floor(diff/1000);
-let m = Math.floor(s/60);
-let h = Math.floor(m/60);
+let s=Math.floor(diff/1000);
+let m=Math.floor(s/60);
+let h=Math.floor(m/60);
 
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* RESET SISTEMA COMPLETO */
+/* RESET */
 function resetar(id,hours){
 let ms;
 
-if(hours === 10){
-ms = 10 * 60 * 1000; // 10 min
-} else {
-ms = hours * 60 * 60 * 1000;
+if(hours===10){
+ms = 10*60*1000;
+}else{
+ms = hours*60*60*1000;
 }
 
 db.ref("products/"+id).update({
-expiresAt: Date.now() + ms
+expiresAt: Date.now()+ms
 });
 }
 
-/* EDITAR MANUAL */
+/* EDITAR */
 function editar(id){
-let date = prompt("AAAA-MM-DD");
-let time = prompt("HH:MM");
+let date=prompt("AAAA-MM-DD");
+let time=prompt("HH:MM");
 
 if(!date || !time) return;
 
-let newExp = new Date(date+"T"+time+":00").getTime();
+let newExp=new Date(date+"T"+time+":00").getTime();
 
 db.ref("products/"+id).update({
 expiresAt:newExp
@@ -368,10 +302,11 @@ db.ref("products").remove();
 
 /* LOGIN TOGGLE */
 function toggleLogin(){
-loginBox.style.display = loginBox.style.display==="block"?"none":"block";
+let box=document.getElementById("loginBox");
+box.style.display=box.style.display==="block"?"none":"block";
 }
 
-/* AUTO UPDATE TIMER */
+/* ATUALIZA TIMER */
 setInterval(render,1000);
 
 /* POPUP */
@@ -382,7 +317,6 @@ setTimeout(()=>p.style.display="none",4000);
 }
 showPopup();
 setInterval(showPopup,60000);
-
 </script>
 
 </body>
