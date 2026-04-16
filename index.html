@@ -156,8 +156,23 @@ z-index:99999;
 text-align:center;
 }
 
-/* PROMOÇÃO PISCANDO */
-.promo {
+/* ====== ONLINE + COMMENTS ====== */
+#onlineBox, #commentBox{
+position:fixed;
+bottom:15px;
+background:#111;
+border:1px solid #333;
+padding:10px;
+border-radius:10px;
+font-size:12px;
+z-index:99999;
+width:160px;
+}
+
+#onlineBox{left:10px;}
+#commentBox{right:10px;}
+
+.pulseRed{
 color:red;
 font-weight:bold;
 animation:pulse 1s infinite;
@@ -174,6 +189,18 @@ animation:pulse 1s infinite;
 </div>
 
 <div id="popup">⚡ adquira versão clientes 90% descontos ⚡😱</div>
+
+<!-- ONLINE -->
+<div id="onlineBox">
+👥 Online agora:<br>
+<b id="onlineCount">0</b> usuários
+</div>
+
+<!-- COMMENTS -->
+<div id="commentBox">
+💬 Atividade:<br>
+<div id="comments"></div>
+</div>
 
 <div class="container">
 
@@ -243,7 +270,7 @@ loginBox.style.display="none";
 .catch(e=>alert("Erro login: "+e.message));
 }
 
-/* ENVIAR (AGORA PENDENTE - SEGURANÇA CORRIGIDA) */
+/* ENVIAR */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
@@ -275,50 +302,42 @@ let d=cache[id];
 if(!d) continue;
 
 let tempo = countdown(d.expiresAt);
-let urgente = (d.expiresAt - Date.now()) < (60*60*1000);
 
-/* CLIENTE SÓ VÊ APROVADOS */
 if(d.status==="aprovado"){
 vazio=false;
 
 html+=`
 <div class="card">
-${urgente ? `<div class="promo">🔥 OFERTA ACABANDO</div>`:""}
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
 R$ ${d.valor}<br>
 ${d.descricao}<br>
 ⏱ ${tempo}<br>
-<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}')">Comprar</button>
+<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}','_blank')">
+Entrar em contato
+</button>
 </div>`;
 }
 
-/* ADMIN VÊ TUDO */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
 Status: ${d.status}<br>
-⏱ ${tempo}<br>
 
 <button class="smallBtn" onclick="aprovar('${id}')">APROVAR</button>
-<button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
-<button class="smallBtn" onclick="resetar('${id}',12)">12H</button>
 <button class="smallBtn" onclick="resetar('${id}',24)">24H</button>
+<button class="smallBtn" onclick="resetar('${id}',12)">12H</button>
+<button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
 <button class="smallBtn" onclick="resetar('${id}',336)">14D</button>
 <button class="smallBtn" onclick="resetar('${id}',504)">21D</button>
 <button class="smallBtn" onclick="resetar('${id}',744)">31D</button>
-
 <button class="smallBtn" onclick="deletar('${id}')">DELETAR</button>
 </div>`;
 }
 }
 
-if(vazio){
-html=`<div class="card">Nenhum produto ativo ⚠️</div>`;
-}
-
-lista.innerHTML=html;
+lista.innerHTML=html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
 adminLista.innerHTML=adminHTML;
 }
 
@@ -335,15 +354,6 @@ let h=Math.floor(m/60);
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* RESET */
-function resetar(id,hours){
-let ms = hours * 60 * 60 * 1000;
-
-db.ref("products/"+id).update({
-expiresAt: Date.now()+ms
-});
-}
-
 /* ADMIN */
 function aprovar(id){
 db.ref("products/"+id).update({status:"aprovado"});
@@ -353,10 +363,36 @@ function deletar(id){
 db.ref("products/"+id).remove();
 }
 
-/* LOGIN TOGGLE */
+function resetar(id,hours){
+db.ref("products/"+id).update({
+expiresAt: Date.now() + hours*60*60*1000
+});
+}
+
+/* TOGGLE LOGIN */
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
+
+/* ===== SIMULADOR ONLINE ===== */
+setInterval(()=>{
+let n = Math.floor(Math.random()*4000);
+document.getElementById("onlineCount").innerText = n;
+},3000);
+
+/* ===== COMENTÁRIOS SIMULADOS ===== */
+const msgs = [
+"🔥 Esse site é muito bom!",
+"⚡ Já vendi hoje!",
+"💰 Produto aprovado rápido!",
+"🚀 Muito fácil usar!",
+"📈 Comecei agora e já vendi!"
+];
+
+setInterval(()=>{
+document.getElementById("comments").innerHTML =
+msgs[Math.floor(Math.random()*msgs.length)];
+},4000);
 
 /* POPUP */
 function showPopup(){
