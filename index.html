@@ -80,8 +80,8 @@ font-weight:bold;
 #adminPanel{
 position:fixed;
 top:0;
-right:-320px;
-width:300px;
+right:-340px;
+width:320px;
 height:100%;
 background:#111;
 padding:10px;
@@ -91,6 +91,30 @@ z-index:9999;
 }
 #adminPanel.open{right:0;}
 
+.adminBtn{
+background:#ff7a00;
+color:#000;
+padding:8px;
+border:none;
+border-radius:6px;
+margin:3px 0;
+width:100%;
+cursor:pointer;
+font-weight:bold;
+}
+
+.smallBtn{
+background:#333;
+color:#fff;
+padding:6px;
+border:none;
+border-radius:6px;
+margin:2px;
+cursor:pointer;
+font-size:12px;
+}
+
+/* LOGIN */
 #loginBox{
 position:fixed;
 bottom:80px;
@@ -142,7 +166,7 @@ text-align:center;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN OK • WHATSAPP DIRETO ⚡</span>
+<span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN PRO • WHATSAPP DIRETO ⚡</span>
 </div>
 
 <div id="popup">Adquira versão VIP ilimitado publicações ⚡</div>
@@ -168,10 +192,12 @@ text-align:center;
 
 <!-- ADMIN -->
 <div id="adminPanel">
-<h3>ADMIN</h3>
-<button onclick="ativarTodos()">Ativar todos</button>
-<button onclick="desativarTodos()">Desativar todos</button>
-<button onclick="deletarTodos()">Deletar todos</button>
+<h3>ADMIN PRO</h3>
+
+<button class="adminBtn" onclick="ativarTodos()">Ativar todos</button>
+<button class="adminBtn" onclick="desativarTodos()">Desativar todos</button>
+<button class="adminBtn" onclick="deletarTodos()">Deletar todos</button>
+
 <div id="adminLista"></div>
 </div>
 
@@ -210,18 +236,18 @@ let cache = {};
 /* LOGIN */
 function login(){
 auth.signInWithEmailAndPassword(
-document.getElementById("email").value,
-document.getElementById("pass").value
+email.value,
+pass.value
 ).then(()=>{
 isAdmin=true;
 document.getElementById("adminPanel").classList.add("open");
 });
 }
 
-/* ENVIAR (EXPIRA EM 24H PADRÃO) */
+/* ENVIAR */
 function enviarProduto(){
 
-let expire = Date.now() + (24 * 60 * 60 * 1000); // 24h
+let expire = Date.now() + (24*60*60*1000);
 
 db.ref("products").push({
 vendedor:vendedor.value || "",
@@ -229,9 +255,8 @@ produto:produto.value || "",
 valor:valor.value || "",
 descricao:descricao.value || "",
 whatsapp:whatsapp.value || "",
-createdAt: Date.now(),
-expiresAt: expire,
-status:"pendente"
+status:"pendente",
+expiresAt: expire
 });
 }
 
@@ -250,7 +275,7 @@ for(let id in cache){
 let d = cache[id];
 if(!d) continue;
 
-let tempo = getCountdown(d.expiresAt);
+let tempo = countdown(d.expiresAt);
 
 if(d.status==="aprovado"){
 html+=`
@@ -259,13 +284,9 @@ html+=`
 ${d.vendedor}<br>
 ${d.valor}<br>
 ${d.descricao}<br>
+⏱ ${tempo}<br>
 
-⏳ ${tempo}<br>
-
-<button class="buyBtn"
-onclick="window.open('https://wa.me/${d.whatsapp}')">
-Comprar
-</button>
+<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}')">Comprar</button>
 </div>`;
 }
 
@@ -274,50 +295,70 @@ adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
 Status: ${d.status}<br>
-⏳ ${tempo}<br>
+⏱ ${tempo}<br>
 
-<button onclick="aprovar('${id}')">Ativar</button>
-<button onclick="desativar('${id}')">Desativar</button>
-<button onclick="editar('${id}')">Editar tempo</button>
-<button onclick="deletar('${id}')">Deletar</button>
+<button class="smallBtn" onclick="aprovar('${id}')">Ativar</button>
+<button class="smallBtn" onclick="desativar('${id}')">Desativar</button>
+
+<br><br>
+<button class="smallBtn" onclick="addTime('${id}',1)">+1h</button>
+<button class="smallBtn" onclick="addTime('${id}',24)">+24h</button>
+<button class="smallBtn" onclick="addTime('${id}',168)">+7d</button>
+<button class="smallBtn" onclick="editar('${id}')">Editar manual</button>
+<button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
 }
 
-document.getElementById("lista").innerHTML=html;
-document.getElementById("adminLista").innerHTML=adminHTML;
+lista.innerHTML=html;
+adminLista.innerHTML=adminHTML;
 }
 
-/* ⏱ CONTAGEM REGRESSIVA CORRIGIDA */
-function getCountdown(exp){
+/* CONTADOR CORRIGIDO */
+function countdown(exp){
 if(!exp) return "sem tempo";
 
 let diff = exp - Date.now();
-
 if(diff <= 0) return "EXPIRADO ❌";
 
-let s = Math.floor(diff / 1000);
-let m = Math.floor(s / 60);
-let h = Math.floor(m / 60);
+let s = Math.floor(diff/1000);
+let m = Math.floor(s/60);
+let h = Math.floor(m/60);
 
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* ADMIN EDITAR TEMPO */
-function editar(id){
-let date = prompt("Nova data (AAAA-MM-DD):");
-let time = prompt("Nova hora (HH:MM):");
+/* 🔥 ADD TEMPO RÁPIDO */
+function addTime(id,hours){
+let extra = hours*60*60*1000;
 
-if(!date || !time) return;
+db.ref("products/"+id).once("value",snap=>{
+let d = snap.val();
+if(!d) return;
 
-let newExpire = new Date(`${date}T${time}:00`).getTime();
+let newExp = (d.expiresAt || Date.now()) + extra;
 
 db.ref("products/"+id).update({
-expiresAt: newExpire
+expiresAt: newExp
+});
 });
 }
 
-/* ADMIN FUNÇÕES */
+/* EDITAR MANUAL PRO */
+function editar(id){
+let date = prompt("Data (AAAA-MM-DD)");
+let time = prompt("Hora (HH:MM)");
+
+if(!date || !time) return;
+
+let newExp = new Date(date+"T"+time+":00").getTime();
+
+db.ref("products/"+id).update({
+expiresAt:newExp
+});
+}
+
+/* ADMIN */
 function aprovar(id){db.ref("products/"+id).update({status:"aprovado"});}
 function desativar(id){db.ref("products/"+id).update({status:"desativado"});}
 function deletar(id){db.ref("products/"+id).remove();}
@@ -340,21 +381,11 @@ db.ref("products").remove();
 
 /* LOGIN TOGGLE */
 function toggleLogin(){
-let box = document.getElementById("loginBox");
-box.style.display = box.style.display==="block"?"none":"block";
+loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 
-/* AUTO REFRESH TIMER */
+/* AUTO UPDATE */
 setInterval(render,1000);
-
-/* POPUP */
-function showPopup(){
-const p=document.getElementById("popup");
-p.style.display="block";
-setTimeout(()=>p.style.display="none",4000);
-}
-showPopup();
-setInterval(showPopup,60000);
 
 </script>
 
