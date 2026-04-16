@@ -129,16 +129,20 @@ font-weight:bold;
 <input id="valor" placeholder="valor">
 <input id="descricao" placeholder="descrição">
 <input id="whatsapp" placeholder="whatsapp">
+<input id="instagram" placeholder="instagram">
 
-<button class="btn" onclick="enviarProduto()">ENVIAR</button>
+<button class="btn" onclick="enviarProduto()">ENVIAR SOLICITAÇÃO</button>
+
 </div>
 
 <!-- ADMIN -->
 <div id="adminPanel">
 <h3>ADMIN</h3>
+
 <button onclick="ativarTodos()">Ativar todos</button>
 <button onclick="desativarTodos()">Desativar todos</button>
 <button onclick="deletarTodos()">Deletar todos</button>
+
 <div id="adminLista"></div>
 </div>
 
@@ -179,6 +183,7 @@ auth.signInWithEmailAndPassword(email.value, pass.value)
 .then(()=>{
 isAdmin = true;
 adminPanel.classList.add("open");
+alert("ADMIN LIBERADO");
 });
 }
 
@@ -190,49 +195,40 @@ produto:produto.value || "",
 valor:valor.value || "",
 descricao:descricao.value || "",
 whatsapp:whatsapp.value || "",
+instagram:instagram.value || "",
 status:"pendente"
 });
 }
 
-/* 🔥 LISTA 100% SEGURA (NUNCA SOME PRODUTO) */
-db.ref("products").on("value", snap => {
-
-const data = snap.val() || {};
-
+/* LISTA (ESTÁVEL ANTIGA) */
+db.ref("products").on("value",snap=>{
+let data = snap.val() || {};
 let html = "";
 let adminHTML = "";
 
 for(let id in data){
-const d = data[id];
+let d = data[id];
 if(!d) continue;
 
-const produto = d.produto || "Sem nome";
-const vendedor = d.vendedor || "";
-const valor = d.valor || "";
-const descricao = d.descricao || "";
-const whatsapp = d.whatsapp || "";
-
-/* VISITANTE */
 if(d.status === "aprovado"){
 html += `
 <div class="card">
-<b>${produto}</b><br>
-${vendedor}<br>
-${valor}<br>
-${descricao}<br>
+<b>${d.produto}</b><br>
+${d.vendedor}<br>
+${d.valor}<br>
+${d.descricao || ""}<br>
 
 <button class="buyBtn"
-onclick="window.open('https://wa.me/${whatsapp}')">
+onclick="window.open('https://wa.me/${d.whatsapp}')">
 Comprar
 </button>
 </div>`;
 }
 
-/* ADMIN */
 if(isAdmin){
 adminHTML += `
 <div class="card">
-<b>${produto}</b><br>
+<b>${d.produto}</b><br>
 Status: ${d.status || "pendente"}<br>
 
 <button onclick="aprovar('${id}')">Ativar</button>
@@ -242,7 +238,7 @@ Status: ${d.status || "pendente"}<br>
 }
 }
 
-document.getElementById("lista").innerHTML = html || "<p>Nenhum produto aprovado</p>";
+document.getElementById("lista").innerHTML = html;
 document.getElementById("adminLista").innerHTML = adminHTML;
 });
 
