@@ -16,7 +16,6 @@ font-size:20px;
 font-weight:bold;
 }
 
-/* LETREIRO ATUALIZADO */
 .marquee{
 background:#000;
 color:#ff7a00;
@@ -90,7 +89,6 @@ transition:0.3s;
 overflow:auto;
 z-index:9999;
 }
-
 #adminPanel.open{right:0;}
 
 #loginBox{
@@ -105,7 +103,6 @@ border-radius:10px;
 z-index:9999;
 }
 
-/* BOTÃO ADMIN FLUTUANTE TAMANHO 5 */
 #loginBtn{
 position:fixed;
 bottom:15px;
@@ -119,11 +116,9 @@ align-items:center;
 justify-content:center;
 cursor:pointer;
 font-weight:bold;
-font-size:5px;
 color:#000;
 }
 
-/* POPUP */
 #popup{
 position:fixed;
 top:20px;
@@ -146,15 +141,10 @@ text-align:center;
 
 <header>INFINITY DIVULGAÇÕES</header>
 
-<!-- LETREIRO NOVO -->
 <div class="marquee">
-<span>
-Adquira planos VIP, tenha melhor atendimento ao cliente e descontos até 90%. Sem taxas de publicação. Produto 24/12h no ar! 
-Instagram @Infinity_cliente_oficial1 | WhatsApp +55 51 98152-8372 ⚡ Contate o proprietário direto
-</span>
+<span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN OK • WHATSAPP DIRETO ⚡</span>
 </div>
 
-<!-- POPUP -->
 <div id="popup">Adquira versão VIP ilimitado publicações ⚡</div>
 
 <div class="container">
@@ -216,6 +206,20 @@ const db = firebase.database();
 
 let isAdmin = false;
 
+/* =========================
+   DATA / HORA COMPLETA
+========================= */
+function getDateTime(){
+const d = new Date();
+
+return {
+data: d.toLocaleDateString("pt-BR"),
+hora: String(d.getHours()).padStart(2,'0'),
+minuto: String(d.getMinutes()).padStart(2,'0'),
+segundo: String(d.getSeconds()).padStart(2,'0')
+};
+}
+
 /* LOGIN */
 function login(){
 auth.signInWithEmailAndPassword(
@@ -229,12 +233,21 @@ document.getElementById("adminPanel").classList.add("open");
 
 /* ENVIAR */
 function enviarProduto(){
+
+const now = getDateTime();
+
 db.ref("products").push({
 vendedor:vendedor.value || "",
 produto:produto.value || "",
 valor:valor.value || "",
 descricao:descricao.value || "",
 whatsapp:whatsapp.value || "",
+
+data: now.data,
+hora: now.hora,
+minuto: now.minuto,
+segundo: now.segundo,
+
 status:"pendente"
 });
 }
@@ -257,6 +270,9 @@ ${d.vendedor}<br>
 ${d.valor}<br>
 ${d.descricao}<br>
 
+📅 ${d.data}<br>
+⏰ ${d.hora}:${d.minuto}:${d.segundo}<br>
+
 <button class="buyBtn"
 onclick="window.open('https://wa.me/${d.whatsapp}')">
 Comprar
@@ -269,6 +285,9 @@ adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
 Status: ${d.status}<br>
+
+📅 ${d.data}<br>
+⏰ ${d.hora}:${d.minuto}:${d.segundo}<br>
 
 <button onclick="aprovar('${id}')">Ativar</button>
 <button onclick="desativar('${id}')">Desativar</button>
@@ -302,13 +321,12 @@ function deletarTodos(){
 db.ref("products").remove();
 }
 
-/* POPUP LOOP */
+/* POPUP */
 function showPopup(){
 const p=document.getElementById("popup");
 p.style.display="block";
 setTimeout(()=>p.style.display="none",5000);
 }
-
 showPopup();
 setInterval(showPopup,60000);
 
