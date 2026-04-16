@@ -54,7 +54,6 @@ padding:12px;
 border:none;
 border-radius:8px;
 width:100%;
-margin-top:8px;
 cursor:pointer;
 }
 
@@ -64,6 +63,8 @@ padding:12px;
 border-radius:10px;
 margin-bottom:10px;
 }
+
+button{cursor:pointer;}
 
 #loginBtn{
 position:fixed;
@@ -76,7 +77,6 @@ border-radius:50%;
 display:flex;
 align-items:center;
 justify-content:center;
-cursor:pointer;
 }
 
 #adminBtn{
@@ -88,9 +88,6 @@ height:50px;
 background:red;
 border-radius:50%;
 display:none;
-align-items:center;
-justify-content:center;
-cursor:pointer;
 }
 
 #adminPanel{
@@ -117,24 +114,6 @@ padding:10px;
 display:none;
 border-radius:10px;
 }
-
-button{cursor:pointer;}
-
-/* FLOAT SIMPLES */
-#floatMsg{
-position:fixed;
-top:20px;
-left:50%;
-transform:translateX(-50%);
-background:#ff0000;
-color:#fff;
-padding:12px;
-border-radius:8px;
-display:none;
-z-index:9999;
-width:90%;
-max-width:400px;
-}
 </style>
 </head>
 
@@ -143,33 +122,26 @@ max-width:400px;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>
-Site criado por @Infinity_divulgacoes_oficial - hospedado - 100% seguro e protegido - WhatsApp 5198152-8372 - Facebook Infinity Divulgações - YouTube Infinity Cheats Oficial YT ⚡
-</span>
+<span>Site oficial Infinity Divulgações ⚡</span>
 </div>
-
-<!-- FLOAT -->
-<div id="floatMsg"></div>
 
 <div class="container">
 
-<div class="notice">
-Seja Bem-vindo à nossa página oficial de vendas e divulgações.
-</div>
+<div class="notice">Seja Bem-vindo</div>
 
-<h3>⚡ Produtos cadastrados em nosso sistema</h3>
+<h3>Produtos cadastrados</h3>
 <div id="lista"></div>
 
 <hr>
 
-<h3>Cadastre seu produto</h3>
+<h3>Cadastro</h3>
 
 <input id="vendedor" placeholder="vendedor">
 <input id="produto" placeholder="produto">
 <input id="descricao" placeholder="descrição">
-<input id="valor" placeholder="valor $">
-<input id="whatsapp" placeholder="whatsapp DDD + número">
-<input id="instagram" placeholder="Instagram @">
+<input id="valor" placeholder="valor">
+<input id="whatsapp" placeholder="whatsapp">
+<input id="instagram" placeholder="instagram">
 
 <button class="btn" onclick="enviarProduto()">ENVIAR SOLICITAÇÃO</button>
 
@@ -179,13 +151,11 @@ Seja Bem-vindo à nossa página oficial de vendas e divulgações.
 <div id="adminBtn" onclick="toggleAdmin()">A</div>
 
 <div id="adminPanel">
-<h3>PAINEL ADMIN</h3>
+<h3>ADMIN</h3>
 
-<div style="margin-bottom:10px;">
 <button onclick="ativarTodos()">Ativar todos</button>
 <button onclick="desativarTodos()">Desativar todos</button>
 <button onclick="deletarTodos()">Deletar todos</button>
-</div>
 
 <div id="adminLista"></div>
 </div>
@@ -212,40 +182,26 @@ databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let isAdmin = false;
-
+/* ELEMENTOS */
 const lista = document.getElementById("lista");
 const adminLista = document.getElementById("adminLista");
-const floatMsg = document.getElementById("floatMsg");
+const loginBox = document.getElementById("loginBox");
 
-/* FLOAT MSG */
-function showFloat(vendedor, produto, status){
-floatMsg.innerHTML = `
-<b>Vendedor:</b> ${vendedor}<br>
-<b>Produto:</b> ${produto}<br>
-<b>Status:</b> ${status}
-`;
-floatMsg.style.display="block";
-
-setTimeout(()=>{
-floatMsg.style.display="none";
-},4000);
-}
+let isAdmin = false;
 
 /* ENVIAR */
 function enviarProduto(){
-
 db.ref("products").push({
-vendedor: vendedor.value,
-produto: produto.value,
-descricao: descricao.value,
-valor: valor.value,
-whatsapp: whatsapp.value,
-instagram: instagram.value,
+vendedor: document.getElementById("vendedor").value,
+produto: document.getElementById("produto").value,
+descricao: document.getElementById("descricao").value,
+valor: document.getElementById("valor").value,
+whatsapp: document.getElementById("whatsapp").value,
+instagram: document.getElementById("instagram").value,
 status:"pendente"
 });
 
-alert("Enviado para aprovação");
+alert("Enviado!");
 }
 
 /* LISTA */
@@ -258,56 +214,58 @@ for(let id in data){
 let d = data[id];
 if(!d) continue;
 
-/* USUÁRIO */
-if(d.status === "aprovado"){
-html += `
+if(d.status==="aprovado"){
+html+=`
 <div class="card">
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
-
-<button onclick="contato('${d.whatsapp}','${d.produto}')">
-Entrar em contato
-</button>
 </div>`;
 }
 
-/* ADMIN */
 if(isAdmin){
-adminHTML += `
+adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
 Status: ${d.status}<br>
 
-<button onclick="aprovar('${id}','${d.vendedor}','${d.produto}')">Ativar</button>
-<button onclick="reprovar('${id}','${d.vendedor}','${d.produto}')">Desativar</button>
+<button onclick="aprovar('${id}')">Ativar</button>
+<button onclick="reprovar('${id}')">Desativar</button>
 <button onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
 }
 
-lista.innerHTML = html;
-adminLista.innerHTML = adminHTML;
+lista.innerHTML=html;
+adminLista.innerHTML=adminHTML;
 });
 
-/* WHATSAPP */
-function contato(num, prod){
-let msg = `Quero adquirir produto: ${prod} + vim pelo site INFINITY DIVULGAÇÕES ⚡`;
-window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`);
-}
-
-/* ADMIN ACTIONS + FLOAT */
-function aprovar(id,v,p){
+/* ADMIN */
+function aprovar(id){
 db.ref("products/"+id).update({status:"aprovado"});
-showFloat(v,p,"APROVADO");
 }
 
-function reprovar(id,v,p){
+function reprovar(id){
 db.ref("products/"+id).update({status:"desativado"});
-showFloat(v,p,"REPROVADO");
 }
 
 function deletar(id){
 db.ref("products/"+id).remove();
+}
+
+function ativarTodos(){
+db.ref("products").once("value",snap=>{
+snap.forEach(c=>c.ref.update({status:"aprovado"}));
+});
+}
+
+function desativarTodos(){
+db.ref("products").once("value",snap=>{
+snap.forEach(c=>c.ref.update({status:"desativado"}));
+});
+}
+
+function deletarTodos(){
+db.ref("products").remove();
 }
 
 /* LOGIN */
@@ -316,18 +274,16 @@ loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 
 function login(){
-const u = document.getElementById("user").value;
-const p = document.getElementById("pass").value;
+const u=document.getElementById("user").value;
+const p=document.getElementById("pass").value;
 
 if(
 (u==="INFINITY" && p==="CLIENTE") ||
 (u==="administrador" && p==="38645920")
 ){
-isAdmin = true;
+isAdmin=true;
 document.getElementById("adminBtn").style.display="flex";
 alert("ADMIN LIBERADO");
-}else{
-alert("Login inválido");
 }
 }
 
