@@ -9,7 +9,6 @@
 body{margin:0;font-family:Arial;background:#000;color:#ff7a00;}
 header{background:#111;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
 
-/* MARQUEE */
 .marquee{
 background:#000;
 color:#ff7a00;
@@ -36,7 +35,7 @@ border-radius:8px;border:1px solid #333;
 background:#111;color:#fff;
 }
 
-/* BOTÃO */
+/* BOTÃO CADASTRO */
 .btn{
 background:red;
 color:#fff;
@@ -45,11 +44,9 @@ border:none;
 border-radius:8px;
 width:100%;
 cursor:pointer;
-
 border:3px dashed #ff2a2a;
 box-shadow:0 0 10px #ff0000;
 }
-.btn:hover{transform:scale(1.02);}
 
 /* CARD */
 .card{
@@ -57,6 +54,26 @@ background:#111;
 padding:12px;
 border-radius:10px;
 margin-bottom:10px;
+}
+
+/* 🔥 BOTÃO HOTMART STYLE */
+.buyBtn{
+background:#ff7a00;
+color:#000;
+padding:10px;
+border:none;
+border-radius:8px;
+width:100%;
+margin-top:8px;
+cursor:pointer;
+font-weight:bold;
+transition:0.2s;
+}
+
+.buyBtn:hover{
+background:#ff9000;
+transform:scale(1.03);
+box-shadow:0 0 10px #ff7a00;
 }
 
 /* ADMIN */
@@ -104,22 +121,6 @@ font-size:20px;
 font-weight:bold;
 color:#000;
 }
-
-/* FLOAT MSG */
-#floatMsg{
-position:fixed;
-top:15px;
-left:50%;
-transform:translateX(-50%);
-background:#111;
-border:1px solid #ff7a00;
-padding:10px;
-border-radius:10px;
-display:none;
-z-index:9999;
-width:90%;
-max-width:400px;
-}
 </style>
 </head>
 
@@ -128,10 +129,8 @@ max-width:400px;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 INFINITY DIVULGAÇÕES • SISTEMA DE PRODUTOS • WHATSAPP DIRETO • APROVAÇÃO ADMIN ⚡</span>
+<span>🔥 INFINITY DIVULGAÇÕES • SISTEMA DE PRODUTOS • WHATSAPP DIRETO • HOTMART STYLE ⚡</span>
 </div>
-
-<div id="floatMsg"></div>
 
 <div class="container">
 
@@ -203,7 +202,6 @@ const pass = document.getElementById("pass").value;
 auth.signInWithEmailAndPassword(email, pass)
 .then(()=>{
 isAdmin = true;
-document.getElementById("adminPanel").style.display="block";
 document.getElementById("adminPanel").classList.add("open");
 alert("ADMIN LIBERADO");
 })
@@ -212,7 +210,6 @@ alert("ADMIN LIBERADO");
 
 /* ENVIAR */
 function enviarProduto(){
-
 const vendedor = document.getElementById("vendedor").value;
 const produto = document.getElementById("produto").value;
 const descricao = document.getElementById("descricao").value;
@@ -238,7 +235,6 @@ for(let id in data){
 let d = data[id];
 if(!d) continue;
 
-/* VISITANTE */
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
@@ -246,16 +242,14 @@ html+=`
 <b>Vendedor:</b> ${d.vendedor}<br>
 <b>Descrição:</b> ${d.descricao}<br>
 <b>Valor:</b> ${d.valor}<br>
-<b>WhatsApp:</b> ${d.whatsapp}<br>
-<b>Instagram:</b> ${d.instagram}<br>
 
-<button onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">
+<button class="buyBtn"
+onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">
 Adquirir agora
 </button>
 </div>`;
 }
 
-/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
