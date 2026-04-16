@@ -9,6 +9,7 @@
 body{margin:0;font-family:Arial;background:#000;color:#ff7a00;}
 header{background:#111;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
 
+/* MARQUEE */
 .marquee{
 background:#000;
 color:#ff7a00;
@@ -35,7 +36,7 @@ border-radius:8px;border:1px solid #333;
 background:#111;color:#fff;
 }
 
-/* 🔥 BOTÃO COM BORDA TIPO CORDA VERMELHA */
+/* BOTÃO */
 .btn{
 background:red;
 color:#fff;
@@ -47,37 +48,46 @@ cursor:pointer;
 
 border:3px dashed #ff2a2a;
 box-shadow:0 0 10px #ff0000;
-transition:0.2s;
 }
+.btn:hover{transform:scale(1.02);}
 
-.btn:hover{
-transform:scale(1.02);
-box-shadow:0 0 18px #ff0000;
-}
-
+/* CARD */
 .card{
-background:#111;padding:12px;
-border-radius:10px;margin-bottom:10px;
+background:#111;
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
 }
 
-button{cursor:pointer;}
-
+/* ADMIN */
 #adminPanel{
-position:fixed;top:0;right:-320px;
-width:300px;height:100%;
-background:#111;padding:10px;
-transition:0.3s;overflow:auto;
+position:fixed;
+top:0;
+right:-320px;
+width:300px;
+height:100%;
+background:#111;
+padding:10px;
+transition:0.3s;
+overflow:auto;
+display:none;
 }
 
 #adminPanel.open{right:0;}
 
+/* LOGIN */
 #loginBox{
-position:fixed;bottom:80px;right:15px;
-width:220px;background:#111;
-padding:10px;display:none;
+position:fixed;
+bottom:80px;
+right:15px;
+width:220px;
+background:#111;
+padding:10px;
+display:none;
 border-radius:10px;
 }
 
+/* BOTÃO LOGIN */
 #loginBtn{
 position:fixed;
 bottom:15px;
@@ -95,20 +105,20 @@ font-weight:bold;
 color:#000;
 }
 
-#minAdminBtn{
+/* FLOAT MSG */
+#floatMsg{
 position:fixed;
-top:10px;
-right:10px;
-width:45px;
-height:45px;
-background:red;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-color:#fff;
+top:15px;
+left:50%;
+transform:translateX(-50%);
+background:#111;
+border:1px solid #ff7a00;
+padding:10px;
+border-radius:10px;
+display:none;
 z-index:9999;
+width:90%;
+max-width:400px;
 }
 </style>
 </head>
@@ -118,10 +128,10 @@ z-index:9999;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 INFINITY DIVULGAÇÕES • PRODUTOS APROVADOS • WHATSAPP DIRETO • SISTEMA AUTOMÁTICO ⚡</span>
+<span>🔥 INFINITY DIVULGAÇÕES • SISTEMA DE PRODUTOS • WHATSAPP DIRETO • APROVAÇÃO ADMIN ⚡</span>
 </div>
 
-<div id="minAdminBtn" onclick="toggleAdmin()">−</div>
+<div id="floatMsg"></div>
 
 <div class="container">
 
@@ -161,7 +171,7 @@ z-index:9999;
 <button onclick="login()" class="btn">Entrar</button>
 </div>
 
-<div id="loginBtn" onclick="toggleLogin()">L</div>
+<div id="loginBtn" onclick="toggleLogin()">ADMIN</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -193,6 +203,7 @@ const pass = document.getElementById("pass").value;
 auth.signInWithEmailAndPassword(email, pass)
 .then(()=>{
 isAdmin = true;
+document.getElementById("adminPanel").style.display="block";
 document.getElementById("adminPanel").classList.add("open");
 alert("ADMIN LIBERADO");
 })
@@ -202,13 +213,15 @@ alert("ADMIN LIBERADO");
 /* ENVIAR */
 function enviarProduto(){
 
+const vendedor = document.getElementById("vendedor").value;
+const produto = document.getElementById("produto").value;
+const descricao = document.getElementById("descricao").value;
+const valor = document.getElementById("valor").value;
+const whatsapp = document.getElementById("whatsapp").value;
+const instagram = document.getElementById("instagram").value;
+
 db.ref("products").push({
-vendedor: vendedor.value,
-produto: produto.value,
-descricao: descricao.value,
-valor: valor.value,
-whatsapp: whatsapp.value,
-instagram: instagram.value,
+vendedor, produto, descricao, valor, whatsapp, instagram,
 status:"pendente"
 });
 
@@ -225,19 +238,29 @@ for(let id in data){
 let d = data[id];
 if(!d) continue;
 
+/* VISITANTE */
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
-<b>${d.produto}</b><br>
-${d.vendedor}<br>
-${d.valor}<br>
+<b>Produto:</b> ${d.produto}<br>
+<b>Vendedor:</b> ${d.vendedor}<br>
+<b>Descrição:</b> ${d.descricao}<br>
+<b>Valor:</b> ${d.valor}<br>
+<b>WhatsApp:</b> ${d.whatsapp}<br>
+<b>Instagram:</b> ${d.instagram}<br>
+
+<button onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">
+Adquirir agora
+</button>
 </div>`;
 }
 
+/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
+Vendedor: ${d.vendedor}<br>
 Status: ${d.status}<br>
 
 <button onclick="aprovar('${id}')">Ativar</button>
@@ -251,20 +274,21 @@ document.getElementById("lista").innerHTML=html;
 document.getElementById("adminLista").innerHTML=adminHTML;
 });
 
+/* WHATSAPP */
+function comprar(produto, valor, whatsapp){
+const msg = `Quero adquirir produto agora, vim pelo site INFINITY DIVULGAÇÕES ⚡
+
+Produto: ${produto}
+Valor: ${valor}`;
+
+window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`);
+}
+
 /* ADMIN */
-function aprovar(id){
-db.ref("products/"+id).update({status:"aprovado"});
-}
+function aprovar(id){ db.ref("products/"+id).update({status:"aprovado"}); }
+function reprovar(id){ db.ref("products/"+id).update({status:"desativado"}); }
+function deletar(id){ db.ref("products/"+id).remove(); }
 
-function reprovar(id){
-db.ref("products/"+id).update({status:"desativado"});
-}
-
-function deletar(id){
-db.ref("products/"+id).remove();
-}
-
-/* GLOBAL */
 function ativarTodos(){
 db.ref("products").once("value",snap=>{
 snap.forEach(c=>c.ref.update({status:"aprovado"}));
@@ -285,12 +309,6 @@ db.ref("products").remove();
 function toggleLogin(){
 document.getElementById("loginBox").style.display =
 document.getElementById("loginBox").style.display==="block"?"none":"block";
-}
-
-function toggleAdmin(){
-if(isAdmin){
-document.getElementById("adminPanel").classList.toggle("open");
-}
 }
 </script>
 
