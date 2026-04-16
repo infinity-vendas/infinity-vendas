@@ -35,7 +35,6 @@ border-radius:8px;border:1px solid #333;
 background:#111;color:#fff;
 }
 
-/* BOTÃO CADASTRO */
 .btn{
 background:red;
 color:#fff;
@@ -48,7 +47,6 @@ border:3px dashed #ff2a2a;
 box-shadow:0 0 10px #ff0000;
 }
 
-/* CARD */
 .card{
 background:#111;
 padding:12px;
@@ -56,7 +54,6 @@ border-radius:10px;
 margin-bottom:10px;
 }
 
-/* 🔥 BOTÃO HOTMART STYLE */
 .buyBtn{
 background:#ff7a00;
 color:#000;
@@ -67,16 +64,8 @@ width:100%;
 margin-top:8px;
 cursor:pointer;
 font-weight:bold;
-transition:0.2s;
 }
 
-.buyBtn:hover{
-background:#ff9000;
-transform:scale(1.03);
-box-shadow:0 0 10px #ff7a00;
-}
-
-/* ADMIN */
 #adminPanel{
 position:fixed;
 top:0;
@@ -87,12 +76,12 @@ background:#111;
 padding:10px;
 transition:0.3s;
 overflow:auto;
-display:none;
+display:block; /* 🔥 CORREÇÃO PRINCIPAL */
+z-index:9999;
 }
 
 #adminPanel.open{right:0;}
 
-/* LOGIN */
 #loginBox{
 position:fixed;
 bottom:80px;
@@ -102,9 +91,9 @@ background:#111;
 padding:10px;
 display:none;
 border-radius:10px;
+z-index:9999;
 }
 
-/* BOTÃO LOGIN */
 #loginBtn{
 position:fixed;
 bottom:15px;
@@ -120,16 +109,64 @@ cursor:pointer;
 font-size:20px;
 font-weight:bold;
 color:#000;
+z-index:9999;
+}
+
+/* FLOAT NOTIFICAÇÃO */
+#notifyBar{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+background:#ff7a00;
+color:#000;
+text-align:center;
+padding:10px;
+display:none;
+z-index:99999;
+font-weight:bold;
+}
+
+/* CHAT BOLHA */
+#chatBubble{
+position:fixed;
+bottom:80px;
+right:15px;
+width:55px;
+height:55px;
+background:#ff7a00;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+font-size:22px;
+z-index:99999;
+}
+
+#chatBox{
+position:fixed;
+bottom:150px;
+right:15px;
+width:260px;
+background:#111;
+border:1px solid #ff7a00;
+border-radius:10px;
+padding:10px;
+display:none;
+z-index:99999;
 }
 </style>
 </head>
 
 <body>
 
+<div id="notifyBar">🔔 Sistema atualizado com sucesso - INFINITY DIVULGAÇÕES</div>
+
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 INFINITY DIVULGAÇÕES • SISTEMA DE PRODUTOS • WHATSAPP DIRETO • HOTMART STYLE ⚡</span>
+<span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN SEGURADO • WHATSAPP DIRETO ⚡</span>
 </div>
 
 <div class="container">
@@ -149,17 +186,14 @@ color:#000;
 <input id="instagram" placeholder="instagram">
 
 <button class="btn" onclick="enviarProduto()">ENVIAR SOLICITAÇÃO</button>
-
 </div>
 
 <!-- ADMIN -->
 <div id="adminPanel">
 <h3>ADMIN</h3>
-
 <button onclick="ativarTodos()">Ativar todos</button>
 <button onclick="desativarTodos()">Desativar todos</button>
 <button onclick="deletarTodos()">Deletar todos</button>
-
 <div id="adminLista"></div>
 </div>
 
@@ -171,6 +205,19 @@ color:#000;
 </div>
 
 <div id="loginBtn" onclick="toggleLogin()">ADMIN</div>
+
+<!-- CHAT -->
+<div id="chatBubble" onclick="toggleChat()">💬</div>
+
+<div id="chatBox">
+<p><b>Suporte INFINITY</b></p>
+<button onclick="support('Suporte')">Suporte</button>
+<button onclick="support('Denunciar vendedor')">Denunciar vendedor</button>
+<button onclick="support('Produto fraude')">Produto fraude</button>
+<button onclick="support('Reembolso')">Reembolso</button>
+<button class="btn" style="background:#ff7a00;color:#000;margin-top:5px;"
+onclick="devContact()">Entrar em contato com desenvolvedor</button>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -188,7 +235,6 @@ appId: "1:613112794080:web:acd63b723aec957b21f985"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -196,57 +242,47 @@ let isAdmin = false;
 
 /* LOGIN */
 function login(){
-const email = document.getElementById("email").value;
-const pass = document.getElementById("pass").value;
-
-auth.signInWithEmailAndPassword(email, pass)
-.then(()=>{
+auth.signInWithEmailAndPassword(
+document.getElementById("email").value,
+document.getElementById("pass").value
+).then(()=>{
 isAdmin = true;
 document.getElementById("adminPanel").classList.add("open");
 alert("ADMIN LIBERADO");
-})
-.catch(e=> alert(e.message));
+}).catch(e=>alert(e.message));
 }
 
-/* ENVIAR */
+/* PRODUTO */
 function enviarProduto(){
-const vendedor = document.getElementById("vendedor").value;
-const produto = document.getElementById("produto").value;
-const descricao = document.getElementById("descricao").value;
-const valor = document.getElementById("valor").value;
-const whatsapp = document.getElementById("whatsapp").value;
-const instagram = document.getElementById("instagram").value;
-
 db.ref("products").push({
-vendedor, produto, descricao, valor, whatsapp, instagram,
+vendedor:vendedor.value,
+produto:produto.value,
+descricao:descricao.value,
+valor:valor.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
 status:"pendente"
 });
-
 alert("Enviado!");
 }
 
 /* LISTA */
-db.ref("products").on("value", snap=>{
-let data = snap.val() || {};
+db.ref("products").on("value",snap=>{
+let data=snap.val()||{};
 let html="";
 let adminHTML="";
 
 for(let id in data){
-let d = data[id];
+let d=data[id];
 if(!d) continue;
 
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
-<b>Produto:</b> ${d.produto}<br>
-<b>Vendedor:</b> ${d.vendedor}<br>
-<b>Descrição:</b> ${d.descricao}<br>
-<b>Valor:</b> ${d.valor}<br>
-
-<button class="buyBtn"
-onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">
-Adquirir agora
-</button>
+<b>${d.produto}</b><br>
+${d.vendedor}<br>
+${d.valor}<br>
+<button class="buyBtn" onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">Adquirir produto</button>
 </div>`;
 }
 
@@ -254,9 +290,8 @@ if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
-Vendedor: ${d.vendedor}<br>
-Status: ${d.status}<br>
-
+${d.vendedor}<br>
+${d.status}<br>
 <button onclick="aprovar('${id}')">Ativar</button>
 <button onclick="reprovar('${id}')">Desativar</button>
 <button onclick="deletar('${id}')">Deletar</button>
@@ -264,45 +299,38 @@ Status: ${d.status}<br>
 }
 }
 
-document.getElementById("lista").innerHTML=html;
-document.getElementById("adminLista").innerHTML=adminHTML;
+lista.innerHTML=html;
+adminLista.innerHTML=adminHTML;
 });
-
-/* WHATSAPP */
-function comprar(produto, valor, whatsapp){
-const msg = `Quero adquirir produto agora, vim pelo site INFINITY DIVULGAÇÕES ⚡
-
-Produto: ${produto}
-Valor: ${valor}`;
-
-window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`);
-}
 
 /* ADMIN */
-function aprovar(id){ db.ref("products/"+id).update({status:"aprovado"}); }
-function reprovar(id){ db.ref("products/"+id).update({status:"desativado"}); }
-function deletar(id){ db.ref("products/"+id).remove(); }
+function aprovar(id){db.ref("products/"+id).update({status:"aprovado"});}
+function reprovar(id){db.ref("products/"+id).update({status:"desativado"});}
+function deletar(id){db.ref("products/"+id).remove();}
 
-function ativarTodos(){
-db.ref("products").once("value",snap=>{
-snap.forEach(c=>c.ref.update({status:"aprovado"}));
-});
+/* CHAT */
+function toggleChat(){
+chatBox.style.display = chatBox.style.display==="block"?"none":"block";
 }
 
-function desativarTodos(){
-db.ref("products").once("value",snap=>{
-snap.forEach(c=>c.ref.update({status:"desativado"}));
-});
+function support(type){
+window.open(`https://wa.me/551981528372?text=Suporte: ${type} - INFINITY DIVULGAÇÕES`);
 }
 
-function deletarTodos(){
-db.ref("products").remove();
+function devContact(){
+window.open("https://wa.me/551981528372?text=Quero suporte do desenvolvedor INFINITY ⚡");
 }
 
-/* UI */
+/* LOGIN UI */
 function toggleLogin(){
-document.getElementById("loginBox").style.display =
-document.getElementById("loginBox").style.display==="block"?"none":"block";
+loginBox.style.display = loginBox.style.display==="block"?"none":"block";
+}
+
+/* NOTIFICAÇÃO */
+window.onload=()=>{
+const bar=document.getElementById("notifyBar");
+bar.style.display="block";
+setTimeout(()=>bar.style.display="none",2000);
 }
 </script>
 
