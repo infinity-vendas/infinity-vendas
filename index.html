@@ -83,6 +83,7 @@ cursor:pointer;
 font-weight:bold;
 }
 
+/* ADMIN */
 #adminPanel{
 position:fixed;
 top:0;
@@ -109,6 +110,7 @@ font-size:11px;
 width:48%;
 }
 
+/* LOGIN */
 #loginBox{
 position:fixed;
 bottom:80px;
@@ -137,6 +139,7 @@ font-weight:bold;
 color:#000;
 }
 
+/* POPUP */
 #popup{
 position:fixed;
 top:20px;
@@ -160,7 +163,7 @@ text-align:center;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h, venda rápido e conquiste novos clientes ⚡ WhatsApp: 51981528372 @infinity_site_oficial</span>
+<span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372 @infinity_site_oficial</span>
 </div>
 
 <div id="popup">⚡ adquira versão clientes 90% descontos ⚡😱</div>
@@ -184,11 +187,13 @@ text-align:center;
 
 </div>
 
+<!-- ADMIN -->
 <div id="adminPanel">
 <h3>ADMIN</h3>
 <div id="adminLista"></div>
 </div>
 
+<!-- LOGIN -->
 <div id="loginBox">
 <input id="email" placeholder="Email">
 <input id="pass" type="password" placeholder="Senha">
@@ -203,7 +208,7 @@ text-align:center;
 
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSy...",
+apiKey: "AIzaSyDXDca5ZxCZKZz7lHUz4dlx0Qe6BarJSuA",
 authDomain: "infinity-vendas.firebaseapp.com",
 databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
 projectId: "infinity-vendas",
@@ -213,47 +218,65 @@ appId: "1:613112794080:web:acd63b723aec957b21f985"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.database();
 
-let isAdmin=false;
-let cache={};
+/* ELEMENTOS */
+const lista = document.getElementById("lista");
+const adminLista = document.getElementById("adminLista");
+const popup = document.getElementById("popup");
+const loginBox = document.getElementById("loginBox");
+const adminPanel = document.getElementById("adminPanel");
 
+let isAdmin = false;
+let cache = {};
+
+/* LOGIN CORRIGIDO */
 function login(){
-auth.signInWithEmailAndPassword(email.value, pass.value)
+const email = document.getElementById("email").value;
+const pass = document.getElementById("pass").value;
+
+auth.signInWithEmailAndPassword(email, pass)
 .then(()=>{
-isAdmin=true;
+isAdmin = true;
 adminPanel.classList.add("open");
-loginBox.style.display="none";
+loginBox.style.display = "none";
 })
-.catch(e=>alert("Erro login: "+e.message));
+.catch(e=>{
+alert("Erro login: " + e.message);
+});
 }
 
+/* ENVIAR */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
 db.ref("products").push({
-vendedor:vendedor.value || "Sem nome",
-produto:produto.value || "Sem produto",
-valor:valor.value || "0",
-descricao:descricao.value || "-",
-whatsapp:(whatsapp.value||"").replace(/\D/g,''),
+vendedor: document.getElementById("vendedor").value || "Sem nome",
+produto: document.getElementById("produto").value || "Sem produto",
+valor: document.getElementById("valor").value || "0",
+descricao: document.getElementById("descricao").value || "-",
+whatsapp: (document.getElementById("whatsapp").value||"").replace(/\D/g,''),
 status:"aprovado",
-expiresAt:expire
+expiresAt: expire
 });
 }
 
+/* FIREBASE LISTENER */
 db.ref("products").on("value",snap=>{
 cache = snap.val() || {};
 render();
 });
 
+/* RENDER */
 function render(){
 let html="";
 let adminHTML="";
 let vazio=true;
 
-let listaOrdenada = Object.entries(cache).sort((a,b)=>(a[1].expiresAt||0)-(b[1].expiresAt||0));
+let listaOrdenada = Object.entries(cache)
+.sort((a,b)=>(a[1].expiresAt||0)-(b[1].expiresAt||0));
 
 for(let [id,d] of listaOrdenada){
 
@@ -302,7 +325,9 @@ lista.innerHTML=html;
 adminLista.innerHTML=adminHTML;
 }
 
+/* CONTADOR */
 function countdown(exp){
+if(!exp) return "sem tempo";
 let diff = exp - Date.now();
 if(diff<=0) return "EXPIRADO ❌";
 
@@ -313,6 +338,7 @@ let h=Math.floor(m/60);
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
+/* RESET */
 function resetar(id,minutes){
 let ms = minutes * 60 * 1000;
 
@@ -321,22 +347,25 @@ expiresAt: Date.now()+ms
 });
 }
 
+/* DELETE */
 function deletar(id){
 db.ref("products/"+id).remove();
 }
 
+/* LOGIN TOGGLE */
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 
-setInterval(render,1000);
-
+/* POPUP */
 function showPopup(){
 popup.style.display="block";
 setTimeout(()=>popup.style.display="none",3000);
 }
 showPopup();
 setInterval(showPopup,10000);
+
+setInterval(render,1000);
 </script>
 
 </body>
