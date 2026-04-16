@@ -49,7 +49,7 @@ border-radius:10px;margin-bottom:10px;
 
 button{cursor:pointer;}
 
-/* ADMIN PANEL (travado por padrão) */
+/* ADMIN PANEL */
 #adminPanel{
 position:fixed;top:0;right:-320px;
 width:300px;height:100%;
@@ -110,7 +110,7 @@ display:none;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 INFINITY DIVULGAÇÕES OFICIAL • SISTEMA DE PRODUTOS • WHATSAPP DIRETO • CADASTRE SEU PRODUTO ⚡</span>
+<span>🔥 INFINITY DIVULGAÇÕES OFICIAL • PRODUTOS APROVADOS SOMENTE • WHATSAPP DIRETO • SISTEMA AUTOMÁTICO ⚡</span>
 </div>
 
 <div id="minAdminBtn" onclick="toggleAdmin()">−</div>
@@ -188,11 +188,9 @@ const pass = document.getElementById("pass").value;
 auth.signInWithEmailAndPassword(email, pass)
 .then(()=>{
 isAdmin = true;
-
 document.getElementById("loginBox").style.display="none";
 document.getElementById("adminPanel").style.display="block";
 document.getElementById("minAdminBtn").style.display="flex";
-
 alert("ADMIN LIBERADO");
 })
 .catch(e=>{
@@ -214,7 +212,7 @@ status:"pendente"
 alert("Enviado!");
 }
 
-/* LISTA COMPLETA CORRIGIDA */
+/* LISTA CORRIGIDA (SÓ APROVADOS + TODOS CAMPOS) */
 db.ref("products").on("value", snap=>{
 let data = snap.val() || {};
 let html="";
@@ -224,14 +222,20 @@ for(let id in data){
 let d = data[id];
 if(!d) continue;
 
+/* VISITANTES (SÓ APROVADOS) */
+if(d.status === "aprovado"){
 html+=`
 <div class="card">
 <b>Produto:</b> ${d.produto || ""}<br>
 <b>Vendedor:</b> ${d.vendedor || ""}<br>
 <b>Descrição:</b> ${d.descricao || ""}<br>
 <b>Valor:</b> ${d.valor || ""}<br>
+<b>WhatsApp:</b> ${d.whatsapp || ""}<br>
+<b>Instagram:</b> ${d.instagram || ""}<br>
 </div>`;
+}
 
+/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
