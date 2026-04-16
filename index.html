@@ -192,35 +192,35 @@ let isAdmin = false;
 /* LOGIN */
 function login(){
 auth.signInWithEmailAndPassword(
-document.getElementById("email").value,
-document.getElementById("pass").value
+email.value,
+pass.value
 ).then(()=>{
 isAdmin = true;
-document.getElementById("adminPanel").classList.add("open");
+adminPanel.classList.add("open");
 alert("ADMIN LIBERADO");
 }).catch(e=>alert(e.message));
 }
 
-/* ENVIAR (CORRIGIDO TOTAL) */
+/* ENVIAR */
 function enviarProduto(){
 db.ref("products").push({
-vendedor: document.getElementById("vendedor").value || "",
-produto: document.getElementById("produto").value || "",
-valor: document.getElementById("valor").value || "",
-descricao: document.getElementById("descricao").value || "",
-whatsapp: document.getElementById("whatsapp").value || "",
-instagram: document.getElementById("instagram").value || "",
-facebook: document.getElementById("facebook").value || "",
-youtube: document.getElementById("youtube").value || "",
-vulgo: document.getElementById("vulgo").value || "",
-cupom: document.getElementById("cupom").value || "",
-afiliado: document.getElementById("afiliado").value || "",
+vendedor: vendedor.value || "",
+produto: produto.value || "",
+valor: valor.value || "",
+descricao: descricao.value || "",
+whatsapp: whatsapp.value || "",
+instagram: instagram.value || "",
+facebook: facebook.value || "",
+youtube: youtube.value || "",
+vulgo: vulgo.value || "",
+cupom: cupom.value || "",
+afiliado: afiliado.value || "",
 status:"pendente"
 });
 alert("Enviado!");
 }
 
-/* LISTA */
+/* LISTA CORRIGIDA TOTAL */
 db.ref("products").on("value",snap=>{
 let data=snap.val()||{};
 let html="";
@@ -230,29 +230,49 @@ for(let id in data){
 let d=data[id];
 if(!d) continue;
 
+/* SAFE FIELDS */
+let produto = d.produto || "Sem nome";
+let vendedor = d.vendedor || "";
+let valor = d.valor || "";
+let descricao = d.descricao || "";
+let whatsapp = d.whatsapp || "";
+let instagram = d.instagram || "";
+let facebook = d.facebook || "";
+let youtube = d.youtube || "";
+let cupom = d.cupom || "";
+let afiliado = d.afiliado || "";
+
+/* VISITANTE */
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
-<b>Produto:</b> ${d.produto}<br>
-<b>Vendedor:</b> ${d.vendedor}<br>
-<b>Valor:</b> ${d.valor}<br>
-<b>Descrição:</b> ${d.descricao || ""}<br>
-<b>WhatsApp:</b> ${d.whatsapp || ""}<br>
+<b>Produto:</b> ${produto}<br>
+<b>Vendedor:</b> ${vendedor}<br>
+<b>Valor:</b> ${valor}<br>
+<b>Descrição:</b> ${descricao}<br>
+
+${instagram ? `<b>Instagram:</b> ${instagram}<br>` : ""}
+${facebook ? `<b>Facebook:</b> ${facebook}<br>` : ""}
+${youtube ? `<b>YouTube:</b> ${youtube}<br>` : ""}
+${cupom ? `<b>Cupom:</b> ${cupom}<br>` : ""}
+${afiliado ? `<b>Afiliado:</b> ${afiliado}<br>` : ""}
 
 <button class="buyBtn"
-onclick="window.open('https://wa.me/'+d.whatsapp)">
+onclick="window.open('https://wa.me/${whatsapp}')">
 Adquirir produto
 </button>
 </div>`;
 }
 
+/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
-<b>${d.produto}</b><br>
-Vendedor: ${d.vendedor}<br>
-Valor: ${d.valor}<br>
+<b>${produto}</b><br>
+${vendedor}<br>
+${valor}<br>
 Status: ${d.status}<br>
+
 <button onclick="aprovar('${id}')">Ativar</button>
 <button onclick="reprovar('${id}')">Desativar</button>
 <button onclick="deletar('${id}')">Deletar</button>
@@ -260,8 +280,8 @@ Status: ${d.status}<br>
 }
 }
 
-document.getElementById("lista").innerHTML=html;
-document.getElementById("adminLista").innerHTML=adminHTML;
+lista.innerHTML=html;
+adminLista.innerHTML=adminHTML;
 });
 
 /* ADMIN */
@@ -287,10 +307,9 @@ db.ref("products").remove();
 
 /* UI */
 function toggleLogin(){
-document.getElementById("loginBox").style.display =
-document.getElementById("loginBox").style.display==="block"?"none":"block";
+loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 </script>
 
 </body>
-</html>
+  </html>
