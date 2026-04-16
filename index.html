@@ -129,14 +129,20 @@ z-index:9999;
 
 <hr>
 
-<h3>Cadastro</h3>
+<h3>Cadastro completo</h3>
 
-<input id="vendedor" placeholder="vendedor">
-<input id="produto" placeholder="produto">
-<input id="descricao" placeholder="descrição">
-<input id="valor" placeholder="valor">
-<input id="whatsapp" placeholder="whatsapp">
-<input id="instagram" placeholder="instagram">
+<input id="vendedor" placeholder="⚡ vendedor">
+<input id="produto" placeholder="⚡ produto">
+<input id="valor" placeholder="⚡ valor $">
+<input id="descricao" placeholder="⚡ descrição">
+<input id="whatsapp" placeholder="⚡ whatsapp DDD+número">
+<input id="instagram" placeholder="⚡ instagram @">
+
+<input id="facebook" placeholder="⚡ Facebook (opcional)">
+<input id="youtube" placeholder="⚡ YouTube canal (opcional)">
+<input id="vulgo" placeholder="⚡ vulgo (opcional)">
+<input id="cupom" placeholder="⚡ cupom (opcional)">
+<input id="afiliado" placeholder="⚡ afiliado (opcional)">
 
 <button class="btn" onclick="enviarProduto()">ENVIAR SOLICITAÇÃO</button>
 </div>
@@ -195,15 +201,20 @@ alert("ADMIN LIBERADO");
 }).catch(e=>alert(e.message));
 }
 
-/* ENVIAR */
+/* ENVIAR (CORRIGIDO TOTAL) */
 function enviarProduto(){
 db.ref("products").push({
-vendedor: document.getElementById("vendedor").value,
-produto: document.getElementById("produto").value,
-descricao: document.getElementById("descricao").value,
-valor: document.getElementById("valor").value,
-whatsapp: document.getElementById("whatsapp").value,
-instagram: document.getElementById("instagram").value,
+vendedor: document.getElementById("vendedor").value || "",
+produto: document.getElementById("produto").value || "",
+valor: document.getElementById("valor").value || "",
+descricao: document.getElementById("descricao").value || "",
+whatsapp: document.getElementById("whatsapp").value || "",
+instagram: document.getElementById("instagram").value || "",
+facebook: document.getElementById("facebook").value || "",
+youtube: document.getElementById("youtube").value || "",
+vulgo: document.getElementById("vulgo").value || "",
+cupom: document.getElementById("cupom").value || "",
+afiliado: document.getElementById("afiliado").value || "",
 status:"pendente"
 });
 alert("Enviado!");
@@ -222,12 +233,14 @@ if(!d) continue;
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
-<b>${d.produto}</b><br>
-${d.vendedor}<br>
-${d.valor}<br>
+<b>Produto:</b> ${d.produto}<br>
+<b>Vendedor:</b> ${d.vendedor}<br>
+<b>Valor:</b> ${d.valor}<br>
+<b>Descrição:</b> ${d.descricao || ""}<br>
+<b>WhatsApp:</b> ${d.whatsapp || ""}<br>
 
 <button class="buyBtn"
-onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">
+onclick="window.open('https://wa.me/'+d.whatsapp)">
 Adquirir produto
 </button>
 </div>`;
@@ -237,9 +250,9 @@ if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
-${d.vendedor}<br>
-${d.status}<br>
-
+Vendedor: ${d.vendedor}<br>
+Valor: ${d.valor}<br>
+Status: ${d.status}<br>
 <button onclick="aprovar('${id}')">Ativar</button>
 <button onclick="reprovar('${id}')">Desativar</button>
 <button onclick="deletar('${id}')">Deletar</button>
@@ -280,4 +293,4 @@ document.getElementById("loginBox").style.display==="block"?"none":"block";
 </script>
 
 </body>
-  </html>
+</html>
