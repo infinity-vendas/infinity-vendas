@@ -22,6 +22,12 @@ animation:scroll 25s linear infinite;
 100%{transform:translateX(-100%);}
 }
 
+@keyframes pulse {
+0%{opacity:1;}
+50%{opacity:0.3;}
+100%{opacity:1;}
+}
+
 .container{padding:15px;}
 
 input{
@@ -153,19 +159,14 @@ const db = firebase.database();
 let isAdmin=false;
 let cache={};
 
-/* LOGIN CORRIGIDO */
+/* LOGIN */
 function login(){
-let email = document.getElementById("email").value;
-let pass = document.getElementById("pass").value;
-
-auth.signInWithEmailAndPassword(email, pass)
+auth.signInWithEmailAndPassword(email.value, pass.value)
 .then(()=>{
 isAdmin=true;
-document.getElementById("adminPanel").classList.add("open");
+adminPanel.classList.add("open");
 })
-.catch(e=>{
-alert("Erro login: "+e.message);
-});
+.catch(e=>alert("Erro login: "+e.message));
 }
 
 /* ENVIAR */
@@ -173,11 +174,11 @@ function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
 db.ref("products").push({
-vendedor:vendedor.value,
-produto:produto.value,
-valor:valor.value,
-descricao:descricao.value,
-whatsapp:whatsapp.value,
+vendedor:vendedor.value || "Sem nome",
+produto:produto.value || "Sem produto",
+valor:valor.value || "0",
+descricao:descricao.value || "-",
+whatsapp:whatsapp.value || "",
 status:"pendente",
 expiresAt:expire
 });
@@ -189,94 +190,104 @@ cache = snap.val() || {};
 render();
 });
 
-/* RENDER CORRIGIDO */
+/* RENDER COMPLETO */
 function render(){
 let html="";
 let adminHTML="";
+let vazio=true;
 
-for(let id in cache){
-let d=cache[id];
+/* ORDENA POR TEMPO */
+let listaOrdenada = Object.entries(cache).sort((a,b)=>{
+return (a[1].expiresAt||0)-(b[1].expiresAt||0);
+});
+
+for(let [id,d] of listaOrdenada){
 if(!d) continue;
 
-let tempo = countdown(d.expiresAt);
+let status=d.status||"pendente";
+let tempo=countdown(d.expiresAt);
+let urgente=(d.expiresAt-Date.now())<(60*60*1000);
 
-if(d.status==="aprovado"){
+if(status==="aprovado"){
+vazio=false;
+
 html+=`
 <div class="card">
+
+${urgente?`<div style="color:red;font-weight:bold;animation:pulse 1s infinite;">
+🔥 OFERTA ACABANDO
+</div>`:""}
+
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
-${d.valor}<br>
+R$ ${d.valor}<br>
 ${d.descricao}<br>
 ⏱ ${tempo}<br>
-<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}')">Comprar</button>
+
+<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}')">
+Comprar
+</button>
 </div>`;
 }
 
+/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
-Status: ${d.status}<br>
+${d.vendedor}<br>
+Status: ${status}<br>
 ⏱ ${tempo}<br>
+
+<button class="smallBtn" onclick="aprovar('${id}')">ATIVAR</button>
+<button class="smallBtn" onclick="desativar('${id}')">DESATIVAR</button>
 
 <button class="smallBtn" onclick="resetar('${id}',10)">10MIN</button>
 <button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
-<button class="smallBtn" onclick="resetar('${id}',72)">3D</button>
-<button class="smallBtn" onclick="resetar('${id}',168)">7D</button>
+<button class="smallBtn" onclick="resetar('${id}',24)">24H</button>
+<button class="smallBtn" onclick="resetar('${id}',48)">48H</button>
 <button class="smallBtn" onclick="resetar('${id}',336)">14D</button>
 <button class="smallBtn" onclick="resetar('${id}',504)">21D</button>
 <button class="smallBtn" onclick="resetar('${id}',744)">31D</button>
+
 <button class="smallBtn" onclick="editar('${id}')">Editar</button>
 <button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
 }
 
-document.getElementById("lista").innerHTML=html;
-document.getElementById("adminLista").innerHTML=adminHTML;
+if(vazio){
+html=`<div class="card">Nenhum produto ativo no momento ⚠️</div>`;
+}
+
+lista.innerHTML=html;
+adminLista.innerHTML=adminHTML;
 }
 
 /* CONTADOR */
 function countdown(exp){
 if(!exp) return "sem tempo";
-
-let diff = exp - Date.now();
-if(diff <= 0) return "EXPIRADO ❌";
-
+let diff=exp-Date.now();
+if(diff<=0) return "EXPIRADO ❌";
 let s=Math.floor(diff/1000);
 let m=Math.floor(s/60);
 let h=Math.floor(m/60);
-
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
 /* RESET */
 function resetar(id,hours){
-let ms;
-
-if(hours===10){
-ms = 10*60*1000;
-}else{
-ms = hours*60*60*1000;
-}
-
-db.ref("products/"+id).update({
-expiresAt: Date.now()+ms
-});
+let ms=hours===10?10*60*1000:hours*60*60*1000;
+db.ref("products/"+id).update({expiresAt:Date.now()+ms});
 }
 
 /* EDITAR */
 function editar(id){
 let date=prompt("AAAA-MM-DD");
 let time=prompt("HH:MM");
-
-if(!date || !time) return;
-
+if(!date||!time)return;
 let newExp=new Date(date+"T"+time+":00").getTime();
-
-db.ref("products/"+id).update({
-expiresAt:newExp
-});
+db.ref("products/"+id).update({expiresAt:newExp});
 }
 
 /* ADMIN */
@@ -296,27 +307,24 @@ snap.forEach(c=>c.ref.update({status:"desativado"}));
 });
 }
 
-function deletarTodos(){
-db.ref("products").remove();
-}
+function deletarTodos(){db.ref("products").remove();}
 
-/* LOGIN TOGGLE */
+/* LOGIN */
 function toggleLogin(){
-let box=document.getElementById("loginBox");
-box.style.display=box.style.display==="block"?"none":"block";
+loginBox.style.display=loginBox.style.display==="block"?"none":"block";
 }
 
-/* ATUALIZA TIMER */
+/* AUTO */
 setInterval(render,1000);
 
 /* POPUP */
 function showPopup(){
-const p=document.getElementById("popup");
-p.style.display="block";
-setTimeout(()=>p.style.display="none",4000);
+popup.style.display="block";
+setTimeout(()=>popup.style.display="none",4000);
 }
 showPopup();
 setInterval(showPopup,60000);
+
 </script>
 
 </body>
