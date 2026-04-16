@@ -47,6 +47,18 @@ border:3px dashed #ff2a2a;
 box-shadow:0 0 10px #ff0000;
 }
 
+.nextBtn{
+background:#ff7a00;
+color:#000;
+padding:10px;
+border:none;
+border-radius:8px;
+width:100%;
+margin-top:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
 .card{
 background:#111;
 padding:12px;
@@ -65,6 +77,10 @@ margin-top:8px;
 cursor:pointer;
 font-weight:bold;
 }
+
+/* STEP FORM */
+.step{display:none;}
+.step.active{display:block;}
 
 #adminPanel{
 position:fixed;
@@ -129,22 +145,35 @@ z-index:9999;
 
 <hr>
 
-<h3>Cadastro completo</h3>
+<h3>Cadastro profissional</h3>
 
+<!-- STEP 1 -->
+<div class="step active" id="step1">
 <input id="vendedor" placeholder="⚡ vendedor">
 <input id="produto" placeholder="⚡ produto">
+<button class="nextBtn" onclick="nextStep(2)">Próximo</button>
+</div>
+
+<!-- STEP 2 -->
+<div class="step" id="step2">
 <input id="valor" placeholder="⚡ valor $">
 <input id="descricao" placeholder="⚡ descrição">
+<button class="nextBtn" onclick="nextStep(3)">Próximo</button>
+</div>
+
+<!-- STEP 3 -->
+<div class="step" id="step3">
 <input id="whatsapp" placeholder="⚡ whatsapp DDD+número">
 <input id="instagram" placeholder="⚡ instagram @">
-
-<input id="facebook" placeholder="⚡ Facebook (opcional)">
-<input id="youtube" placeholder="⚡ YouTube canal (opcional)">
-<input id="vulgo" placeholder="⚡ vulgo (opcional)">
-<input id="cupom" placeholder="⚡ cupom (opcional)">
-<input id="afiliado" placeholder="⚡ afiliado (opcional)">
+<input id="facebook" placeholder="Facebook (opcional)">
+<input id="youtube" placeholder="YouTube (opcional)">
+<input id="vulgo" placeholder="Vulgo (opcional)">
+<input id="cupom" placeholder="Cupom (opcional)">
+<input id="afiliado" placeholder="Afiliado (opcional)">
 
 <button class="btn" onclick="enviarProduto()">ENVIAR SOLICITAÇÃO</button>
+</div>
+
 </div>
 
 <!-- ADMIN -->
@@ -189,38 +218,42 @@ const db = firebase.database();
 
 let isAdmin = false;
 
+/* STEP */
+function nextStep(n){
+document.querySelectorAll(".step").forEach(s=>s.classList.remove("active"));
+document.getElementById("step"+n).classList.add("active");
+}
+
 /* LOGIN */
 function login(){
-auth.signInWithEmailAndPassword(
-email.value,
-pass.value
-).then(()=>{
-isAdmin = true;
+auth.signInWithEmailAndPassword(email.value, pass.value)
+.then(()=>{
+isAdmin=true;
 adminPanel.classList.add("open");
 alert("ADMIN LIBERADO");
-}).catch(e=>alert(e.message));
+});
 }
 
 /* ENVIAR */
 function enviarProduto(){
 db.ref("products").push({
-vendedor: vendedor.value || "",
-produto: produto.value || "",
-valor: valor.value || "",
-descricao: descricao.value || "",
-whatsapp: whatsapp.value || "",
-instagram: instagram.value || "",
-facebook: facebook.value || "",
-youtube: youtube.value || "",
-vulgo: vulgo.value || "",
-cupom: cupom.value || "",
-afiliado: afiliado.value || "",
+vendedor:vendedor.value,
+produto:produto.value,
+valor:valor.value,
+descricao:descricao.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
+facebook:facebook.value,
+youtube:youtube.value,
+vulgo:vulgo.value,
+cupom:cupom.value,
+afiliado:afiliado.value,
 status:"pendente"
 });
-alert("Enviado!");
+alert("Produto enviado para aprovação!");
 }
 
-/* LISTA CORRIGIDA TOTAL */
+/* LISTA */
 db.ref("products").on("value",snap=>{
 let data=snap.val()||{};
 let html="";
@@ -230,48 +263,26 @@ for(let id in data){
 let d=data[id];
 if(!d) continue;
 
-/* SAFE FIELDS */
-let produto = d.produto || "Sem nome";
-let vendedor = d.vendedor || "";
-let valor = d.valor || "";
-let descricao = d.descricao || "";
-let whatsapp = d.whatsapp || "";
-let instagram = d.instagram || "";
-let facebook = d.facebook || "";
-let youtube = d.youtube || "";
-let cupom = d.cupom || "";
-let afiliado = d.afiliado || "";
-
-/* VISITANTE */
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
-<b>Produto:</b> ${produto}<br>
-<b>Vendedor:</b> ${vendedor}<br>
-<b>Valor:</b> ${valor}<br>
-<b>Descrição:</b> ${descricao}<br>
-
-${instagram ? `<b>Instagram:</b> ${instagram}<br>` : ""}
-${facebook ? `<b>Facebook:</b> ${facebook}<br>` : ""}
-${youtube ? `<b>YouTube:</b> ${youtube}<br>` : ""}
-${cupom ? `<b>Cupom:</b> ${cupom}<br>` : ""}
-${afiliado ? `<b>Afiliado:</b> ${afiliado}<br>` : ""}
+<b>${d.produto}</b><br>
+${d.vendedor}<br>
+${d.valor}<br>
+${d.descricao || ""}<br>
 
 <button class="buyBtn"
-onclick="window.open('https://wa.me/${whatsapp}')">
-Adquirir produto
+onclick="window.open('https://wa.me/${d.whatsapp}')">
+Comprar
 </button>
 </div>`;
 }
 
-/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
-<b>${produto}</b><br>
-${vendedor}<br>
-${valor}<br>
-Status: ${d.status}<br>
+<b>${d.produto}</b><br>
+${d.status}<br>
 
 <button onclick="aprovar('${id}')">Ativar</button>
 <button onclick="reprovar('${id}')">Desativar</button>
