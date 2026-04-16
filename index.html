@@ -7,7 +7,14 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#000;color:#ff7a00;}
-header{background:#111;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
+
+header{
+background:#111;
+padding:15px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+}
 
 .marquee{
 background:#000;
@@ -57,9 +64,6 @@ border-radius:10px;
 margin-bottom:10px;
 }
 
-.vip{border:2px solid #00aaff;}
-.free{border:2px solid #ff0000;}
-
 .buyBtn{
 background:#ff7a00;
 color:#000;
@@ -72,6 +76,7 @@ cursor:pointer;
 font-weight:bold;
 }
 
+/* ADMIN */
 #adminPanel{
 position:fixed;
 top:0;
@@ -112,14 +117,24 @@ align-items:center;
 justify-content:center;
 cursor:pointer;
 font-weight:bold;
+color:#000;
 }
 
-/* VIP AREA */
-#vipArea{
-background:#111;
-padding:10px;
-margin-bottom:10px;
+/* POPUP ANÚNCIO */
+#popup{
+position:fixed;
+top:20px;
+left:50%;
+transform:translateX(-50%);
+background:#ff7a00;
+color:#000;
+padding:15px;
 border-radius:10px;
+font-weight:bold;
+display:none;
+width:90%;
+z-index:99999;
+text-align:center;
 }
 </style>
 </head>
@@ -132,12 +147,10 @@ border-radius:10px;
 <span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN OK • WHATSAPP DIRETO ⚡</span>
 </div>
 
-<div class="container">
+<!-- POPUP -->
+<div id="popup">Adquira versão VIP ilimitado publicações ⚡</div>
 
-<div id="vipArea">
-<h3>👑 VIP / 🔥 FREE em tempo real</h3>
-<div id="vipList"></div>
-</div>
+<div class="container">
 
 <h3>Produtos cadastrados</h3>
 <div id="lista"></div>
@@ -151,22 +164,17 @@ border-radius:10px;
 <input id="valor" placeholder="valor">
 <input id="descricao" placeholder="descrição">
 <input id="whatsapp" placeholder="whatsapp">
-<input id="instagram" placeholder="instagram">
-<input id="youtube" placeholder="youtube">
 
-<button class="btn" onclick="enviarProduto()">ENVIAR SOLICITAÇÃO</button>
+<button class="btn" onclick="enviarProduto()">ENVIAR PRODUTO</button>
 
 </div>
 
 <!-- ADMIN -->
 <div id="adminPanel">
 <h3>ADMIN</h3>
-
-<button onclick="setVIP()">Marcar VIP</button>
-<button onclick="setFREE()">Marcar FREE</button>
 <button onclick="ativarTodos()">Ativar todos</button>
+<button onclick="desativarTodos()">Desativar todos</button>
 <button onclick="deletarTodos()">Deletar todos</button>
-
 <div id="adminLista"></div>
 </div>
 
@@ -199,12 +207,14 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let isAdmin=false;
+let isAdmin = false;
 
 /* LOGIN */
 function login(){
-auth.signInWithEmailAndPassword(email.value,pass.value)
-.then(()=>{
+auth.signInWithEmailAndPassword(
+document.getElementById("email").value,
+document.getElementById("pass").value
+).then(()=>{
 isAdmin=true;
 document.getElementById("adminPanel").classList.add("open");
 });
@@ -213,36 +223,13 @@ document.getElementById("adminPanel").classList.add("open");
 /* ENVIAR */
 function enviarProduto(){
 db.ref("products").push({
-vendedor:vendedor.value,
-produto:produto.value,
-valor:valor.value,
-descricao:descricao.value,
-whatsapp:whatsapp.value,
-instagram:instagram.value,
-youtube:youtube.value,
-type:"FREE",
-createdAt:Date.now(),
+vendedor: vendedor.value || "",
+produto: produto.value || "",
+valor: valor.value || "",
+descricao: descricao.value || "",
+whatsapp: whatsapp.value || "",
 status:"pendente"
 });
-}
-
-/* VIP / FREE SET */
-function setVIP(){
-const id=prompt("ID do produto");
-db.ref("products/"+id).update({type:"VIP"});
-}
-
-function setFREE(){
-const id=prompt("ID do produto");
-db.ref("products/"+id).update({type:"FREE",createdAt:Date.now()});
-}
-
-/* AUTO DELETE FREE 24h */
-function isExpired(d){
-if(d.type==="FREE" && d.createdAt){
-return Date.now()-d.createdAt > 86400000;
-}
-return false;
 }
 
 /* LISTA */
@@ -250,29 +237,15 @@ db.ref("products").on("value",snap=>{
 let data=snap.val()||{};
 let html="";
 let adminHTML="";
-let vipHTML="";
 
 for(let id in data){
 let d=data[id];
 if(!d) continue;
 
-/* remove FREE expirado */
-if(isExpired(d)){
-db.ref("products/"+id).remove();
-continue;
-}
-
-/* VIP/FREE list */
-vipHTML+=`
-<div>
-${d.type==="VIP"?"👑":"🔥"} ${d.vendedor} - ${d.produto} (${d.type})
-</div>`;
-
-/* produtos ativos */
 if(d.status==="aprovado"){
 html+=`
-<div class="card ${d.type==="VIP"?"vip":"free"}">
-<b>${d.type==="VIP"?"👑 ":"🔥 "}${d.produto}</b><br>
+<div class="card">
+<b>${d.produto}</b><br>
 ${d.vendedor}<br>
 ${d.valor}<br>
 ${d.descricao}<br>
@@ -288,8 +261,10 @@ if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
-Tipo: ${d.type || "FREE"}<br>
+Status: ${d.status}<br>
+
 <button onclick="aprovar('${id}')">Ativar</button>
+<button onclick="reprovar('${id}')">Desativar</button>
 <button onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
@@ -297,11 +272,11 @@ Tipo: ${d.type || "FREE"}<br>
 
 lista.innerHTML=html;
 adminLista.innerHTML=adminHTML;
-vipList.innerHTML=vipHTML;
 });
 
 /* ADMIN */
 function aprovar(id){db.ref("products/"+id).update({status:"aprovado"});}
+function reprovar(id){db.ref("products/"+id).update({status:"desativado"});}
 function deletar(id){db.ref("products/"+id).remove();}
 
 function ativarTodos(){
@@ -310,12 +285,28 @@ snap.forEach(c=>c.ref.update({status:"aprovado"}));
 });
 }
 
+function desativarTodos(){
+db.ref("products").once("value",snap=>{
+snap.forEach(c=>c.ref.update({status:"desativado"}));
+});
+}
+
 function deletarTodos(){
 db.ref("products").remove();
 }
 
+/* POPUP LOOP 60s */
+function showPopup(){
+const p=document.getElementById("popup");
+p.style.display="block";
+setTimeout(()=>p.style.display="none",5000);
+}
+
+showPopup();
+setInterval(showPopup,60000);
+
 function toggleLogin(){
-loginBox.style.display=loginBox.style.display==="block"?"none":"block";
+loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 </script>
 
