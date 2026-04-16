@@ -83,7 +83,6 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* ADMIN */
 #adminPanel{
 position:fixed;
 top:0;
@@ -110,7 +109,6 @@ font-size:11px;
 width:48%;
 }
 
-/* LOGIN */
 #loginBox{
 position:fixed;
 bottom:80px;
@@ -139,7 +137,6 @@ font-weight:bold;
 color:#000;
 }
 
-/* POPUP */
 #popup{
 position:fixed;
 top:20px;
@@ -156,7 +153,6 @@ z-index:99999;
 text-align:center;
 }
 
-/* ====== ONLINE + COMMENTS ====== */
 #onlineBox, #commentBox{
 position:fixed;
 bottom:15px;
@@ -190,220 +186,14 @@ animation:pulse 1s infinite;
 
 <div id="popup">⚡ adquira versão clientes 90% descontos ⚡😱</div>
 
-<!-- ONLINE -->
 <div id="onlineBox">
 👥 Online agora:<br>
 <b id="onlineCount">0</b> usuários
 </div>
 
-<!-- COMMENTS -->
 <div id="commentBox">
 💬 Atividade:<br>
 <div id="comments"></div>
 </div>
 
-<div class="container">
-
-<h3>Produtos cadastrados</h3>
-<div id="lista">Carregando...</div>
-
-<hr>
-
-<h3>Cadastro</h3>
-
-<input id="vendedor" placeholder="Nome vendedor">
-<input id="produto" placeholder="Produto">
-<input id="valor" placeholder="Valor">
-<input id="descricao" placeholder="Descrição">
-<input id="whatsapp" placeholder="WhatsApp">
-
-<button class="btn" onclick="enviarProduto()">ENVIAR PRODUTO</button>
-
-</div>
-
-<!-- ADMIN -->
-<div id="adminPanel">
-<h3>ADMIN</h3>
-<div id="adminLista"></div>
-</div>
-
-<!-- LOGIN -->
-<div id="loginBox">
-<input id="email" placeholder="Email">
-<input id="pass" type="password" placeholder="Senha">
-<button class="btn" onclick="login()">Entrar</button>
-</div>
-
-<div id="loginBtn" onclick="toggleLogin()">A</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-<script>
-const firebaseConfig = {
-apiKey: "AIzaSyDXDca5ZxCZKZz7lHUz4dlx0Qe6BarJSuA",
-authDomain: "infinity-vendas.firebaseapp.com",
-databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
-projectId: "infinity-vendas",
-storageBucket: "infinity-vendas.appspot.com",
-messagingSenderId: "613112794080",
-appId: "1:613112794080:web:acd63b723aec957b21f985"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.database();
-
-let isAdmin=false;
-let cache={};
-
-/* LOGIN */
-function login(){
-auth.signInWithEmailAndPassword(email.value, pass.value)
-.then(()=>{
-isAdmin=true;
-adminPanel.classList.add("open");
-loginBox.style.display="none";
-})
-.catch(e=>alert("Erro login: "+e.message));
-}
-
-/* ENVIAR */
-function enviarProduto(){
-let expire = Date.now() + (24*60*60*1000);
-
-db.ref("products").push({
-vendedor:vendedor.value || "Sem nome",
-produto:produto.value || "Sem produto",
-valor:valor.value || "0",
-descricao:descricao.value || "-",
-whatsapp:(whatsapp.value||"").replace(/\D/g,''),
-status:"pendente",
-expiresAt:expire
-});
-}
-
-/* LISTA */
-db.ref("products").on("value",snap=>{
-cache = snap.val() || {};
-render();
-});
-
-/* RENDER */
-function render(){
-let html="";
-let adminHTML="";
-let vazio=true;
-
-for(let id in cache){
-let d=cache[id];
-if(!d) continue;
-
-let tempo = countdown(d.expiresAt);
-
-if(d.status==="aprovado"){
-vazio=false;
-
-html+=`
-<div class="card">
-<b>${d.produto}</b><br>
-${d.vendedor}<br>
-R$ ${d.valor}<br>
-${d.descricao}<br>
-⏱ ${tempo}<br>
-<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}','_blank')">
-Entrar em contato
-</button>
-</div>`;
-}
-
-if(isAdmin){
-adminHTML+=`
-<div class="card">
-<b>${d.produto}</b><br>
-Status: ${d.status}<br>
-
-<button class="smallBtn" onclick="aprovar('${id}')">APROVAR</button>
-<button class="smallBtn" onclick="resetar('${id}',24)">24H</button>
-<button class="smallBtn" onclick="resetar('${id}',12)">12H</button>
-<button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
-<button class="smallBtn" onclick="resetar('${id}',336)">14D</button>
-<button class="smallBtn" onclick="resetar('${id}',504)">21D</button>
-<button class="smallBtn" onclick="resetar('${id}',744)">31D</button>
-<button class="smallBtn" onclick="deletar('${id}')">DELETAR</button>
-</div>`;
-}
-}
-
-lista.innerHTML=html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
-adminLista.innerHTML=adminHTML;
-}
-
-/* CONTADOR */
-function countdown(exp){
-if(!exp) return "sem tempo";
-let diff = exp - Date.now();
-if(diff<=0) return "EXPIRADO ❌";
-
-let s=Math.floor(diff/1000);
-let m=Math.floor(s/60);
-let h=Math.floor(m/60);
-
-return `${h}h ${m%60}m ${s%60}s`;
-}
-
-/* ADMIN */
-function aprovar(id){
-db.ref("products/"+id).update({status:"aprovado"});
-}
-
-function deletar(id){
-db.ref("products/"+id).remove();
-}
-
-function resetar(id,hours){
-db.ref("products/"+id).update({
-expiresAt: Date.now() + hours*60*60*1000
-});
-}
-
-/* TOGGLE LOGIN */
-function toggleLogin(){
-loginBox.style.display = loginBox.style.display==="block"?"none":"block";
-}
-
-/* ===== SIMULADOR ONLINE ===== */
-setInterval(()=>{
-let n = Math.floor(Math.random()*4000);
-document.getElementById("onlineCount").innerText = n;
-},3000);
-
-/* ===== COMENTÁRIOS SIMULADOS ===== */
-const msgs = [
-"🔥 Esse site é muito bom!",
-"⚡ Já vendi hoje!",
-"💰 Produto aprovado rápido!",
-"🚀 Muito fácil usar!",
-"📈 Comecei agora e já vendi!"
-];
-
-setInterval(()=>{
-document.getElementById("comments").innerHTML =
-msgs[Math.floor(Math.random()*msgs.length)];
-},4000);
-
-/* POPUP */
-function showPopup(){
-popup.style.display="block";
-setTimeout(()=>popup.style.display="none",3000);
-}
-showPopup();
-setInterval(showPopup,10000);
-
-setInterval(render,1000);
-</script>
-
-</body>
-   </html>
+<div
