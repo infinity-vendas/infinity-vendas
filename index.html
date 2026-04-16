@@ -35,11 +35,24 @@ border-radius:8px;border:1px solid #333;
 background:#111;color:#fff;
 }
 
+/* 🔥 BOTÃO COM BORDA TIPO CORDA VERMELHA */
 .btn{
-background:red;color:#fff;
-padding:12px;border:none;
-border-radius:8px;width:100%;
+background:red;
+color:#fff;
+padding:12px;
+border:none;
+border-radius:8px;
+width:100%;
 cursor:pointer;
+
+border:3px dashed #ff2a2a;
+box-shadow:0 0 10px #ff0000;
+transition:0.2s;
+}
+
+.btn:hover{
+transform:scale(1.02);
+box-shadow:0 0 18px #ff0000;
 }
 
 .card{
@@ -97,23 +110,6 @@ cursor:pointer;
 color:#fff;
 z-index:9999;
 }
-
-/* NOTIFICAÇÃO */
-#floatMsg{
-position:fixed;
-top:20px;
-left:50%;
-transform:translateX(-50%);
-background:#111;
-border:1px solid #ff7a00;
-color:#fff;
-padding:12px;
-border-radius:10px;
-display:none;
-z-index:99999;
-width:90%;
-max-width:400px;
-}
 </style>
 </head>
 
@@ -122,10 +118,8 @@ max-width:400px;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 INFINITY DIVULGAÇÕES • SISTEMA AUTOMÁTICO • WHATSAPP DIRETO • PRODUTOS APROVADOS ⚡</span>
+<span>🔥 INFINITY DIVULGAÇÕES • PRODUTOS APROVADOS • WHATSAPP DIRETO • SISTEMA AUTOMÁTICO ⚡</span>
 </div>
-
-<div id="floatMsg"></div>
 
 <div id="minAdminBtn" onclick="toggleAdmin()">−</div>
 
@@ -164,7 +158,7 @@ max-width:400px;
 <div id="loginBox">
 <input id="email" placeholder="Email">
 <input id="pass" type="password" placeholder="Senha">
-<button onclick="login()">Entrar</button>
+<button onclick="login()" class="btn">Entrar</button>
 </div>
 
 <div id="loginBtn" onclick="toggleLogin()">L</div>
@@ -191,22 +185,6 @@ const db = firebase.database();
 
 let isAdmin = false;
 
-function showFloat(vendedor, produto, status){
-const el = document.getElementById("floatMsg");
-
-let icon = status === "aprovado" ? "✔️" : "❌";
-
-el.innerHTML = `
-<b>Vendedor:</b> ${vendedor}<br>
-<b>Produto:</b> ${produto}<br>
-<b>Status:</b> ${icon} ${status}
-`;
-
-el.style.display="block";
-
-setTimeout(()=> el.style.display="none", 4000);
-}
-
 /* LOGIN */
 function login(){
 const email = document.getElementById("email").value;
@@ -223,6 +201,7 @@ alert("ADMIN LIBERADO");
 
 /* ENVIAR */
 function enviarProduto(){
+
 db.ref("products").push({
 vendedor: vendedor.value,
 produto: produto.value,
@@ -232,6 +211,7 @@ whatsapp: whatsapp.value,
 instagram: instagram.value,
 status:"pendente"
 });
+
 alert("Enviado!");
 }
 
@@ -245,65 +225,46 @@ for(let id in data){
 let d = data[id];
 if(!d) continue;
 
-/* VISITANTE */
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
 ${d.valor}<br>
-
-<button onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">
-Adquirir agora
-</button>
 </div>`;
 }
 
-/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
-${d.vendedor}<br>
 Status: ${d.status}<br>
 
-<button onclick="aprovar('${id}','${d.vendedor}','${d.produto}')">Ativar</button>
-<button onclick="reprovar('${id}','${d.vendedor}','${d.produto}')">Desativar</button>
+<button onclick="aprovar('${id}')">Ativar</button>
+<button onclick="reprovar('${id}')">Desativar</button>
 <button onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
 }
 
-lista.innerHTML=html;
-adminLista.innerHTML=adminHTML;
+document.getElementById("lista").innerHTML=html;
+document.getElementById("adminLista").innerHTML=adminHTML;
 });
 
-/* WHATSAPP COMPRA */
-function comprar(produto, valor, whatsapp){
-const msg = `Quero adquirir produto agora, vim pelo site INFINITY DIVULGAÇÕES ⚡
-
-Produto: ${produto}
-Valor: ${valor}`;
-
-window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`);
-}
-
-/* ADMIN ACTIONS */
-function aprovar(id,v,p){
+/* ADMIN */
+function aprovar(id){
 db.ref("products/"+id).update({status:"aprovado"});
-showFloat(v,p,"aprovado");
 }
 
-function reprovar(id,v,p){
+function reprovar(id){
 db.ref("products/"+id).update({status:"desativado"});
-showFloat(v,p,"reprovado");
 }
 
 function deletar(id){
 db.ref("products/"+id).remove();
 }
 
-/* ADMIN GLOBAL */
+/* GLOBAL */
 function ativarTodos(){
 db.ref("products").once("value",snap=>{
 snap.forEach(c=>c.ref.update({status:"aprovado"}));
@@ -322,7 +283,8 @@ db.ref("products").remove();
 
 /* UI */
 function toggleLogin(){
-loginBox.style.display = loginBox.style.display==="block"?"none":"block";
+document.getElementById("loginBox").style.display =
+document.getElementById("loginBox").style.display==="block"?"none":"block";
 }
 
 function toggleAdmin(){
