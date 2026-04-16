@@ -37,7 +37,7 @@ animation:scroll 25s linear infinite;
 
 @keyframes pulse {
 0%{opacity:1;}
-50%{opacity:0.3;}
+50%{opacity:0.2;}
 100%{opacity:1;}
 }
 
@@ -155,6 +155,13 @@ width:90%;
 z-index:99999;
 text-align:center;
 }
+
+/* PROMOÇÃO PISCANDO */
+.promo {
+color:red;
+font-weight:bold;
+animation:pulse 1s infinite;
+}
 </style>
 </head>
 
@@ -236,7 +243,7 @@ loginBox.style.display="none";
 .catch(e=>alert("Erro login: "+e.message));
 }
 
-/* ENVIAR */
+/* ENVIAR (AGORA PENDENTE - SEGURANÇA CORRIGIDA) */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
@@ -268,13 +275,15 @@ let d=cache[id];
 if(!d) continue;
 
 let tempo = countdown(d.expiresAt);
+let urgente = (d.expiresAt - Date.now()) < (60*60*1000);
 
-/* CLIENTE SÓ VÊ APROVADO */
+/* CLIENTE SÓ VÊ APROVADOS */
 if(d.status==="aprovado"){
 vazio=false;
 
 html+=`
 <div class="card">
+${urgente ? `<div class="promo">🔥 OFERTA ACABANDO</div>`:""}
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
 R$ ${d.valor}<br>
@@ -284,7 +293,7 @@ ${d.descricao}<br>
 </div>`;
 }
 
-/* ADMIN */
+/* ADMIN VÊ TUDO */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
@@ -293,8 +302,6 @@ Status: ${d.status}<br>
 ⏱ ${tempo}<br>
 
 <button class="smallBtn" onclick="aprovar('${id}')">APROVAR</button>
-
-<!-- RESET NOVOS -->
 <button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
 <button class="smallBtn" onclick="resetar('${id}',12)">12H</button>
 <button class="smallBtn" onclick="resetar('${id}',24)">24H</button>
@@ -328,7 +335,7 @@ let h=Math.floor(m/60);
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* RESET (HORAS) */
+/* RESET */
 function resetar(id,hours){
 let ms = hours * 60 * 60 * 1000;
 
