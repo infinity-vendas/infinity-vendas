@@ -222,48 +222,36 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* ELEMENTOS */
-const lista = document.getElementById("lista");
-const adminLista = document.getElementById("adminLista");
-const popup = document.getElementById("popup");
-const loginBox = document.getElementById("loginBox");
-const adminPanel = document.getElementById("adminPanel");
+let isAdmin=false;
+let cache={};
 
-let isAdmin = false;
-let cache = {};
-
-/* LOGIN CORRIGIDO */
+/* LOGIN */
 function login(){
-const email = document.getElementById("email").value;
-const pass = document.getElementById("pass").value;
-
-auth.signInWithEmailAndPassword(email, pass)
+auth.signInWithEmailAndPassword(email.value, pass.value)
 .then(()=>{
-isAdmin = true;
+isAdmin=true;
 adminPanel.classList.add("open");
-loginBox.style.display = "none";
+loginBox.style.display="none";
 })
-.catch(e=>{
-alert("Erro login: " + e.message);
-});
+.catch(e=>alert("Erro login: "+e.message));
 }
 
-/* ENVIAR */
+/* ENVIAR - AGORA COMEÇA COMO PENDENTE */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
 db.ref("products").push({
-vendedor: document.getElementById("vendedor").value || "Sem nome",
-produto: document.getElementById("produto").value || "Sem produto",
-valor: document.getElementById("valor").value || "0",
-descricao: document.getElementById("descricao").value || "-",
-whatsapp: (document.getElementById("whatsapp").value||"").replace(/\D/g,''),
-status:"aprovado",
-expiresAt: expire
+vendedor:vendedor.value || "Sem nome",
+produto:produto.value || "Sem produto",
+valor:valor.value || "0",
+descricao:descricao.value || "-",
+whatsapp:(whatsapp.value||"").replace(/\D/g,''),
+status:"pendente",
+expiresAt:expire
 });
 }
 
-/* FIREBASE LISTENER */
+/* LISTA */
 db.ref("products").on("value",snap=>{
 cache = snap.val() || {};
 render();
@@ -283,6 +271,7 @@ for(let [id,d] of listaOrdenada){
 let tempo = countdown(d.expiresAt);
 let urgente = (d.expiresAt - Date.now()) < (60*60*1000);
 
+/* SOMENTE APROVADOS APARECEM PARA CLIENTE */
 if(d.status==="aprovado"){
 vazio=false;
 
@@ -298,21 +287,16 @@ ${d.descricao}<br>
 </div>`;
 }
 
+/* ADMIN VÊ TUDO */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
+Status: ${d.status}<br>
 ⏱ ${tempo}<br>
 
-<button class="smallBtn" onclick="resetar('${id}',1)">1MIN</button>
-<button class="smallBtn" onclick="resetar('${id}',60)">1H</button>
-<button class="smallBtn" onclick="resetar('${id}',1440)">24H</button>
-<button class="smallBtn" onclick="resetar('${id}',2880)">48H</button>
-<button class="smallBtn" onclick="resetar('${id}',20160)">14D</button>
-<button class="smallBtn" onclick="resetar('${id}',30240)">21D</button>
-<button class="smallBtn" onclick="resetar('${id}',44640)">31D</button>
-
-<button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
+<button class="smallBtn" onclick="aprovar('${id}')">APROVAR</button>
+<button class="smallBtn" onclick="deletar('${id}')">DELETAR</button>
 </div>`;
 }
 }
@@ -338,16 +322,11 @@ let h=Math.floor(m/60);
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* RESET */
-function resetar(id,minutes){
-let ms = minutes * 60 * 1000;
-
-db.ref("products/"+id).update({
-expiresAt: Date.now()+ms
-});
+/* ADMIN */
+function aprovar(id){
+db.ref("products/"+id).update({status:"aprovado"});
 }
 
-/* DELETE */
 function deletar(id){
 db.ref("products/"+id).remove();
 }
