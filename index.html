@@ -30,9 +30,13 @@ animation:scroll 18s linear infinite;
 .container{padding:15px;}
 
 input{
-width:100%;padding:10px;margin:6px 0;
-border-radius:8px;border:1px solid #333;
-background:#111;color:#fff;
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:8px;
+border:1px solid #333;
+background:#111;
+color:#fff;
 }
 
 .btn{
@@ -76,6 +80,7 @@ transition:0.3s;
 overflow:auto;
 z-index:9999;
 }
+
 #adminPanel.open{right:0;}
 
 #loginBox{
@@ -182,8 +187,7 @@ function login(){
 auth.signInWithEmailAndPassword(email.value, pass.value)
 .then(()=>{
 isAdmin = true;
-adminPanel.classList.add("open");
-alert("ADMIN LIBERADO");
+document.getElementById("adminPanel").classList.add("open");
 });
 }
 
@@ -200,7 +204,7 @@ status:"pendente"
 });
 }
 
-/* LISTA (ESTÁVEL ANTIGA) */
+/* LISTA ESTÁVEL */
 db.ref("products").on("value",snap=>{
 let data = snap.val() || {};
 let html = "";
@@ -213,13 +217,13 @@ if(!d) continue;
 if(d.status === "aprovado"){
 html += `
 <div class="card">
-<b>${d.produto}</b><br>
-${d.vendedor}<br>
-${d.valor}<br>
+<b>${d.produto || "Sem nome"}</b><br>
+${d.vendedor || ""}<br>
+${d.valor || ""}<br>
 ${d.descricao || ""}<br>
 
 <button class="buyBtn"
-onclick="window.open('https://wa.me/${d.whatsapp}')">
+onclick="window.open('https://wa.me/${d.whatsapp || ""}')">
 Comprar
 </button>
 </div>`;
@@ -228,7 +232,7 @@ Comprar
 if(isAdmin){
 adminHTML += `
 <div class="card">
-<b>${d.produto}</b><br>
+<b>${d.produto || "Sem nome"}</b><br>
 Status: ${d.status || "pendente"}<br>
 
 <button onclick="aprovar('${id}')">Ativar</button>
