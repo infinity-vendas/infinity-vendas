@@ -9,7 +9,7 @@
 body{margin:0;font-family:Arial;background:#000;color:#ff7a00;}
 header{background:#111;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
 
-.marquee{
+.marquee {
 background:#000;
 color:#ff7a00;
 padding:8px;
@@ -28,6 +28,14 @@ animation:scroll 18s linear infinite;
 }
 
 .container{padding:15px;}
+
+.notice{
+background:#111;
+padding:10px;
+border-radius:10px;
+border-left:4px solid #ff7a00;
+margin-bottom:15px;
+}
 
 input{
 width:100%;
@@ -56,7 +64,15 @@ border-radius:10px;
 margin-bottom:10px;
 }
 
-button{cursor:pointer;}
+#loginBox{
+position:fixed;
+bottom:80px;
+right:15px;
+width:220px;
+background:#111;
+padding:10px;
+border-radius:10px;
+}
 
 #adminBtn{
 position:fixed;
@@ -67,6 +83,9 @@ height:50px;
 background:red;
 border-radius:50%;
 display:none;
+align-items:center;
+justify-content:center;
+cursor:pointer;
 }
 
 #adminPanel{
@@ -82,17 +101,6 @@ overflow:auto;
 }
 
 #adminPanel.open{right:0;}
-
-#loginBox{
-position:fixed;
-bottom:80px;
-right:15px;
-width:220px;
-background:#111;
-padding:10px;
-display:block;
-border-radius:10px;
-}
 </style>
 </head>
 
@@ -105,6 +113,8 @@ border-radius:10px;
 </div>
 
 <div class="container">
+
+<div class="notice">Seja Bem-vindo</div>
 
 <h3>Produtos cadastrados</h3>
 <div id="lista"></div>
@@ -137,7 +147,7 @@ border-radius:10px;
 <div id="adminLista"></div>
 </div>
 
-<!-- LOGIN FIREBASE -->
+<!-- LOGIN -->
 <div id="loginBox">
 <input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Senha">
@@ -160,49 +170,44 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* 🔐 SEU UID ADMIN */
-const ADMIN_UID = "64fFaqDHvIU9d6ggPJaNGid7A242";
-
 let isAdmin = false;
 
 const lista = document.getElementById("lista");
 const adminLista = document.getElementById("adminLista");
+const adminBtn = document.getElementById("adminBtn");
 
-/* LOGIN REAL FIREBASE */
+/* LOGIN EMAIL SENHA */
 function login(){
 const email = document.getElementById("email").value;
-const pass = document.getElementById("password").value;
+const password = document.getElementById("password").value;
 
-auth.signInWithEmailAndPassword(email, pass)
-.then(user => {
+auth.signInWithEmailAndPassword(email, password)
+.then(userCredential => {
 
-if(user.user.uid === ADMIN_UID){
+const user = userCredential.user;
+
 isAdmin = true;
-document.getElementById("adminBtn").style.display="flex";
-alert("ADMIN LIBERADO");
-}else{
-isAdmin = false;
-alert("Login realizado (usuário normal)");
-}
+adminBtn.style.display = "flex";
+
+alert("Login realizado com sucesso!");
 
 })
-.catch(err=>{
-alert(err.message);
+.catch(error=>{
+alert("Erro login: " + error.message);
 });
 }
 
 /* ENVIAR */
 function enviarProduto(){
 db.ref("products").push({
-vendedor: vendedor.value,
-produto: produto.value,
-descricao: descricao.value,
-valor: valor.value,
-whatsapp: whatsapp.value,
-instagram: instagram.value,
+vendedor:vendedor.value,
+produto:produto.value,
+descricao:descricao.value,
+valor:valor.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
 status:"pendente"
 });
-
 alert("Enviado!");
 }
 
