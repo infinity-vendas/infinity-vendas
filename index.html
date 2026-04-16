@@ -47,8 +47,8 @@ color:#fff;
 }
 
 .btn{
-background:red;
-color:#fff;
+background:#ff7a00;
+color:#000;
 padding:12px;
 border:none;
 border-radius:8px;
@@ -76,6 +76,7 @@ cursor:pointer;
 font-weight:bold;
 }
 
+/* ADMIN */
 #adminPanel{
 position:fixed;
 top:0;
@@ -90,6 +91,19 @@ z-index:9999;
 }
 #adminPanel.open{right:0;}
 
+.adminBtn{
+background:#ff7a00;
+color:#000;
+padding:8px;
+border:none;
+border-radius:6px;
+margin:3px;
+width:100%;
+cursor:pointer;
+font-weight:bold;
+}
+
+/* LOGIN */
 #loginBox{
 position:fixed;
 bottom:80px;
@@ -168,9 +182,9 @@ text-align:center;
 <!-- ADMIN -->
 <div id="adminPanel">
 <h3>ADMIN</h3>
-<button onclick="ativarTodos()">Ativar todos</button>
-<button onclick="desativarTodos()">Desativar todos</button>
-<button onclick="deletarTodos()">Deletar todos</button>
+<button class="adminBtn" onclick="ativarTodos()">Ativar todos</button>
+<button class="adminBtn" onclick="desativarTodos()">Desativar todos</button>
+<button class="adminBtn" onclick="deletarTodos()">Deletar todos</button>
 <div id="adminLista"></div>
 </div>
 
@@ -204,18 +218,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 let isAdmin = false;
-
-/* DATA/HORA + TIMESTAMP */
-function getDateTime(){
-const d = new Date();
-return {
-data: d.toLocaleDateString("pt-BR"),
-hora: String(d.getHours()).padStart(2,'0'),
-minuto: String(d.getMinutes()).padStart(2,'0'),
-segundo: String(d.getSeconds()).padStart(2,'0'),
-timestamp: Date.now()
-};
-}
+let cacheData = {};
 
 /* LOGIN */
 function login(){
@@ -230,8 +233,7 @@ document.getElementById("adminPanel").classList.add("open");
 
 /* ENVIAR */
 function enviarProduto(){
-
-const now = getDateTime();
+const now = Date.now();
 
 db.ref("products").push({
 vendedor:vendedor.value || "",
@@ -239,28 +241,27 @@ produto:produto.value || "",
 valor:valor.value || "",
 descricao:descricao.value || "",
 whatsapp:whatsapp.value || "",
-
-data: now.data,
-hora: now.hora,
-minuto: now.minuto,
-segundo: now.segundo,
-timestamp: now.timestamp,
-
+timestamp: now,
 status:"pendente"
 });
 }
 
-/* LISTA */
+/* LISTENER */
 db.ref("products").on("value",snap=>{
-let data=snap.val()||{};
+cacheData = snap.val() || {};
+render();
+});
+
+/* RENDER */
+function render(){
 let html="";
 let adminHTML="";
 
-for(let id in data){
-let d=data[id];
+for(let id in cacheData){
+let d = cacheData[id];
 if(!d) continue;
 
-const tempo = d.timestamp ? calcTempo(d.timestamp) : "0s";
+let tempo = calcTempo(d.timestamp);
 
 if(d.status==="aprovado"){
 html+=`
@@ -269,9 +270,6 @@ html+=`
 ${d.vendedor}<br>
 ${d.valor}<br>
 ${d.descricao}<br>
-
-📅 ${d.data || "sem data"}<br>
-⏰ ${d.hora || "00"}:${d.minuto || "00"}:${d.segundo || "00"}<br>
 ⏱ ${tempo}<br>
 
 <button class="buyBtn"
@@ -286,23 +284,21 @@ adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
 Status: ${d.status}<br>
-
-📅 ${d.data || "sem data"}<br>
-⏰ ${d.hora || "00"}:${d.minuto || "00"}:${d.segundo || "00"}<br>
 ⏱ ${tempo}<br>
 
-<button onclick="aprovar('${id}')">Ativar</button>
-<button onclick="desativar('${id}')">Desativar</button>
-<button onclick="deletar('${id}')">Deletar</button>
+<button class="adminBtn" onclick="aprovar('${id}')">Ativar</button>
+<button class="adminBtn" onclick="desativar('${id}')">Desativar</button>
+<button class="adminBtn" onclick="editar('${id}')">Editar data/hora</button>
+<button class="adminBtn" onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
 }
 
 document.getElementById("lista").innerHTML=html;
 document.getElementById("adminLista").innerHTML=adminHTML;
-});
+}
 
-/* CRONÔMETRO REAL */
+/* TIMER REAL */
 function calcTempo(ts){
 const diff = Date.now() - ts;
 const s = Math.floor(diff/1000);
@@ -311,11 +307,23 @@ const h = Math.floor(m/60);
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* ADMIN */
+/* ADMIN FUNÇÕES */
 function aprovar(id){db.ref("products/"+id).update({status:"aprovado"});}
 function desativar(id){db.ref("products/"+id).update({status:"desativado"});}
 function deletar(id){db.ref("products/"+id).remove();}
 
+/* EDITAR DATA/HORA */
+function editar(id){
+let novaData = prompt("Nova data:");
+let novaHora = prompt("Nova hora:");
+
+db.ref("products/"+id).update({
+data:novaData,
+hora:novaHora
+});
+}
+
+/* TODOS */
 function ativarTodos(){
 db.ref("products").once("value",snap=>{
 snap.forEach(c=>c.ref.update({status:"aprovado"}));
@@ -332,19 +340,23 @@ function deletarTodos(){
 db.ref("products").remove();
 }
 
+/* LOGIN TOGGLE FIX */
+function toggleLogin(){
+let box = document.getElementById("loginBox");
+box.style.display = box.style.display==="block"?"none":"block";
+}
+
+/* REFRESH TIMER LIVE */
+setInterval(render,1000);
+
 /* POPUP */
 function showPopup(){
 const p=document.getElementById("popup");
 p.style.display="block";
-setTimeout(()=>p.style.display="none",5000);
+setTimeout(()=>p.style.display="none",4000);
 }
 showPopup();
 setInterval(showPopup,60000);
-
-/* TOGGLE LOGIN */
-function toggleLogin(){
-loginBox.style.display = loginBox.style.display==="block"?"none":"block";
-}
 </script>
 
 </body>
