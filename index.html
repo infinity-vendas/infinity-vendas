@@ -236,7 +236,7 @@ loginBox.style.display="none";
 .catch(e=>alert("Erro login: "+e.message));
 }
 
-/* ENVIAR - AGORA COMEÇA COMO PENDENTE */
+/* ENVIAR */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
@@ -263,21 +263,18 @@ let html="";
 let adminHTML="";
 let vazio=true;
 
-let listaOrdenada = Object.entries(cache)
-.sort((a,b)=>(a[1].expiresAt||0)-(b[1].expiresAt||0));
-
-for(let [id,d] of listaOrdenada){
+for(let id in cache){
+let d=cache[id];
+if(!d) continue;
 
 let tempo = countdown(d.expiresAt);
-let urgente = (d.expiresAt - Date.now()) < (60*60*1000);
 
-/* SOMENTE APROVADOS APARECEM PARA CLIENTE */
+/* CLIENTE SÓ VÊ APROVADO */
 if(d.status==="aprovado"){
 vazio=false;
 
 html+=`
 <div class="card">
-${urgente ? `<div style="color:red;font-weight:bold;animation:pulse 1s infinite;">🔥 OFERTA ACABANDO</div>`:""}
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
 R$ ${d.valor}<br>
@@ -287,7 +284,7 @@ ${d.descricao}<br>
 </div>`;
 }
 
-/* ADMIN VÊ TUDO */
+/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
@@ -296,6 +293,15 @@ Status: ${d.status}<br>
 ⏱ ${tempo}<br>
 
 <button class="smallBtn" onclick="aprovar('${id}')">APROVAR</button>
+
+<!-- RESET NOVOS -->
+<button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
+<button class="smallBtn" onclick="resetar('${id}',12)">12H</button>
+<button class="smallBtn" onclick="resetar('${id}',24)">24H</button>
+<button class="smallBtn" onclick="resetar('${id}',336)">14D</button>
+<button class="smallBtn" onclick="resetar('${id}',504)">21D</button>
+<button class="smallBtn" onclick="resetar('${id}',744)">31D</button>
+
 <button class="smallBtn" onclick="deletar('${id}')">DELETAR</button>
 </div>`;
 }
@@ -320,6 +326,15 @@ let m=Math.floor(s/60);
 let h=Math.floor(m/60);
 
 return `${h}h ${m%60}m ${s%60}s`;
+}
+
+/* RESET (HORAS) */
+function resetar(id,hours){
+let ms = hours * 60 * 60 * 1000;
+
+db.ref("products/"+id).update({
+expiresAt: Date.now()+ms
+});
 }
 
 /* ADMIN */
