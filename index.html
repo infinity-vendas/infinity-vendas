@@ -76,7 +76,7 @@ background:#111;
 padding:10px;
 transition:0.3s;
 overflow:auto;
-display:block; /* 🔥 CORREÇÃO PRINCIPAL */
+display:block;
 z-index:9999;
 }
 
@@ -111,62 +111,15 @@ font-weight:bold;
 color:#000;
 z-index:9999;
 }
-
-/* FLOAT NOTIFICAÇÃO */
-#notifyBar{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-background:#ff7a00;
-color:#000;
-text-align:center;
-padding:10px;
-display:none;
-z-index:99999;
-font-weight:bold;
-}
-
-/* CHAT BOLHA */
-#chatBubble{
-position:fixed;
-bottom:80px;
-right:15px;
-width:55px;
-height:55px;
-background:#ff7a00;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-font-size:22px;
-z-index:99999;
-}
-
-#chatBox{
-position:fixed;
-bottom:150px;
-right:15px;
-width:260px;
-background:#111;
-border:1px solid #ff7a00;
-border-radius:10px;
-padding:10px;
-display:none;
-z-index:99999;
-}
 </style>
 </head>
 
 <body>
 
-<div id="notifyBar">🔔 Sistema atualizado com sucesso - INFINITY DIVULGAÇÕES</div>
-
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN SEGURADO • WHATSAPP DIRETO ⚡</span>
+<span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN OK • WHATSAPP DIRETO ⚡</span>
 </div>
 
 <div class="container">
@@ -191,9 +144,11 @@ z-index:99999;
 <!-- ADMIN -->
 <div id="adminPanel">
 <h3>ADMIN</h3>
+
 <button onclick="ativarTodos()">Ativar todos</button>
 <button onclick="desativarTodos()">Desativar todos</button>
 <button onclick="deletarTodos()">Deletar todos</button>
+
 <div id="adminLista"></div>
 </div>
 
@@ -205,19 +160,6 @@ z-index:99999;
 </div>
 
 <div id="loginBtn" onclick="toggleLogin()">ADMIN</div>
-
-<!-- CHAT -->
-<div id="chatBubble" onclick="toggleChat()">💬</div>
-
-<div id="chatBox">
-<p><b>Suporte INFINITY</b></p>
-<button onclick="support('Suporte')">Suporte</button>
-<button onclick="support('Denunciar vendedor')">Denunciar vendedor</button>
-<button onclick="support('Produto fraude')">Produto fraude</button>
-<button onclick="support('Reembolso')">Reembolso</button>
-<button class="btn" style="background:#ff7a00;color:#000;margin-top:5px;"
-onclick="devContact()">Entrar em contato com desenvolvedor</button>
-</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -235,6 +177,7 @@ appId: "1:613112794080:web:acd63b723aec957b21f985"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -252,15 +195,15 @@ alert("ADMIN LIBERADO");
 }).catch(e=>alert(e.message));
 }
 
-/* PRODUTO */
+/* ENVIAR */
 function enviarProduto(){
 db.ref("products").push({
-vendedor:vendedor.value,
-produto:produto.value,
-descricao:descricao.value,
-valor:valor.value,
-whatsapp:whatsapp.value,
-instagram:instagram.value,
+vendedor: document.getElementById("vendedor").value,
+produto: document.getElementById("produto").value,
+descricao: document.getElementById("descricao").value,
+valor: document.getElementById("valor").value,
+whatsapp: document.getElementById("whatsapp").value,
+instagram: document.getElementById("instagram").value,
 status:"pendente"
 });
 alert("Enviado!");
@@ -282,7 +225,11 @@ html+=`
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
 ${d.valor}<br>
-<button class="buyBtn" onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">Adquirir produto</button>
+
+<button class="buyBtn"
+onclick="comprar('${d.produto}','${d.valor}','${d.whatsapp}')">
+Adquirir produto
+</button>
 </div>`;
 }
 
@@ -292,6 +239,7 @@ adminHTML+=`
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
 ${d.status}<br>
+
 <button onclick="aprovar('${id}')">Ativar</button>
 <button onclick="reprovar('${id}')">Desativar</button>
 <button onclick="deletar('${id}')">Deletar</button>
@@ -299,8 +247,8 @@ ${d.status}<br>
 }
 }
 
-lista.innerHTML=html;
-adminLista.innerHTML=adminHTML;
+document.getElementById("lista").innerHTML=html;
+document.getElementById("adminLista").innerHTML=adminHTML;
 });
 
 /* ADMIN */
@@ -308,29 +256,26 @@ function aprovar(id){db.ref("products/"+id).update({status:"aprovado"});}
 function reprovar(id){db.ref("products/"+id).update({status:"desativado"});}
 function deletar(id){db.ref("products/"+id).remove();}
 
-/* CHAT */
-function toggleChat(){
-chatBox.style.display = chatBox.style.display==="block"?"none":"block";
+function ativarTodos(){
+db.ref("products").once("value",snap=>{
+snap.forEach(c=>c.ref.update({status:"aprovado"}));
+});
 }
 
-function support(type){
-window.open(`https://wa.me/551981528372?text=Suporte: ${type} - INFINITY DIVULGAÇÕES`);
+function desativarTodos(){
+db.ref("products").once("value",snap=>{
+snap.forEach(c=>c.ref.update({status:"desativado"}));
+});
 }
 
-function devContact(){
-window.open("https://wa.me/551981528372?text=Quero suporte do desenvolvedor INFINITY ⚡");
+function deletarTodos(){
+db.ref("products").remove();
 }
 
-/* LOGIN UI */
+/* UI */
 function toggleLogin(){
-loginBox.style.display = loginBox.style.display==="block"?"none":"block";
-}
-
-/* NOTIFICAÇÃO */
-window.onload=()=>{
-const bar=document.getElementById("notifyBar");
-bar.style.display="block";
-setTimeout(()=>bar.style.display="none",2000);
+document.getElementById("loginBox").style.display =
+document.getElementById("loginBox").style.display==="block"?"none":"block";
 }
 </script>
 
