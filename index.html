@@ -31,6 +31,7 @@ border-radius:10px;margin-bottom:10px;
 
 button{cursor:pointer;}
 
+/* ADMIN PANEL */
 #adminPanel{
 position:fixed;top:0;right:-320px;
 width:300px;height:100%;
@@ -40,11 +41,48 @@ transition:0.3s;overflow:auto;
 
 #adminPanel.open{right:0;}
 
+/* LOGIN BOX */
 #loginBox{
 position:fixed;bottom:80px;right:15px;
 width:220px;background:#111;
 padding:10px;display:none;
 border-radius:10px;
+}
+
+/* BOTÃO LOGIN FLUTUANTE */
+#loginBtn{
+position:fixed;
+bottom:15px;
+right:15px;
+width:55px;
+height:55px;
+background:#ff7a00;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+font-size:20px;
+font-weight:bold;
+color:#000;
+}
+
+/* BOTÃO MINIMIZAR ADMIN */
+#minAdminBtn{
+position:fixed;
+top:10px;
+right:10px;
+width:45px;
+height:45px;
+background:red;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+font-size:18px;
+color:#fff;
+z-index:9999;
 }
 </style>
 </head>
@@ -52,6 +90,9 @@ border-radius:10px;
 <body>
 
 <header>INFINITY DIVULGAÇÕES</header>
+
+<!-- BOTÃO ADMIN MINIMIZAR -->
+<div id="minAdminBtn" onclick="toggleAdmin()">−</div>
 
 <div class="container">
 
@@ -84,12 +125,15 @@ border-radius:10px;
 <div id="adminLista"></div>
 </div>
 
-<!-- LOGIN -->
+<!-- LOGIN BOX -->
 <div id="loginBox">
 <input id="email" placeholder="Email">
 <input id="pass" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
 </div>
+
+<!-- BOTÃO LOGIN -->
+<div id="loginBtn" onclick="toggleLogin()">L</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -115,6 +159,7 @@ let isAdmin = false;
 
 const lista = document.getElementById("lista");
 const adminLista = document.getElementById("adminLista");
+const loginBox = document.getElementById("loginBox");
 
 /* LOGIN */
 function login(){
@@ -124,7 +169,8 @@ const pass = document.getElementById("pass").value;
 auth.signInWithEmailAndPassword(email, pass)
 .then(()=>{
 isAdmin = true;
-document.getElementById("loginBox").style.display="none";
+loginBox.style.display="none";
+document.getElementById("adminPanel").classList.add("open");
 alert("ADMIN LIBERADO");
 })
 .catch(e=>{
@@ -132,53 +178,43 @@ alert("Erro: " + e.message);
 });
 }
 
-/* ENVIAR PRODUTO */
+/* ENVIAR */
 function enviarProduto(){
-
-const data = {
-vendedor: document.getElementById("vendedor").value || "",
-produto: document.getElementById("produto").value || "",
-descricao: document.getElementById("descricao").value || "",
-valor: document.getElementById("valor").value || "",
-whatsapp: document.getElementById("whatsapp").value || "",
-instagram: document.getElementById("instagram").value || "",
-status: "pendente"
-};
-
-db.ref("products").push(data);
-
+db.ref("products").push({
+vendedor:vendedor.value,
+produto:produto.value,
+descricao:descricao.value,
+valor:valor.value,
+whatsapp:whatsapp.value,
+instagram:instagram.value,
+status:"pendente"
+});
 alert("Enviado!");
 }
 
 /* LISTA */
 db.ref("products").on("value", snap=>{
 let data = snap.val() || {};
-let html = "";
-let adminHTML = "";
+let html="";
+let adminHTML="";
 
 for(let id in data){
 let d = data[id];
 if(!d) continue;
 
-const produto = d.produto || "Sem produto";
-const vendedor = d.vendedor || "Sem vendedor";
-const valor = d.valor || "";
-const status = d.status || "";
-
-if(d.status === "aprovado"){
-html += `
+if(d.status==="aprovado"){
+html+=`
 <div class="card">
-<b>${produto}</b><br>
-${vendedor}<br>
-${valor}<br>
+<b>${d.produto}</b><br>
+${d.vendedor}
 </div>`;
 }
 
 if(isAdmin){
-adminHTML += `
+adminHTML+=`
 <div class="card">
-<b>${produto}</b><br>
-Status: ${status}<br>
+<b>${d.produto}</b><br>
+Status: ${d.status}<br>
 
 <button onclick="aprovar('${id}')">Ativar</button>
 <button onclick="reprovar('${id}')">Desativar</button>
@@ -187,8 +223,8 @@ Status: ${status}<br>
 }
 }
 
-lista.innerHTML = html;
-adminLista.innerHTML = adminHTML;
+lista.innerHTML=html;
+adminLista.innerHTML=adminHTML;
 });
 
 /* ADMIN */
@@ -218,6 +254,15 @@ snap.forEach(c=>c.ref.update({status:"desativado"}));
 
 function deletarTodos(){
 db.ref("products").remove();
+}
+
+/* UI */
+function toggleLogin(){
+loginBox.style.display = loginBox.style.display==="block"?"none":"block";
+}
+
+function toggleAdmin(){
+document.getElementById("adminPanel").classList.toggle("open");
 }
 </script>
 
