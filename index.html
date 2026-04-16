@@ -16,6 +16,7 @@ font-size:20px;
 font-weight:bold;
 }
 
+/* LETREIRO ATUALIZADO */
 .marquee{
 background:#000;
 color:#ff7a00;
@@ -27,7 +28,7 @@ border-bottom:1px solid #222;
 .marquee span{
 display:inline-block;
 padding-left:100%;
-animation:scroll 18s linear infinite;
+animation:scroll 25s linear infinite;
 }
 @keyframes scroll{
 0%{transform:translateX(0);}
@@ -104,12 +105,13 @@ border-radius:10px;
 z-index:9999;
 }
 
+/* BOTÃO ADMIN FLUTUANTE TAMANHO 5 */
 #loginBtn{
 position:fixed;
 bottom:15px;
 right:15px;
-width:55px;
-height:55px;
+width:50px;
+height:50px;
 background:#ff7a00;
 border-radius:50%;
 display:flex;
@@ -117,10 +119,11 @@ align-items:center;
 justify-content:center;
 cursor:pointer;
 font-weight:bold;
+font-size:5px;
 color:#000;
 }
 
-/* POPUP ANÚNCIO */
+/* POPUP */
 #popup{
 position:fixed;
 top:20px;
@@ -143,8 +146,12 @@ text-align:center;
 
 <header>INFINITY DIVULGAÇÕES</header>
 
+<!-- LETREIRO NOVO -->
 <div class="marquee">
-<span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN OK • WHATSAPP DIRETO ⚡</span>
+<span>
+Adquira planos VIP, tenha melhor atendimento ao cliente e descontos até 90%. Sem taxas de publicação. Produto 24/12h no ar! 
+Instagram @Infinity_cliente_oficial1 | WhatsApp +55 51 98152-8372 ⚡ Contate o proprietário direto
+</span>
 </div>
 
 <!-- POPUP -->
@@ -185,7 +192,7 @@ text-align:center;
 <button onclick="login()" class="btn">Entrar</button>
 </div>
 
-<div id="loginBtn" onclick="toggleLogin()">ADMIN</div>
+<div id="loginBtn" onclick="toggleLogin()">A</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -223,11 +230,11 @@ document.getElementById("adminPanel").classList.add("open");
 /* ENVIAR */
 function enviarProduto(){
 db.ref("products").push({
-vendedor: vendedor.value || "",
-produto: produto.value || "",
-valor: valor.value || "",
-descricao: descricao.value || "",
-whatsapp: whatsapp.value || "",
+vendedor:vendedor.value || "",
+produto:produto.value || "",
+valor:valor.value || "",
+descricao:descricao.value || "",
+whatsapp:whatsapp.value || "",
 status:"pendente"
 });
 }
@@ -264,19 +271,19 @@ adminHTML+=`
 Status: ${d.status}<br>
 
 <button onclick="aprovar('${id}')">Ativar</button>
-<button onclick="reprovar('${id}')">Desativar</button>
+<button onclick="desativar('${id}')">Desativar</button>
 <button onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
 }
 
-lista.innerHTML=html;
-adminLista.innerHTML=adminHTML;
+document.getElementById("lista").innerHTML=html;
+document.getElementById("adminLista").innerHTML=adminHTML;
 });
 
 /* ADMIN */
 function aprovar(id){db.ref("products/"+id).update({status:"aprovado"});}
-function reprovar(id){db.ref("products/"+id).update({status:"desativado"});}
+function desativar(id){db.ref("products/"+id).update({status:"desativado"});}
 function deletar(id){db.ref("products/"+id).remove();}
 
 function ativarTodos(){
@@ -295,7 +302,7 @@ function deletarTodos(){
 db.ref("products").remove();
 }
 
-/* POPUP LOOP 60s */
+/* POPUP LOOP */
 function showPopup(){
 const p=document.getElementById("popup");
 p.style.display="block";
@@ -305,6 +312,7 @@ setTimeout(()=>p.style.display="none",5000);
 showPopup();
 setInterval(showPopup,60000);
 
+/* LOGIN TOGGLE */
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
