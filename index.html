@@ -7,9 +7,35 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#000;color:#ff7a00;}
-header{background:#111;padding:15px;text-align:center;font-weight:bold;}
+header{background:#111;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
+
+.marquee {
+background:#000;
+color:#ff7a00;
+padding:8px;
+white-space:nowrap;
+overflow:hidden;
+border-bottom:1px solid #222;
+}
+.marquee span{
+display:inline-block;
+padding-left:100%;
+animation:scroll 18s linear infinite;
+}
+@keyframes scroll{
+0%{transform:translateX(0);}
+100%{transform:translateX(-100%);}
+}
 
 .container{padding:15px;}
+
+.notice{
+background:#111;
+padding:10px;
+border-radius:10px;
+border-left:4px solid #ff7a00;
+margin-bottom:15px;
+}
 
 input{
 width:100%;
@@ -38,6 +64,21 @@ border-radius:10px;
 margin-bottom:10px;
 }
 
+button{cursor:pointer;}
+
+#loginBtn{
+position:fixed;
+bottom:15px;
+right:15px;
+width:50px;
+height:50px;
+background:#ff7a00;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
 #adminBtn{
 position:fixed;
 top:50%;
@@ -47,9 +88,6 @@ height:50px;
 background:red;
 border-radius:50%;
 display:none;
-align-items:center;
-justify-content:center;
-cursor:pointer;
 }
 
 #adminPanel{
@@ -73,31 +111,23 @@ right:15px;
 width:220px;
 background:#111;
 padding:10px;
-border-radius:10px;
-}
-
-#debug{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-background:#ff0000;
-color:#fff;
-padding:8px;
-font-size:12px;
-z-index:99999;
 display:none;
+border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="debug">DEBUG: iniciando...</div>
-
 <header>INFINITY DIVULGAÇÕES</header>
 
+<div class="marquee">
+<span>Site oficial Infinity Divulgações ⚡</span>
+</div>
+
 <div class="container">
+
+<div class="notice">Seja Bem-vindo</div>
 
 <h3>Produtos cadastrados</h3>
 <div id="lista"></div>
@@ -131,9 +161,11 @@ display:none;
 </div>
 
 <!-- LOGIN -->
+<div id="loginBtn" onclick="toggleLogin()">L</div>
+
 <div id="loginBox">
 <input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Senha">
+<input id="pass" type="password" placeholder="Senha">
 <button onclick="login()">Entrar</button>
 </div>
 
@@ -142,15 +174,14 @@ display:none;
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-const debug = document.getElementById("debug");
-function log(msg){ debug.style.display="block"; debug.innerText="DEBUG: "+msg; }
-
-log("Carregando Firebase...");
-
 const firebaseConfig = {
-apiKey:"AIzaSyDX...",
-authDomain:"infinity-vendas.firebaseapp.com",
-databaseURL:"https://infinity-vendas-default-rtdb.firebaseio.com"
+apiKey: "AIzaSyDXDca5ZxCZKZz7lHUz4dlx0Qe6BarJSuA",
+authDomain: "infinity-vendas.firebaseapp.com",
+databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
+projectId: "infinity-vendas",
+storageBucket: "infinity-vendas.appspot.com",
+messagingSenderId: "613112794080",
+appId: "1:613112794080:web:acd63b723aec957b21f985"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -160,63 +191,57 @@ const db = firebase.database();
 
 let isAdmin = false;
 
-/* TESTE CONEXÃO FIREBASE */
-firebase.database().ref(".info/connected").on("value", snap=>{
-if(snap.val()){
-log("Firebase conectado OK");
-}else{
-log("Sem conexão com Firebase");
-}
-});
+const lista = document.getElementById("lista");
+const adminLista = document.getElementById("adminLista");
+const loginBox = document.getElementById("loginBox");
 
-/* LOGIN DEBUG */
+/* LOGIN REAL (EMAIL + SENHA) */
 function login(){
 const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
+const pass = document.getElementById("pass").value;
 
-log("Tentando login...");
-
-auth.signInWithEmailAndPassword(email, password)
-.then(user=>{
-log("Login OK: " + user.user.email);
-
+auth.signInWithEmailAndPassword(email, pass)
+.then(user => {
 isAdmin = true;
-document.getElementById("adminBtn").style.display="flex";
-alert("LOGIN OK");
+loginBox.style.display = "none";
+document.getElementById("adminBtn").style.display = "flex";
+alert("ADMIN LIBERADO");
 })
-.catch(err=>{
-log(err.code + " | " + err.message);
-alert(err.message);
+.catch(err => {
+alert("Erro login: " + err.message);
 });
 }
 
-/* ENVIAR */
+/* ENVIAR PRODUTO */
 function enviarProduto(){
 db.ref("products").push({
-vendedor:vendedor.value,
-produto:produto.value,
-descricao:descricao.value,
-valor:valor.value,
-whatsapp:whatsapp.value,
-instagram:instagram.value,
+vendedor: vendedor.value,
+produto: produto.value,
+descricao: descricao.value,
+valor: valor.value,
+whatsapp: whatsapp.value,
+instagram: instagram.value,
 status:"pendente"
 });
+
+alert("Enviado!");
 }
 
 /* LISTA */
 db.ref("products").on("value", snap=>{
-let data=snap.val()||{};
+let data = snap.val() || {};
 let html="";
 let adminHTML="";
 
 for(let id in data){
-let d=data[id];
+let d = data[id];
+if(!d) continue;
 
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
 <b>${d.produto}</b><br>
-${d.vendedor}
+${d.vendedor}<br>
 </div>`;
 }
 
@@ -238,9 +263,17 @@ adminLista.innerHTML=adminHTML;
 });
 
 /* ADMIN */
-function aprovar(id){ db.ref("products/"+id).update({status:"aprovado"}); }
-function reprovar(id){ db.ref("products/"+id).update({status:"desativado"}); }
-function deletar(id){ db.ref("products/"+id).remove(); }
+function aprovar(id){
+db.ref("products/"+id).update({status:"aprovado"});
+}
+
+function reprovar(id){
+db.ref("products/"+id).update({status:"desativado"});
+}
+
+function deletar(id){
+db.ref("products/"+id).remove();
+}
 
 function ativarTodos(){
 db.ref("products").once("value",snap=>{
@@ -258,7 +291,11 @@ function deletarTodos(){
 db.ref("products").remove();
 }
 
-/* ADMIN PANEL */
+/* UI */
+function toggleLogin(){
+loginBox.style.display = loginBox.style.display==="block"?"none":"block";
+}
+
 function toggleAdmin(){
 document.getElementById("adminPanel").classList.toggle("open");
 }
