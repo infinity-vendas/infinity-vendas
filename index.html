@@ -16,6 +16,7 @@ font-size:20px;
 font-weight:bold;
 }
 
+/* LETREIRO ORIGINAL */
 .marquee{
 background:#000;
 color:#ff7a00;
@@ -187,6 +188,8 @@ text-align:center;
 <button class="smallBtn" onclick="desativarTodos()">Desativar</button>
 <button class="smallBtn" onclick="deletarTodos()">Deletar</button>
 
+<br><br>
+
 <div id="adminLista"></div>
 </div>
 
@@ -282,10 +285,13 @@ adminHTML+=`
 Status: ${d.status}<br>
 ⏱ ${tempo}<br>
 
-<button class="smallBtn" onclick="aprovar('${id}')">Ativar</button>
-<button class="smallBtn" onclick="desativar('${id}')">Desativar</button>
-<button class="smallBtn" onclick="resetar('${id}','1h')">RESET 1H</button>
-<button class="smallBtn" onclick="resetar('${id}','24h')">RESET 24H</button>
+<button class="smallBtn" onclick="resetar('${id}',10)">10MIN</button>
+<button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
+<button class="smallBtn" onclick="resetar('${id}',3*24)">3D</button>
+<button class="smallBtn" onclick="resetar('${id}',7*24)">7D</button>
+<button class="smallBtn" onclick="resetar('${id}',14*24)">14D</button>
+<button class="smallBtn" onclick="resetar('${id}',21*24)">21D</button>
+<button class="smallBtn" onclick="resetar('${id}',31*24)">31D</button>
 <button class="smallBtn" onclick="editar('${id}')">Editar</button>
 <button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
 </div>`;
@@ -296,7 +302,7 @@ lista.innerHTML=html;
 adminLista.innerHTML=adminHTML;
 }
 
-/* CONTADOR CORRIGIDO */
+/* CONTADOR CORRIGIDO (REGRESSIVO REAL) */
 function countdown(exp){
 if(!exp) return "sem tempo";
 
@@ -310,27 +316,25 @@ let h = Math.floor(m/60);
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* RESET 1H / 24H */
-function resetar(id,tipo){
+/* RESET SISTEMA COMPLETO */
+function resetar(id,hours){
+let ms;
 
-let tempo = 24*60*60*1000;
-
-if(tipo === "1h") tempo = 1*60*60*1000;
-
-db.ref("products/"+id).once("value",snap=>{
-let d = snap.val();
-if(!d) return;
+if(hours === 10){
+ms = 10 * 60 * 1000; // 10 min
+} else {
+ms = hours * 60 * 60 * 1000;
+}
 
 db.ref("products/"+id).update({
-expiresAt: Date.now() + tempo
-});
+expiresAt: Date.now() + ms
 });
 }
 
-/* EDITAR */
+/* EDITAR MANUAL */
 function editar(id){
-let date = prompt("Data AAAA-MM-DD");
-let time = prompt("Hora HH:MM");
+let date = prompt("AAAA-MM-DD");
+let time = prompt("HH:MM");
 
 if(!date || !time) return;
 
@@ -364,8 +368,7 @@ db.ref("products").remove();
 
 /* LOGIN TOGGLE */
 function toggleLogin(){
-let box = document.getElementById("loginBox");
-box.style.display = box.style.display==="block"?"none":"block";
+loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 
 /* AUTO UPDATE TIMER */
