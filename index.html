@@ -6,18 +6,30 @@
 <title>INFINITY DIVULGAÇÕES</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#000;color:#ff7a00;}
-header{background:#111;padding:15px;text-align:center;font-size:20px;font-weight:bold;}
+body { margin:0; font-family:Arial; background:#000; color:#ff7a00; }
 
-.marquee{
-background:#000;color:#ff7a00;padding:8px;
-white-space:nowrap;overflow:hidden;border-bottom:1px solid #222;
+header {
+background:#111;
+padding:15px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
 }
-.marquee span{
-display:inline-block;padding-left:100%;
+
+.marquee {
+background:#000;
+color:#ff7a00;
+padding:8px;
+white-space:nowrap;
+overflow:hidden;
+border-bottom:1px solid #222;
+}
+.marquee span {
+display:inline-block;
+padding-left:100%;
 animation:scroll 25s linear infinite;
 }
-@keyframes scroll{
+@keyframes scroll {
 0%{transform:translateX(0);}
 100%{transform:translateX(-100%);}
 }
@@ -31,60 +43,115 @@ animation:scroll 25s linear infinite;
 .container{padding:15px;}
 
 input{
-width:100%;padding:10px;margin:6px 0;
-border-radius:8px;border:1px solid #333;
-background:#111;color:#fff;
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:8px;
+border:1px solid #333;
+background:#111;
+color:#fff;
 }
 
 .btn{
-background:#ff7a00;color:#000;padding:12px;
-border:none;border-radius:8px;width:100%;
-cursor:pointer;font-weight:bold;
+background:#ff7a00;
+color:#000;
+padding:12px;
+border:none;
+border-radius:8px;
+width:100%;
+cursor:pointer;
+font-weight:bold;
 }
 
 .card{
-background:#111;padding:12px;
-border-radius:10px;margin-bottom:10px;
+background:#111;
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
 }
 
 .buyBtn{
-background:#ff7a00;color:#000;padding:10px;
-border:none;border-radius:8px;width:100%;
-margin-top:8px;cursor:pointer;font-weight:bold;
+background:#25D366;
+color:#fff;
+padding:10px;
+border:none;
+border-radius:8px;
+width:100%;
+margin-top:8px;
+cursor:pointer;
+font-weight:bold;
 }
 
+/* ADMIN */
 #adminPanel{
-position:fixed;top:0;right:-340px;width:320px;height:100%;
-background:#111;padding:10px;transition:0.3s;
-overflow:auto;z-index:9999;
+position:fixed;
+top:0;
+right:-340px;
+width:320px;
+height:100%;
+background:#111;
+padding:10px;
+transition:0.3s;
+overflow:auto;
+z-index:9999;
 }
 #adminPanel.open{right:0;}
 
 .smallBtn{
-background:#333;color:#fff;padding:6px;
-border:none;border-radius:6px;margin:2px;
-cursor:pointer;font-size:12px;width:48%;
+background:#333;
+color:#fff;
+padding:6px;
+border:none;
+border-radius:6px;
+margin:2px;
+cursor:pointer;
+font-size:12px;
+width:48%;
 }
 
+/* LOGIN */
 #loginBox{
-position:fixed;bottom:80px;right:15px;width:220px;
-background:#111;padding:10px;display:none;
-border-radius:10px;z-index:9999;
+position:fixed;
+bottom:80px;
+right:15px;
+width:220px;
+background:#111;
+padding:10px;
+display:none;
+border-radius:10px;
+z-index:9999;
 }
 
 #loginBtn{
-position:fixed;bottom:15px;right:15px;width:50px;height:50px;
-background:#ff7a00;border-radius:50%;
-display:flex;align-items:center;justify-content:center;
-cursor:pointer;font-weight:bold;color:#000;
+position:fixed;
+bottom:15px;
+right:15px;
+width:50px;
+height:50px;
+background:#ff7a00;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+font-weight:bold;
+color:#000;
 }
 
 #popup{
-position:fixed;top:20px;left:50%;
+position:fixed;
+top:20px;
+left:50%;
 transform:translateX(-50%);
-background:#ff7a00;color:#000;padding:15px;
-border-radius:10px;font-weight:bold;display:none;
-width:90%;z-index:99999;text-align:center;
+background:#ff7a00;
+color:#000;
+padding:15px;
+border-radius:10px;
+font-weight:bold;
+display:none;
+width:90%;
+z-index:99999;
+text-align:center;
 }
 </style>
 </head>
@@ -94,37 +161,33 @@ width:90%;z-index:99999;text-align:center;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>🔥 SISTEMA ATIVO • HOTMART STYLE • ADMIN PRO • WHATSAPP DIRETO ⚡</span>
+<span>🔥 SISTEMA ATIVO • VENDAS EM TEMPO REAL • ANUNCIE AGORA ⚡</span>
 </div>
 
 <div id="popup">Adquira versão VIP ilimitado publicações ⚡</div>
 
 <div class="container">
+
 <h3>Produtos cadastrados</h3>
-<div id="lista"></div>
+<div id="lista">Carregando...</div>
 
 <hr>
 
 <h3>Cadastro</h3>
 
-<input id="vendedor">
-<input id="produto">
-<input id="valor">
-<input id="descricao">
-<input id="whatsapp">
+<input id="vendedor" placeholder="Nome vendedor">
+<input id="produto" placeholder="Produto">
+<input id="valor" placeholder="Valor">
+<input id="descricao" placeholder="Descrição">
+<input id="whatsapp" placeholder="WhatsApp">
 
 <button class="btn" onclick="enviarProduto()">ENVIAR PRODUTO</button>
+
 </div>
 
 <!-- ADMIN -->
 <div id="adminPanel">
-<h3>ADMIN PRO</h3>
-
-<button class="smallBtn" onclick="ativarTodos()">Ativar</button>
-<button class="smallBtn" onclick="desativarTodos()">Desativar</button>
-<button class="smallBtn" onclick="deletarTodos()">Deletar</button>
-
-<br><br>
+<h3>ADMIN</h3>
 <div id="adminLista"></div>
 </div>
 
@@ -165,6 +228,7 @@ auth.signInWithEmailAndPassword(email.value, pass.value)
 .then(()=>{
 isAdmin=true;
 adminPanel.classList.add("open");
+loginBox.style.display="none";
 })
 .catch(e=>alert("Erro login: "+e.message));
 }
@@ -178,8 +242,8 @@ vendedor:vendedor.value || "Sem nome",
 produto:produto.value || "Sem produto",
 valor:valor.value || "0",
 descricao:descricao.value || "-",
-whatsapp:whatsapp.value || "",
-status:"pendente",
+whatsapp:(whatsapp.value||"").replace(/\D/g,''),
+status:"aprovado",
 expiresAt:expire
 });
 }
@@ -190,74 +254,47 @@ cache = snap.val() || {};
 render();
 });
 
-/* RENDER COMPLETO */
+/* RENDER */
 function render(){
 let html="";
 let adminHTML="";
 let vazio=true;
 
-/* ORDENA POR TEMPO */
-let listaOrdenada = Object.entries(cache).sort((a,b)=>{
-return (a[1].expiresAt||0)-(b[1].expiresAt||0);
-});
+let listaOrdenada = Object.entries(cache).sort((a,b)=>(a[1].expiresAt||0)-(b[1].expiresAt||0));
 
 for(let [id,d] of listaOrdenada){
-if(!d) continue;
 
-let status=d.status||"pendente";
-let tempo=countdown(d.expiresAt);
-let urgente=(d.expiresAt-Date.now())<(60*60*1000);
+let tempo = countdown(d.expiresAt);
+let urgente = (d.expiresAt - Date.now()) < (60*60*1000);
 
-if(status==="aprovado"){
+if(d.status==="aprovado"){
 vazio=false;
 
 html+=`
 <div class="card">
-
-${urgente?`<div style="color:red;font-weight:bold;animation:pulse 1s infinite;">
-🔥 OFERTA ACABANDO
-</div>`:""}
-
+${urgente ? `<div style="color:red;font-weight:bold;animation:pulse 1s infinite;">🔥 OFERTA ACABANDO</div>`:""}
 <b>${d.produto}</b><br>
 ${d.vendedor}<br>
 R$ ${d.valor}<br>
 ${d.descricao}<br>
 ⏱ ${tempo}<br>
-
-<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}')">
-Comprar
-</button>
+<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}')">Comprar</button>
 </div>`;
 }
 
-/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
 <b>${d.produto}</b><br>
-${d.vendedor}<br>
-Status: ${status}<br>
+Status: ${d.status}<br>
 ⏱ ${tempo}<br>
-
-<button class="smallBtn" onclick="aprovar('${id}')">ATIVAR</button>
-<button class="smallBtn" onclick="desativar('${id}')">DESATIVAR</button>
-
-<button class="smallBtn" onclick="resetar('${id}',10)">10MIN</button>
-<button class="smallBtn" onclick="resetar('${id}',1)">1H</button>
-<button class="smallBtn" onclick="resetar('${id}',24)">24H</button>
-<button class="smallBtn" onclick="resetar('${id}',48)">48H</button>
-<button class="smallBtn" onclick="resetar('${id}',336)">14D</button>
-<button class="smallBtn" onclick="resetar('${id}',504)">21D</button>
-<button class="smallBtn" onclick="resetar('${id}',744)">31D</button>
-
-<button class="smallBtn" onclick="editar('${id}')">Editar</button>
 <button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
 </div>`;
 }
 }
 
 if(vazio){
-html=`<div class="card">Nenhum produto ativo no momento ⚠️</div>`;
+html=`<div class="card">Nenhum produto ativo ⚠️</div>`;
 }
 
 lista.innerHTML=html;
@@ -267,54 +304,25 @@ adminLista.innerHTML=adminHTML;
 /* CONTADOR */
 function countdown(exp){
 if(!exp) return "sem tempo";
-let diff=exp-Date.now();
+let diff = exp - Date.now();
 if(diff<=0) return "EXPIRADO ❌";
+
 let s=Math.floor(diff/1000);
 let m=Math.floor(s/60);
 let h=Math.floor(m/60);
+
 return `${h}h ${m%60}m ${s%60}s`;
 }
 
-/* RESET */
-function resetar(id,hours){
-let ms=hours===10?10*60*1000:hours*60*60*1000;
-db.ref("products/"+id).update({expiresAt:Date.now()+ms});
-}
-
-/* EDITAR */
-function editar(id){
-let date=prompt("AAAA-MM-DD");
-let time=prompt("HH:MM");
-if(!date||!time)return;
-let newExp=new Date(date+"T"+time+":00").getTime();
-db.ref("products/"+id).update({expiresAt:newExp});
-}
-
 /* ADMIN */
-function aprovar(id){db.ref("products/"+id).update({status:"aprovado"});}
-function desativar(id){db.ref("products/"+id).update({status:"desativado"});}
 function deletar(id){db.ref("products/"+id).remove();}
 
-function ativarTodos(){
-db.ref("products").once("value",snap=>{
-snap.forEach(c=>c.ref.update({status:"aprovado"}));
-});
-}
-
-function desativarTodos(){
-db.ref("products").once("value",snap=>{
-snap.forEach(c=>c.ref.update({status:"desativado"}));
-});
-}
-
-function deletarTodos(){db.ref("products").remove();}
-
-/* LOGIN */
+/* LOGIN TOGGLE */
 function toggleLogin(){
-loginBox.style.display=loginBox.style.display==="block"?"none":"block";
+loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 
-/* AUTO */
+/* AUTO UPDATE */
 setInterval(render,1000);
 
 /* POPUP */
@@ -324,7 +332,6 @@ setTimeout(()=>popup.style.display="none",4000);
 }
 showPopup();
 setInterval(showPopup,60000);
-
 </script>
 
 </body>
