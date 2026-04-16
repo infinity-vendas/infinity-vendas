@@ -76,7 +76,6 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* ADMIN */
 #adminPanel{
 position:fixed;
 top:0;
@@ -206,17 +205,15 @@ const db = firebase.database();
 
 let isAdmin = false;
 
-/* =========================
-   DATA / HORA COMPLETA
-========================= */
+/* DATA/HORA + TIMESTAMP */
 function getDateTime(){
 const d = new Date();
-
 return {
 data: d.toLocaleDateString("pt-BR"),
 hora: String(d.getHours()).padStart(2,'0'),
 minuto: String(d.getMinutes()).padStart(2,'0'),
-segundo: String(d.getSeconds()).padStart(2,'0')
+segundo: String(d.getSeconds()).padStart(2,'0'),
+timestamp: Date.now()
 };
 }
 
@@ -247,6 +244,7 @@ data: now.data,
 hora: now.hora,
 minuto: now.minuto,
 segundo: now.segundo,
+timestamp: now.timestamp,
 
 status:"pendente"
 });
@@ -262,6 +260,8 @@ for(let id in data){
 let d=data[id];
 if(!d) continue;
 
+const tempo = d.timestamp ? calcTempo(d.timestamp) : "0s";
+
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
@@ -270,8 +270,9 @@ ${d.vendedor}<br>
 ${d.valor}<br>
 ${d.descricao}<br>
 
-📅 ${d.data}<br>
-⏰ ${d.hora}:${d.minuto}:${d.segundo}<br>
+📅 ${d.data || "sem data"}<br>
+⏰ ${d.hora || "00"}:${d.minuto || "00"}:${d.segundo || "00"}<br>
+⏱ ${tempo}<br>
 
 <button class="buyBtn"
 onclick="window.open('https://wa.me/${d.whatsapp}')">
@@ -286,8 +287,9 @@ adminHTML+=`
 <b>${d.produto}</b><br>
 Status: ${d.status}<br>
 
-📅 ${d.data}<br>
-⏰ ${d.hora}:${d.minuto}:${d.segundo}<br>
+📅 ${d.data || "sem data"}<br>
+⏰ ${d.hora || "00"}:${d.minuto || "00"}:${d.segundo || "00"}<br>
+⏱ ${tempo}<br>
 
 <button onclick="aprovar('${id}')">Ativar</button>
 <button onclick="desativar('${id}')">Desativar</button>
@@ -299,6 +301,15 @@ Status: ${d.status}<br>
 document.getElementById("lista").innerHTML=html;
 document.getElementById("adminLista").innerHTML=adminHTML;
 });
+
+/* CRONÔMETRO REAL */
+function calcTempo(ts){
+const diff = Date.now() - ts;
+const s = Math.floor(diff/1000);
+const m = Math.floor(s/60);
+const h = Math.floor(m/60);
+return `${h}h ${m%60}m ${s%60}s`;
+}
 
 /* ADMIN */
 function aprovar(id){db.ref("products/"+id).update({status:"aprovado"});}
@@ -330,11 +341,11 @@ setTimeout(()=>p.style.display="none",5000);
 showPopup();
 setInterval(showPopup,60000);
 
-/* LOGIN TOGGLE */
+/* TOGGLE LOGIN */
 function toggleLogin(){
 loginBox.style.display = loginBox.style.display==="block"?"none":"block";
 }
 </script>
 
 </body>
-  </html>
+   </html>
