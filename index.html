@@ -89,94 +89,32 @@ font-size:13px;
 margin-top:5px;
 }
 
-/* VIP BOX */
-#vipBox{
+/* POPUPS */
+.popup{
 position:fixed;
-top:80px;
+top:50%;
 left:50%;
-transform:translateX(-50%);
+transform:translate(-50%,-50%);
 background:#111;
 border:2px solid red;
-padding:12px;
+padding:15px;
 border-radius:10px;
 z-index:99999;
 text-align:center;
 width:90%;
 max-width:300px;
+display:none;
 }
 
-.vipTitle{
-color:red;
-font-weight:bold;
-animation:pulse 1s infinite;
-}
-
-.vipBtn{
+.popup button{
 background:red;
 color:#fff;
-padding:10px;
 border:none;
-border-radius:8px;
-width:100%;
+padding:10px;
 margin-top:10px;
-font-weight:bold;
+width:100%;
+border-radius:8px;
 cursor:pointer;
-}
-
-/* ADMIN */
-#adminPanel{
-position:fixed;
-top:0;
-right:-340px;
-width:320px;
-height:100%;
-background:#111;
-padding:10px;
-transition:0.3s;
-overflow:auto;
-z-index:9999;
-}
-#adminPanel.open{right:0;}
-
-.smallBtn{
-background:#333;
-color:#fff;
-padding:6px;
-border:none;
-border-radius:6px;
-margin:2px;
-cursor:pointer;
-font-size:11px;
-width:48%;
-}
-
-/* LOGIN */
-#loginBox{
-position:fixed;
-bottom:80px;
-right:15px;
-width:220px;
-background:#111;
-padding:10px;
-display:none;
-border-radius:10px;
-z-index:9999;
-}
-
-#loginBtn{
-position:fixed;
-bottom:15px;
-right:15px;
-width:50px;
-height:50px;
-background:#ff7a00;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-font-weight:bold;
-color:#000;
 }
 </style>
 </head>
@@ -189,17 +127,20 @@ color:#000;
 <span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372</span>
 </div>
 
-<!-- VIP PROMO -->
-<div id="vipBox">
-<div class="vipTitle">🔥 VIP 100% ONLINE 🔥</div>
-<div>
-1Day R$4 | 3Day R$8<br>
-14Day R$12 | 21Day R$16<br>
-31Day R$20
+<!-- POPUP EXPIRADO -->
+<div id="expiredBox" class="popup">
+<div id="expiredText"></div>
+<button onclick="fecharExpirado()">FECHAR</button>
 </div>
-<button class="vipBtn" onclick="window.open('https://wa.me/5551981528372','_blank')">
-ADQUIRIR AGORA
-</button>
+
+<!-- POPUP ANUNCIO -->
+<div id="adsBox" class="popup">
+<div>
+Evite bloqueio de produtos<br>
+Atualize para versão VIP ainda hoje<br>
+tenha acesso ilimitado 🚀
+</div>
+<button onclick="adsBox.style.display='none'">FECHAR</button>
 </div>
 
 <div class="container">
@@ -217,34 +158,11 @@ ADQUIRIR AGORA
 <input id="descricao" placeholder="Descrição">
 <input id="whatsapp" placeholder="WhatsApp">
 
-<h4>Redes sociais (opcional)</h4>
-<input id="youtube" placeholder="YouTube link">
-<input id="instagram" placeholder="Instagram link">
-<input id="twitter" placeholder="Twitter link">
-<input id="telegram" placeholder="Telegram link">
-<input id="facebook" placeholder="Facebook link">
-
 <button class="btn" onclick="enviarProduto()">ENVIAR PRODUTO</button>
 
 </div>
 
-<!-- ADMIN -->
-<div id="adminPanel">
-<h3>ADMIN</h3>
-<div id="adminLista"></div>
-</div>
-
-<!-- LOGIN -->
-<div id="loginBox">
-<input id="email" placeholder="Email">
-<input id="pass" type="password" placeholder="Senha">
-<button class="btn" onclick="login()">Entrar</button>
-</div>
-
-<div id="loginBtn" onclick="toggleLogin()">A</div>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
@@ -252,31 +170,17 @@ const firebaseConfig = {
 apiKey: "AIzaSyDXDca5ZxCZKZz7lHUz4dlx0Qe6BarJSuA",
 authDomain: "infinity-vendas.firebaseapp.com",
 databaseURL: "https://infinity-vendas-default-rtdb.firebaseio.com",
-projectId: "infinity-vendas",
-storageBucket: "infinity-vendas.appspot.com",
-messagingSenderId: "613112794080",
-appId: "1:613112794080:web:acd63b723aec957b21f985"
+projectId: "infinity-vendas"
 };
 
 firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
 const db = firebase.database();
 
 let cache={};
-let isAdmin=false;
+let vendas=0;
+let produtoExpiradoID=null;
 
-function login(){
-auth.signInWithEmailAndPassword(email.value, pass.value)
-.then(()=>{
-isAdmin=true;
-adminPanel.classList.add("open");
-loginBox.style.display="none";
-render();
-})
-.catch(e=>alert("Erro login: "+e.message));
-}
-
+/* ENVIAR */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
@@ -286,70 +190,56 @@ produto:produto.value,
 valor:valor.value,
 descricao:descricao.value,
 whatsapp:(whatsapp.value||"").replace(/\D/g,''),
-
-youtube: youtube.value,
-instagram: instagram.value,
-twitter: twitter.value,
-telegram: telegram.value,
-facebook: facebook.value,
-
 status:"pendente",
-expiresAt:expire
+expiresAt:expire,
+vendas:0
 });
 }
 
+/* LISTA */
 db.ref("products").on("value",snap=>{
 cache = snap.val() || {};
 render();
 });
 
+/* RENDER */
 function render(){
 let html="";
-let adminHTML="";
 
 for(let id in cache){
 let d=cache[id];
-if(!d) continue;
+if(!d || d.status!=="aprovado") continue;
 
-if(d.status==="aprovado"){
 html+=`
 <div class="card">
 <b>⚡ ${d.vendedor}</b><br>
 📦 ${d.produto}<br>
 💰 R$ ${d.valor}<br>
 📝 ${d.descricao}<br>
+
 <div class="timer" id="t_${id}"></div>
 
-<button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}','_blank')">
+<div>🔥 Vendas: ${d.vendas||0}</div>
+
+<button class="buyBtn" onclick="comprar('${id}','${d.whatsapp}')">
 📲 WhatsApp
 </button>
-</div>`;
-}
 
-if(isAdmin){
-adminHTML+=`
-<div class="card">
-<b>${d.produto}</b><br>
-Status: ${d.status}<br>
-
-<button class="smallBtn" onclick="aprovar('${id}')">APROVAR</button>
-<button class="smallBtn" onclick="resetMin('${id}',1)">1MIN</button>
-<button class="smallBtn" onclick="resetMin('${id}',10)">10MIN</button>
-<button class="smallBtn" onclick="resetMin('${id}',30)">30MIN</button>
-<button class="smallBtn" onclick="resetHour('${id}',1)">1H</button>
-<button class="smallBtn" onclick="resetDay('${id}',7)">7D</button>
-<button class="smallBtn" onclick="resetDay('${id}',14)">14D</button>
-<button class="smallBtn" onclick="resetDay('${id}',21)">21D</button>
-<button class="smallBtn" onclick="resetDay('${id}',31)">31D</button>
-<button class="smallBtn" onclick="deletar('${id}')">DELETAR</button>
 </div>`;
-}
 }
 
 lista.innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
-adminLista.innerHTML = adminHTML;
 }
 
+/* COMPRA */
+function comprar(id,whats){
+window.open("https://wa.me/"+whats,"_blank");
+
+let v = (cache[id].vendas||0)+1;
+db.ref("products/"+id).update({vendas:v});
+}
+
+/* TIMER */
 function atualizarTempos(){
 for(let id in cache){
 let d=cache[id];
@@ -362,6 +252,15 @@ let diff = d.expiresAt - Date.now();
 
 if(diff <= 0){
 el.innerHTML = "⏱ EXPIRADO ❌";
+
+produtoExpiradoID=id;
+expiredText.innerHTML = `
+Plano expirado ou inexistente<br><br>
+📦 ${d.produto}<br>
+👤 ${d.vendedor}
+`;
+
+expiredBox.style.display="block";
 continue;
 }
 
@@ -373,42 +272,31 @@ el.innerHTML = `⏱ ${h}h ${m%60}m ${s%60}s`;
 }
 }
 
-function aprovar(id){
-db.ref("products/"+id).update({status:"aprovado"});
+/* FECHAR EXPIRADO */
+function fecharExpirado(){
+expiredBox.style.display="none";
+
+if(produtoExpiradoID){
+db.ref("products/"+produtoExpiradoID).remove();
+produtoExpiradoID=null;
 }
 
-function deletar(id){
-db.ref("products/"+id).remove();
-}
+/* ANUNCIO DEPOIS */
+setTimeout(()=>{
+adsBox.style.display="block";
 
-function resetMin(id,min){
-db.ref("products/"+id).update({
-expiresAt: Date.now() + min*60*1000
-});
-}
+setTimeout(()=>{
+adsBox.style.display="none";
+},15000);
 
-function resetHour(id,h){
-db.ref("products/"+id).update({
-expiresAt: Date.now() + h*60*60*1000
-});
-}
-
-function resetDay(id,d){
-db.ref("products/"+id).update({
-expiresAt: Date.now() + d*24*60*60*1000
-});
-}
-
-function toggleLogin(){
-loginBox.style.display =
-loginBox.style.display==="block"?"none":"block";
+},5000);
 }
 
 setInterval(atualizarTempos,1000);
 
-/* ALERTA A CADA 30s */
+/* ALERTA */
 setInterval(()=>{
-alert("⚡ Venha adquirir plano VIP e seguro, divulgações 24h!");
+alert("⚡ Plano VIP libera vendas automáticas e ilimitadas!");
 },30000);
 </script>
 
