@@ -90,35 +90,42 @@ font-size:13px;
 margin-top:5px;
 }
 
-/* ADMIN FIX */
+/* ADMIN PANEL MODERNO */
 #adminPanel{
 position:fixed;
 top:0;
 right:0;
 width:320px;
 height:100%;
-background:#111;
+background:rgba(20,20,20,0.98);
+backdrop-filter:blur(10px);
 padding:10px;
 overflow:auto;
 z-index:99999;
 border-left:2px solid #ff7a00;
-transition:0.3s;
+display:none;
 }
 
 #adminToggle{
 position:fixed;
-top:10px;
-right:340px;
-background:#ff7a00;
+bottom:15px;
+left:15px;
+background:linear-gradient(145deg,#ff7a00,#ff5500);
 color:#000;
 border:none;
-padding:10px;
+padding:14px;
 border-radius:50%;
 font-weight:bold;
 cursor:pointer;
 z-index:100000;
+box-shadow:0 4px 15px rgba(0,0,0,0.5);
 }
 
+#adminToggle:hover{
+transform:scale(1.05);
+}
+
+/* BOTÕES ADMIN */
 .smallBtn{
 background:#333;
 color:#fff;
@@ -129,6 +136,35 @@ margin:2px;
 cursor:pointer;
 font-size:11px;
 width:48%;
+transition:0.2s;
+}
+
+.smallBtn:hover{
+background:#ff7a00;
+color:#000;
+}
+
+/* LOGIN */
+#loginBox{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:999999;
+}
+
+.loginCard{
+background:#111;
+padding:20px;
+border-radius:10px;
+width:90%;
+max-width:300px;
 }
 </style>
 </head>
@@ -141,12 +177,21 @@ width:48%;
 <span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372</span>
 </div>
 
-<!-- ADMIN TOGGLE (1 SÓ BOTÃO) -->
+<!-- LOGIN -->
+<div id="loginBox">
+<div class="loginCard">
+<h3>LOGIN ADMIN</h3>
+<input id="email" placeholder="Email">
+<input id="senha" type="password" placeholder="Senha">
+<button class="btn" onclick="login()">ENTRAR</button>
+</div>
+</div>
+
 <button id="adminToggle" onclick="toggleAdmin()">☰</button>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel">
 <h3>ADMIN</h3>
+<button class="btn" onclick="logout()">SAIR</button>
 <div id="adminLista"></div>
 </div>
 
@@ -171,6 +216,7 @@ width:48%;
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -182,13 +228,48 @@ projectId: "infinity-vendas"
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const auth = firebase.auth();
 
 let cache = {};
+let adminLogado = false;
 
-/* ADMIN TOGGLE FIX */
+/* LOGIN */
+function login(){
+let email = document.getElementById("email").value;
+let senha = document.getElementById("senha").value;
+
+auth.signInWithEmailAndPassword(email, senha)
+.then(()=>{
+adminLogado = true;
+document.getElementById("loginBox").style.display="none";
+})
+.catch(err=>{
+alert("Erro login: " + err.message);
+});
+}
+
+/* LOGOUT */
+function logout(){
+auth.signOut();
+adminLogado = false;
+document.getElementById("loginBox").style.display="flex";
+document.getElementById("adminPanel").style.display="none";
+}
+
+/* AUTH STATE */
+auth.onAuthStateChanged(user=>{
+adminLogado = !!user;
+document.getElementById("loginBox").style.display = user ? "none" : "flex";
+});
+
+/* TOGGLE ADMIN */
 function toggleAdmin(){
-document.getElementById("adminPanel").style.display =
-document.getElementById("adminPanel").style.display === "none" ? "block" : "none";
+if(!adminLogado){
+alert("Faça login primeiro!");
+return;
+}
+const panel = document.getElementById("adminPanel");
+panel.style.display = (panel.style.display === "block") ? "none" : "block";
 }
 
 /* ENVIAR */
@@ -196,11 +277,11 @@ function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
 db.ref("products").push({
-vendedor:vendedor.value,
-produto:produto.value,
-valor:valor.value,
-descricao:descricao.value,
-whatsapp:(whatsapp.value||"").replace(/\D/g,''),
+vendedor: document.getElementById("vendedor").value,
+produto: document.getElementById("produto").value,
+valor: document.getElementById("valor").value,
+descricao: document.getElementById("descricao").value,
+whatsapp: (document.getElementById("whatsapp").value || "").replace(/\D/g,''),
 status:"pendente",
 expiresAt:expire,
 vendas:0
@@ -217,6 +298,7 @@ renderAdmin();
 /* CLIENT */
 function render(){
 let html="";
+
 for(let id in cache){
 let d=cache[id];
 if(!d || d.status!=="aprovado") continue;
@@ -228,17 +310,17 @@ html+=`
 💰 R$ ${d.valor}<br>
 📝 ${d.descricao}<br>
 <div class="timer" id="t_${id}"></div>
-
-<button class="buyBtn" onclick="abrirPix('${id}')">
-Adquirir
-</button>
+<button class="buyBtn">Adquirir</button>
 </div>`;
 }
-lista.innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
+
+document.getElementById("lista").innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
 }
 
 /* ADMIN */
 function renderAdmin(){
+if(!adminLogado) return;
+
 let html="";
 for(let id in cache){
 let d=cache[id];
@@ -250,19 +332,15 @@ html+=`
 Status: ${d.status}<br>
 
 <button class="smallBtn" onclick="aprovar('${id}')">OK</button>
-<button class="smallBtn" onclick="reset('${id}',12)">12h</button>
 <button class="smallBtn" onclick="reset('${id}',24)">24h</button>
-<button class="smallBtn" onclick="resetDay('${id}',7)">7d</button>
-<button class="smallBtn" onclick="resetDay('${id}',14)">14d</button>
-<button class="smallBtn" onclick="resetDay('${id}',21)">21d</button>
-<button class="smallBtn" onclick="resetDay('${id}',31)">31d</button>
 <button class="smallBtn" onclick="deletar('${id}')">Del</button>
 </div>`;
 }
-adminLista.innerHTML = html;
+
+document.getElementById("adminLista").innerHTML = html;
 }
 
-/* ADMIN FUNÇÕES FIX */
+/* ADMIN FUNÇÕES */
 function aprovar(id){
 db.ref("products/"+id).update({status:"aprovado"});
 }
@@ -277,18 +355,7 @@ expiresAt: Date.now() + (h*60*60*1000)
 });
 }
 
-function resetDay(id,d){
-db.ref("products/"+id).update({
-expiresAt: Date.now() + (d*24*60*60*1000)
-});
-}
-
-/* PIX MOCK */
-function abrirPix(id){
-alert("PIX aberto (demo)");
-}
-
-/* TIMER FIX REAL */
+/* TIMER */
 function atualizarTempos(){
 for(let id in cache){
 let d=cache[id];
@@ -297,18 +364,18 @@ if(!d || d.status!=="aprovado") continue;
 let el=document.getElementById("t_"+id);
 if(!el) continue;
 
-let diff=d.expiresAt - Date.now();
+let diff = d.expiresAt - Date.now();
 
-if(diff<=0){
-el.innerHTML="EXPIRADO";
+if(diff <= 0){
+el.innerHTML = "EXPIRADO";
 continue;
 }
 
-let s=Math.floor(diff/1000);
-let m=Math.floor(s/60);
-let h=Math.floor(m/60);
+let s = Math.floor(diff/1000);
+let m = Math.floor(s/60);
+let h = Math.floor(m/60);
 
-el.innerHTML=`⏱ ${h}h ${m%60}m ${s%60}s`;
+el.innerHTML = `⏱ ${h}h ${m%60}m ${s%60}s`;
 }
 }
 
