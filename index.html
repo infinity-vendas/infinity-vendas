@@ -90,56 +90,7 @@ font-size:13px;
 margin-top:5px;
 }
 
-/* PIX */
-#pixBox{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:#111;
-border:2px solid #ff7a00;
-padding:15px;
-border-radius:10px;
-z-index:999999;
-display:none;
-text-align:center;
-width:90%;
-max-width:320px;
-}
-
-#pixBox img{
-width:100%;
-border-radius:10px;
-margin:10px 0;
-border:2px solid #ff7a00;
-}
-
-#pixTimer{
-color:red;
-font-weight:bold;
-margin:5px 0;
-}
-
-.pixActions{
-display:flex;
-gap:5px;
-margin-top:10px;
-}
-
-.pixActions button{
-flex:1;
-padding:10px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-}
-
-.closeBtn{background:red;color:#fff;}
-.instaBtn{background:#E1306C;color:#fff;}
-.confirmBtn{background:#00c853;color:#fff;}
-
-/* ADMIN PANEL (CORRIGIDO) */
+/* ADMIN FIX */
 #adminPanel{
 position:fixed;
 top:0;
@@ -149,23 +100,15 @@ height:100%;
 background:#111;
 padding:10px;
 overflow:auto;
-z-index:1000; /* não tampa mais tudo */
+z-index:99999;
 border-left:2px solid #ff7a00;
 transition:0.3s;
 }
 
-/* minimizado */
-#adminPanel.minimizado{
-width:60px;
-padding:5px;
-overflow:hidden;
-}
-
-/* botão flutuante */
 #adminToggle{
 position:fixed;
 top:10px;
-right:10px;
+right:340px;
 background:#ff7a00;
 color:#000;
 border:none;
@@ -173,7 +116,7 @@ padding:10px;
 border-radius:50%;
 font-weight:bold;
 cursor:pointer;
-z-index:1001;
+z-index:100000;
 }
 
 .smallBtn{
@@ -187,15 +130,6 @@ cursor:pointer;
 font-size:11px;
 width:48%;
 }
-
-.adminHeader{
-display:flex;
-justify-content:space-between;
-align-items:center;
-font-weight:bold;
-margin-bottom:10px;
-}
-
 </style>
 </head>
 
@@ -207,41 +141,12 @@ margin-bottom:10px;
 <span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372</span>
 </div>
 
-<!-- BOTÃO FLUTUANTE ADMIN -->
+<!-- ADMIN TOGGLE (1 SÓ BOTÃO) -->
 <button id="adminToggle" onclick="toggleAdmin()">☰</button>
-
-<!-- PIX BOX -->
-<div id="pixBox">
-<h3>💰 PAGAMENTO PIX</h3>
-
-<img src="https://raw.githubusercontent.com/infinity-vendas/infinity-vendas/main/Screenshot_20260417-042120-1.png">
-
-<p><b>PIX:</b> 51981528372</p>
-<p><b>Nome:</b> RAPHAEL DE MATOS</p>
-
-<div id="pixTimer">02:00</div>
-
-<p id="pixInfo"></p>
-
-<div class="pixActions">
-<button class="instaBtn" onclick="window.open('https://instagram.com/infinity_cliente_oficial','_blank')">
-Instagram
-</button>
-
-<button class="closeBtn" onclick="fecharPix()">Fechar</button>
-</div>
-
-<button class="confirmBtn" onclick="confirmarPagamento()">
-Confirmar pagamento
-</button>
-</div>
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel">
-<div class="adminHeader">
-<span>ADMIN</span>
-<button onclick="toggleAdmin()">—</button>
-</div>
+<h3>ADMIN</h3>
 <div id="adminLista"></div>
 </div>
 
@@ -278,13 +183,12 @@ projectId: "infinity-vendas"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let cache={};
-let pixInterval;
-let pixTime = 120;
+let cache = {};
 
-/* ADMIN TOGGLE */
+/* ADMIN TOGGLE FIX */
 function toggleAdmin(){
-document.getElementById("adminPanel").classList.toggle("minimizado");
+document.getElementById("adminPanel").style.display =
+document.getElementById("adminPanel").style.display === "none" ? "block" : "none";
 }
 
 /* ENVIAR */
@@ -303,7 +207,7 @@ vendas:0
 });
 }
 
-/* LISTA */
+/* FIREBASE */
 db.ref("products").on("value",snap=>{
 cache = snap.val() || {};
 render();
@@ -319,14 +223,14 @@ if(!d || d.status!=="aprovado") continue;
 
 html+=`
 <div class="card">
-<b>⚡ ${d.vendedor}</b><br>
+<b>${d.vendedor}</b><br>
 📦 ${d.produto}<br>
 💰 R$ ${d.valor}<br>
 📝 ${d.descricao}<br>
 <div class="timer" id="t_${id}"></div>
 
-<button class="buyBtn" onclick="abrirPix('${id}','${d.valor}','${d.produto}')">
-📲 Adquirir
+<button class="buyBtn" onclick="abrirPix('${id}')">
+Adquirir
 </button>
 </div>`;
 }
@@ -345,20 +249,20 @@ html+=`
 <b>${d.produto}</b><br>
 Status: ${d.status}<br>
 
-<button class="smallBtn" onclick="aprovar('${id}')">Aprovar</button>
+<button class="smallBtn" onclick="aprovar('${id}')">OK</button>
 <button class="smallBtn" onclick="reset('${id}',12)">12h</button>
 <button class="smallBtn" onclick="reset('${id}',24)">24h</button>
 <button class="smallBtn" onclick="resetDay('${id}',7)">7d</button>
 <button class="smallBtn" onclick="resetDay('${id}',14)">14d</button>
 <button class="smallBtn" onclick="resetDay('${id}',21)">21d</button>
 <button class="smallBtn" onclick="resetDay('${id}',31)">31d</button>
-<button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
+<button class="smallBtn" onclick="deletar('${id}')">Del</button>
 </div>`;
 }
 adminLista.innerHTML = html;
 }
 
-/* FUNÇÕES ADMIN */
+/* ADMIN FUNÇÕES FIX */
 function aprovar(id){
 db.ref("products/"+id).update({status:"aprovado"});
 }
@@ -369,51 +273,22 @@ db.ref("products/"+id).remove();
 
 function reset(id,h){
 db.ref("products/"+id).update({
-expiresAt: Date.now() + h*60*60*1000
+expiresAt: Date.now() + (h*60*60*1000)
 });
 }
 
 function resetDay(id,d){
 db.ref("products/"+id).update({
-expiresAt: Date.now() + d*24*60*60*1000
+expiresAt: Date.now() + (d*24*60*60*1000)
 });
 }
 
-/* PIX */
-function abrirPix(id,valor,produto){
-document.getElementById("pixInfo").innerHTML =
-"Produto: "+produto+"<br>Valor: R$ "+valor;
-
-pixBox.style.display="block";
-
-pixTime=120;
-clearInterval(pixInterval);
-
-pixInterval=setInterval(()=>{
-pixTime--;
-let m=Math.floor(pixTime/60);
-let s=pixTime%60;
-
-pixTimer.innerHTML=`⏳ ${m}:${s<10?"0"+s:s}`;
-
-if(pixTime<=0){
-fecharPix();
-clearInterval(pixInterval);
-}
-},1000);
+/* PIX MOCK */
+function abrirPix(id){
+alert("PIX aberto (demo)");
 }
 
-function fecharPix(){
-pixBox.style.display="none";
-clearInterval(pixInterval);
-}
-
-function confirmarPagamento(){
-alert("Pagamento enviado!");
-fecharPix();
-}
-
-/* TIMER */
+/* TIMER FIX REAL */
 function atualizarTempos(){
 for(let id in cache){
 let d=cache[id];
@@ -422,7 +297,7 @@ if(!d || d.status!=="aprovado") continue;
 let el=document.getElementById("t_"+id);
 if(!el) continue;
 
-let diff=d.expiresAt-Date.now();
+let diff=d.expiresAt - Date.now();
 
 if(diff<=0){
 el.innerHTML="EXPIRADO";
