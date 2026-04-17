@@ -18,7 +18,6 @@ font-weight:bold;
 
 .marquee {
 background:#000;
-color:#ff7a00;
 padding:8px;
 white-space:nowrap;
 overflow:hidden;
@@ -28,12 +27,19 @@ border-bottom:1px solid #222;
 .marquee span {
 display:inline-block;
 padding-left:100%;
-animation:scroll 25s linear infinite;
+animation:scroll 25s linear infinite, colorChange 2s infinite;
+font-weight:bold;
 }
 
 @keyframes scroll {
 0%{transform:translateX(0);}
 100%{transform:translateX(-100%);}
+}
+
+@keyframes colorChange {
+0% { color:#ff7a00; }
+50% { color:#ff0000; }
+100% { color:#ff7a00; }
 }
 
 .container{padding:15px;}
@@ -84,7 +90,7 @@ font-size:13px;
 margin-top:5px;
 }
 
-/* POPUP PIX */
+/* PIX */
 #pixBox{
 position:fixed;
 top:50%;
@@ -108,15 +114,55 @@ margin:10px 0;
 border:2px solid #ff7a00;
 }
 
-#pixBox button{
-background:red;
-color:#fff;
-border:none;
-padding:10px;
+#pixTimer{
+color:red;
+font-weight:bold;
+margin:5px 0;
+}
+
+.pixActions{
+display:flex;
+gap:5px;
 margin-top:10px;
-width:100%;
+}
+
+.pixActions button{
+flex:1;
+padding:10px;
+border:none;
 border-radius:8px;
 cursor:pointer;
+font-weight:bold;
+}
+
+.closeBtn{background:red;color:#fff;}
+.instaBtn{background:#E1306C;color:#fff;}
+.confirmBtn{background:#00c853;color:#fff;}
+
+/* ADMIN */
+#adminPanel{
+position:fixed;
+top:0;
+right:0;
+width:320px;
+height:100%;
+background:#111;
+padding:10px;
+overflow:auto;
+z-index:99999;
+border-left:2px solid #ff7a00;
+}
+
+.smallBtn{
+background:#333;
+color:#fff;
+padding:6px;
+border:none;
+border-radius:6px;
+margin:2px;
+cursor:pointer;
+font-size:11px;
+width:48%;
 }
 </style>
 </head>
@@ -131,14 +177,34 @@ cursor:pointer;
 
 <!-- PIX BOX -->
 <div id="pixBox">
-<h3>💰 Pagamento PIX</h3>
+<h3>💰 PAGAMENTO PIX</h3>
 
 <img src="https://raw.githubusercontent.com/infinity-vendas/infinity-vendas/main/Screenshot_20260417-042120-1.png">
 
-<p><b>Chave PIX:</b> 51981528372</p>
+<p><b>PIX:</b> 51981528372</p>
+<p><b>Nome:</b> RAPHAEL DE MATOS</p>
+
+<div id="pixTimer">02:00</div>
+
 <p id="pixInfo"></p>
 
-<button onclick="fecharPix()">FECHAR</button>
+<div class="pixActions">
+<button class="instaBtn" onclick="window.open('https://instagram.com/infinity_cliente_oficial','_blank')">
+Instagram
+</button>
+
+<button class="closeBtn" onclick="fecharPix()">Fechar</button>
+</div>
+
+<button class="confirmBtn" onclick="confirmarPagamento()">
+Confirmar pagamento
+</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+<h3>ADMIN PANEL</h3>
+<div id="adminLista"></div>
 </div>
 
 <div class="container">
@@ -175,6 +241,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let cache={};
+let pixInterval;
+let pixTime = 120;
 
 /* ENVIAR */
 function enviarProduto(){
@@ -196,12 +264,12 @@ vendas:0
 db.ref("products").on("value",snap=>{
 cache = snap.val() || {};
 render();
+renderAdmin();
 });
 
-/* RENDER */
+/* CLIENT */
 function render(){
 let html="";
-
 for(let id in cache){
 let d=cache[id];
 if(!d || d.status!=="aprovado") continue;
@@ -212,40 +280,94 @@ html+=`
 📦 ${d.produto}<br>
 💰 R$ ${d.valor}<br>
 📝 ${d.descricao}<br>
-
 <div class="timer" id="t_${id}"></div>
 
-<div>🔥 Vendas: ${d.vendas||0}</div>
-
-<button class="buyBtn" onclick="comprar('${id}','${d.whatsapp}','${d.valor}','${d.produto}')">
-📲 Comprar + PIX
+<button class="buyBtn" onclick="abrirPix('${id}','${d.valor}','${d.produto}')">
+📲 Adquirir
 </button>
-
 </div>`;
 }
-
 lista.innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
 }
 
-/* COMPRA */
-function comprar(id,whats,valor,produto){
+/* ADMIN */
+function renderAdmin(){
+let html="";
+for(let id in cache){
+let d=cache[id];
+if(!d) continue;
 
-window.open("https://wa.me/"+whats,"_blank");
+html+=`
+<div class="card">
+<b>${d.produto}</b><br>
+Status: ${d.status}<br>
 
-/* mostra PIX */
+<button class="smallBtn" onclick="aprovar('${id}')">Aprovar</button>
+<button class="smallBtn" onclick="reset('${id}',12)">12h</button>
+<button class="smallBtn" onclick="reset('${id}',24)">24h</button>
+<button class="smallBtn" onclick="resetDay('${id}',7)">7d</button>
+<button class="smallBtn" onclick="resetDay('${id}',14)">14d</button>
+<button class="smallBtn" onclick="resetDay('${id}',21)">21d</button>
+<button class="smallBtn" onclick="resetDay('${id}',31)">31d</button>
+<button class="smallBtn" onclick="deletar('${id}')">Deletar</button>
+</div>`;
+}
+adminLista.innerHTML = html;
+}
+
+/* ADMIN FUNÇÕES */
+function aprovar(id){
+db.ref("products/"+id).update({status:"aprovado"});
+}
+
+function deletar(id){
+db.ref("products/"+id).remove();
+}
+
+function reset(id,h){
+db.ref("products/"+id).update({
+expiresAt: Date.now() + h*60*60*1000
+});
+}
+
+function resetDay(id,d){
+db.ref("products/"+id).update({
+expiresAt: Date.now() + d*24*60*60*1000
+});
+}
+
+/* PIX */
+function abrirPix(id,valor,produto){
 document.getElementById("pixInfo").innerHTML =
-"Produto: " + produto + "<br>Valor: R$ " + valor;
+"Produto: "+produto+"<br>Valor: R$ "+valor;
 
 pixBox.style.display="block";
 
-/* vendas */
-let v = (cache[id].vendas||0)+1;
-db.ref("products/"+id).update({vendas:v});
+pixTime=120;
+clearInterval(pixInterval);
+
+pixInterval=setInterval(()=>{
+pixTime--;
+let m=Math.floor(pixTime/60);
+let s=pixTime%60;
+
+pixTimer.innerHTML=`⏳ ${m}:${s<10?"0"+s:s}`;
+
+if(pixTime<=0){
+fecharPix();
+clearInterval(pixInterval);
+}
+},1000);
 }
 
-/* FECHAR PIX */
 function fecharPix(){
 pixBox.style.display="none";
+clearInterval(pixInterval);
+}
+
+function confirmarPagamento(){
+alert("Pagamento enviado!");
+fecharPix();
 }
 
 /* TIMER */
@@ -254,21 +376,21 @@ for(let id in cache){
 let d=cache[id];
 if(!d || d.status!=="aprovado") continue;
 
-let el = document.getElementById("t_"+id);
+let el=document.getElementById("t_"+id);
 if(!el) continue;
 
-let diff = d.expiresAt - Date.now();
+let diff=d.expiresAt-Date.now();
 
-if(diff <= 0){
-el.innerHTML = "⏱ EXPIRADO ❌";
+if(diff<=0){
+el.innerHTML="EXPIRADO";
 continue;
 }
 
-let s = Math.floor(diff/1000);
-let m = Math.floor(s/60);
-let h = Math.floor(m/60);
+let s=Math.floor(diff/1000);
+let m=Math.floor(s/60);
+let h=Math.floor(m/60);
 
-el.innerHTML = `⏱ ${h}h ${m%60}m ${s%60}s`;
+el.innerHTML=`⏱ ${h}h ${m%60}m ${s%60}s`;
 }
 }
 
