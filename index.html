@@ -35,6 +35,12 @@ animation:scroll 25s linear infinite;
 100%{transform:translateX(-100%);}
 }
 
+@keyframes pulse {
+0%{opacity:1;}
+50%{opacity:0.2;}
+100%{opacity:1;}
+}
+
 .container{padding:15px;}
 
 input{
@@ -81,6 +87,40 @@ width:100%;
 color:#fff;
 font-size:13px;
 margin-top:5px;
+}
+
+/* VIP BOX */
+#vipBox{
+position:fixed;
+top:80px;
+left:50%;
+transform:translateX(-50%);
+background:#111;
+border:2px solid red;
+padding:12px;
+border-radius:10px;
+z-index:99999;
+text-align:center;
+width:90%;
+max-width:300px;
+}
+
+.vipTitle{
+color:red;
+font-weight:bold;
+animation:pulse 1s infinite;
+}
+
+.vipBtn{
+background:red;
+color:#fff;
+padding:10px;
+border:none;
+border-radius:8px;
+width:100%;
+margin-top:10px;
+font-weight:bold;
+cursor:pointer;
 }
 
 /* ADMIN */
@@ -149,6 +189,19 @@ color:#000;
 <span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372</span>
 </div>
 
+<!-- VIP PROMO -->
+<div id="vipBox">
+<div class="vipTitle">🔥 VIP 100% ONLINE 🔥</div>
+<div>
+1Day R$4 | 3Day R$8<br>
+14Day R$12 | 21Day R$16<br>
+31Day R$20
+</div>
+<button class="vipBtn" onclick="window.open('https://wa.me/5551981528372','_blank')">
+ADQUIRIR AGORA
+</button>
+</div>
+
 <div class="container">
 
 <h3>Produtos cadastrados</h3>
@@ -213,18 +266,17 @@ const db = firebase.database();
 let cache={};
 let isAdmin=false;
 
-/* LOGIN */
 function login(){
 auth.signInWithEmailAndPassword(email.value, pass.value)
 .then(()=>{
 isAdmin=true;
 adminPanel.classList.add("open");
 loginBox.style.display="none";
+render();
 })
 .catch(e=>alert("Erro login: "+e.message));
 }
 
-/* ENVIAR */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
@@ -246,13 +298,11 @@ expiresAt:expire
 });
 }
 
-/* LISTA */
 db.ref("products").on("value",snap=>{
 cache = snap.val() || {};
 render();
 });
 
-/* RENDER */
 function render(){
 let html="";
 let adminHTML="";
@@ -261,32 +311,21 @@ for(let id in cache){
 let d=cache[id];
 if(!d) continue;
 
-/* CLIENTE */
 if(d.status==="aprovado"){
 html+=`
 <div class="card">
-
 <b>⚡ ${d.vendedor}</b><br>
 📦 ${d.produto}<br>
 💰 R$ ${d.valor}<br>
 📝 ${d.descricao}<br>
-
-<div class="timer" id="t_${id}">⏱ carregando...</div>
+<div class="timer" id="t_${id}"></div>
 
 <button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}','_blank')">
 📲 WhatsApp
 </button>
-
-${d.youtube ? `<button class="buyBtn" onclick="window.open('${d.youtube}','_blank')">▶ YouTube</button>`:""}
-${d.instagram ? `<button class="buyBtn" onclick="window.open('${d.instagram}','_blank')">📸 Instagram</button>`:""}
-${d.twitter ? `<button class="buyBtn" onclick="window.open('${d.twitter}','_blank')">🐦 Twitter</button>`:""}
-${d.telegram ? `<button class="buyBtn" onclick="window.open('${d.telegram}','_blank')">✈ Telegram</button>`:""}
-${d.facebook ? `<button class="buyBtn" onclick="window.open('${d.facebook}','_blank')">📘 Facebook</button>`:""}
-
 </div>`;
 }
 
-/* ADMIN */
 if(isAdmin){
 adminHTML+=`
 <div class="card">
@@ -294,18 +333,14 @@ adminHTML+=`
 Status: ${d.status}<br>
 
 <button class="smallBtn" onclick="aprovar('${id}')">APROVAR</button>
-
 <button class="smallBtn" onclick="resetMin('${id}',1)">1MIN</button>
 <button class="smallBtn" onclick="resetMin('${id}',10)">10MIN</button>
 <button class="smallBtn" onclick="resetMin('${id}',30)">30MIN</button>
-
 <button class="smallBtn" onclick="resetHour('${id}',1)">1H</button>
-
 <button class="smallBtn" onclick="resetDay('${id}',7)">7D</button>
 <button class="smallBtn" onclick="resetDay('${id}',14)">14D</button>
 <button class="smallBtn" onclick="resetDay('${id}',21)">21D</button>
 <button class="smallBtn" onclick="resetDay('${id}',31)">31D</button>
-
 <button class="smallBtn" onclick="deletar('${id}')">DELETAR</button>
 </div>`;
 }
@@ -315,7 +350,6 @@ lista.innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
 adminLista.innerHTML = adminHTML;
 }
 
-/* CONTADOR */
 function atualizarTempos(){
 for(let id in cache){
 let d=cache[id];
@@ -339,7 +373,6 @@ el.innerHTML = `⏱ ${h}h ${m%60}m ${s%60}s`;
 }
 }
 
-/* ADMIN FUNÇÕES */
 function aprovar(id){
 db.ref("products/"+id).update({status:"aprovado"});
 }
@@ -366,13 +399,17 @@ expiresAt: Date.now() + d*24*60*60*1000
 });
 }
 
-/* LOGIN TOGGLE */
 function toggleLogin(){
 loginBox.style.display =
 loginBox.style.display==="block"?"none":"block";
 }
 
 setInterval(atualizarTempos,1000);
+
+/* ALERTA A CADA 30s */
+setInterval(()=>{
+alert("⚡ Venha adquirir plano VIP e seguro, divulgações 24h!");
+},30000);
 </script>
 
 </body>
