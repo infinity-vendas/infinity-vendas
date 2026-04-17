@@ -24,6 +24,7 @@ white-space:nowrap;
 overflow:hidden;
 border-bottom:1px solid #222;
 }
+
 .marquee span {
 display:inline-block;
 padding-left:100%;
@@ -83,24 +84,31 @@ font-size:13px;
 margin-top:5px;
 }
 
-/* POPUPS */
-.popup{
+/* POPUP PIX */
+#pixBox{
 position:fixed;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
 background:#111;
-border:2px solid red;
+border:2px solid #ff7a00;
 padding:15px;
 border-radius:10px;
-z-index:99999;
+z-index:999999;
+display:none;
 text-align:center;
 width:90%;
-max-width:300px;
-display:none;
+max-width:320px;
 }
 
-.popup button{
+#pixBox img{
+width:100%;
+border-radius:10px;
+margin:10px 0;
+border:2px solid #ff7a00;
+}
+
+#pixBox button{
 background:red;
 color:#fff;
 border:none;
@@ -121,15 +129,16 @@ cursor:pointer;
 <span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372</span>
 </div>
 
-<div id="expiredBox" class="popup">
-<div id="expiredText"></div>
-</div>
+<!-- PIX BOX -->
+<div id="pixBox">
+<h3>💰 Pagamento PIX</h3>
 
-<div id="adsBox" class="popup">
-<div>
-🚀 Atualize para versão VIP e tenha vendas ilimitadas!
-</div>
-<button onclick="adsBox.style.display='none'">FECHAR</button>
+<img src="https://raw.githubusercontent.com/infinity-vendas/infinity-vendas/main/Screenshot_20260417-042120-1.png">
+
+<p><b>Chave PIX:</b> 51981528372</p>
+<p id="pixInfo"></p>
+
+<button onclick="fecharPix()">FECHAR</button>
 </div>
 
 <div class="container">
@@ -166,7 +175,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let cache={};
-let expiradosMostrados = {};
 
 /* ENVIAR */
 function enviarProduto(){
@@ -209,8 +217,8 @@ html+=`
 
 <div>🔥 Vendas: ${d.vendas||0}</div>
 
-<button class="buyBtn" onclick="comprar('${id}','${d.whatsapp}')">
-📲 WhatsApp
+<button class="buyBtn" onclick="comprar('${id}','${d.whatsapp}','${d.valor}','${d.produto}')">
+📲 Comprar + PIX
 </button>
 
 </div>`;
@@ -220,11 +228,24 @@ lista.innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
 }
 
 /* COMPRA */
-function comprar(id,whats){
+function comprar(id,whats,valor,produto){
+
 window.open("https://wa.me/"+whats,"_blank");
 
+/* mostra PIX */
+document.getElementById("pixInfo").innerHTML =
+"Produto: " + produto + "<br>Valor: R$ " + valor;
+
+pixBox.style.display="block";
+
+/* vendas */
 let v = (cache[id].vendas||0)+1;
 db.ref("products/"+id).update({vendas:v});
+}
+
+/* FECHAR PIX */
+function fecharPix(){
+pixBox.style.display="none";
 }
 
 /* TIMER */
@@ -239,29 +260,6 @@ if(!el) continue;
 let diff = d.expiresAt - Date.now();
 
 if(diff <= 0){
-
-if(!expiradosMostrados[id]){
-expiradosMostrados[id]=true;
-
-expiredText.innerHTML = `
-Plano expirado<br><br>
-📦 ${d.produto}<br>
-👤 ${d.vendedor}
-`;
-
-expiredBox.style.display="block";
-
-/* some em 2s */
-setTimeout(()=>{
-expiredBox.style.display="none";
-},2000);
-
-/* deleta automático */
-setTimeout(()=>{
-db.ref("products/"+id).remove();
-},2000);
-}
-
 el.innerHTML = "⏱ EXPIRADO ❌";
 continue;
 }
@@ -275,16 +273,6 @@ el.innerHTML = `⏱ ${h}h ${m%60}m ${s%60}s`;
 }
 
 setInterval(atualizarTempos,1000);
-
-/* ANUNCIO CORRIGIDO (1 MINUTO) */
-setInterval(()=>{
-adsBox.style.display="block";
-
-setTimeout(()=>{
-adsBox.style.display="none";
-},15000);
-
-},60000);
 </script>
 
 </body>
