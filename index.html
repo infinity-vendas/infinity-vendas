@@ -35,12 +35,6 @@ animation:scroll 25s linear infinite;
 100%{transform:translateX(-100%);}
 }
 
-@keyframes pulse {
-0%{opacity:1;}
-50%{opacity:0.2;}
-100%{opacity:1;}
-}
-
 .container{padding:15px;}
 
 input{
@@ -127,18 +121,13 @@ cursor:pointer;
 <span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372</span>
 </div>
 
-<!-- POPUP EXPIRADO -->
 <div id="expiredBox" class="popup">
 <div id="expiredText"></div>
-<button onclick="fecharExpirado()">FECHAR</button>
 </div>
 
-<!-- POPUP ANUNCIO -->
 <div id="adsBox" class="popup">
 <div>
-Evite bloqueio de produtos<br>
-Atualize para versão VIP ainda hoje<br>
-tenha acesso ilimitado 🚀
+🚀 Atualize para versão VIP e tenha vendas ilimitadas!
 </div>
 <button onclick="adsBox.style.display='none'">FECHAR</button>
 </div>
@@ -177,8 +166,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let cache={};
-let vendas=0;
-let produtoExpiradoID=null;
+let expiradosMostrados = {};
 
 /* ENVIAR */
 function enviarProduto(){
@@ -251,16 +239,30 @@ if(!el) continue;
 let diff = d.expiresAt - Date.now();
 
 if(diff <= 0){
-el.innerHTML = "⏱ EXPIRADO ❌";
 
-produtoExpiradoID=id;
+if(!expiradosMostrados[id]){
+expiradosMostrados[id]=true;
+
 expiredText.innerHTML = `
-Plano expirado ou inexistente<br><br>
+Plano expirado<br><br>
 📦 ${d.produto}<br>
 👤 ${d.vendedor}
 `;
 
 expiredBox.style.display="block";
+
+/* some em 2s */
+setTimeout(()=>{
+expiredBox.style.display="none";
+},2000);
+
+/* deleta automático */
+setTimeout(()=>{
+db.ref("products/"+id).remove();
+},2000);
+}
+
+el.innerHTML = "⏱ EXPIRADO ❌";
 continue;
 }
 
@@ -272,32 +274,17 @@ el.innerHTML = `⏱ ${h}h ${m%60}m ${s%60}s`;
 }
 }
 
-/* FECHAR EXPIRADO */
-function fecharExpirado(){
-expiredBox.style.display="none";
+setInterval(atualizarTempos,1000);
 
-if(produtoExpiradoID){
-db.ref("products/"+produtoExpiradoID).remove();
-produtoExpiradoID=null;
-}
-
-/* ANUNCIO DEPOIS */
-setTimeout(()=>{
+/* ANUNCIO CORRIGIDO (1 MINUTO) */
+setInterval(()=>{
 adsBox.style.display="block";
 
 setTimeout(()=>{
 adsBox.style.display="none";
 },15000);
 
-},5000);
-}
-
-setInterval(atualizarTempos,1000);
-
-/* ALERTA */
-setInterval(()=>{
-alert("⚡ Plano VIP libera vendas automáticas e ilimitadas!");
-},30000);
+},60000);
 </script>
 
 </body>
