@@ -90,7 +90,7 @@ font-size:13px;
 margin-top:5px;
 }
 
-/* ADMIN PANEL MODERNO */
+/* ADMIN FLUTUANTE (CORRIGIDO) */
 #adminPanel{
 position:fixed;
 top:0;
@@ -104,8 +104,10 @@ overflow:auto;
 z-index:99999;
 border-left:2px solid #ff7a00;
 display:none;
+box-shadow:-5px 0 20px rgba(0,0,0,0.6);
 }
 
+/* BOTÃO ADMIN */
 #adminToggle{
 position:fixed;
 bottom:15px;
@@ -118,11 +120,6 @@ border-radius:50%;
 font-weight:bold;
 cursor:pointer;
 z-index:100000;
-box-shadow:0 4px 15px rgba(0,0,0,0.5);
-}
-
-#adminToggle:hover{
-transform:scale(1.05);
 }
 
 /* BOTÕES ADMIN */
@@ -136,12 +133,24 @@ margin:2px;
 cursor:pointer;
 font-size:11px;
 width:48%;
-transition:0.2s;
 }
 
 .smallBtn:hover{
 background:#ff7a00;
 color:#000;
+}
+
+/* FECHAR ADMIN */
+.closeBtn{
+background:red;
+color:#fff;
+padding:10px;
+border:none;
+border-radius:8px;
+width:100%;
+margin-bottom:10px;
+cursor:pointer;
+font-weight:bold;
 }
 
 /* LOGIN */
@@ -166,6 +175,21 @@ border-radius:10px;
 width:90%;
 max-width:300px;
 }
+
+/* QR CODE */
+.qrBox{
+background:#111;
+margin:15px 0;
+padding:15px;
+border-radius:10px;
+text-align:center;
+}
+
+.qrBox img{
+width:100%;
+max-width:260px;
+border-radius:10px;
+}
 </style>
 </head>
 
@@ -174,7 +198,7 @@ max-width:300px;
 <header>INFINITY DIVULGAÇÕES</header>
 
 <div class="marquee">
-<span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372</span>
+<span>⚡ Produtos online 24h | Sistema automático Infinity ⚡ WhatsApp: 51981528372</span>
 </div>
 
 <!-- LOGIN -->
@@ -190,24 +214,31 @@ max-width:300px;
 <button id="adminToggle" onclick="toggleAdmin()">☰</button>
 
 <div id="adminPanel">
-<h3>ADMIN</h3>
-<button class="btn" onclick="logout()">SAIR</button>
+<button class="closeBtn" onclick="toggleAdmin()">FECHAR</button>
 <div id="adminLista"></div>
 </div>
 
 <div class="container">
 
-<h3>Produtos cadastrados</h3>
+<h3>Produtos cadastrados em nosso sistema em tempo real:</h3>
 <div id="lista">Carregando...</div>
+
+<!-- QR CODE ADICIONADO -->
+<div class="qrBox">
+<h3>Pagamento PIX</h3>
+<img src="https://raw.githubusercontent.com/infinity-vendas/infinity-vendas/refs/heads/main/Screenshot_20260417-042120-1.png" alt="QR Code PIX">
+<p>Chave PIX: <b>SUA-CHAVE-AQUI</b></p>
+</div>
 
 <hr>
 
 <h3>Cadastro</h3>
 
-<input id="vendedor" placeholder="Nome vendedor">
+<input id="vendedor" placeholder="Vendedor">
 <input id="produto" placeholder="Produto">
 <input id="valor" placeholder="Valor">
 <input id="descricao" placeholder="Descrição">
+<input id="instagram" placeholder="Instagram @">
 <input id="whatsapp" placeholder="WhatsApp">
 
 <button class="btn" onclick="enviarProduto()">ENVIAR PRODUTO</button>
@@ -235,16 +266,10 @@ let adminLogado = false;
 
 /* LOGIN */
 function login(){
-let email = document.getElementById("email").value;
-let senha = document.getElementById("senha").value;
-
-auth.signInWithEmailAndPassword(email, senha)
+auth.signInWithEmailAndPassword(email.value, senha.value)
 .then(()=>{
 adminLogado = true;
-document.getElementById("loginBox").style.display="none";
-})
-.catch(err=>{
-alert("Erro login: " + err.message);
+loginBox.style.display="none";
 });
 }
 
@@ -252,14 +277,14 @@ alert("Erro login: " + err.message);
 function logout(){
 auth.signOut();
 adminLogado = false;
-document.getElementById("loginBox").style.display="flex";
-document.getElementById("adminPanel").style.display="none";
+loginBox.style.display="flex";
+adminPanel.style.display="none";
 }
 
-/* AUTH STATE */
+/* AUTH */
 auth.onAuthStateChanged(user=>{
 adminLogado = !!user;
-document.getElementById("loginBox").style.display = user ? "none" : "flex";
+loginBox.style.display = user ? "none" : "flex";
 });
 
 /* TOGGLE ADMIN */
@@ -268,23 +293,20 @@ if(!adminLogado){
 alert("Faça login primeiro!");
 return;
 }
-const panel = document.getElementById("adminPanel");
-panel.style.display = (panel.style.display === "block") ? "none" : "block";
+adminPanel.style.display = (adminPanel.style.display==="block")?"none":"block";
 }
 
 /* ENVIAR */
 function enviarProduto(){
-let expire = Date.now() + (24*60*60*1000);
-
 db.ref("products").push({
-vendedor: document.getElementById("vendedor").value,
-produto: document.getElementById("produto").value,
-valor: document.getElementById("valor").value,
-descricao: document.getElementById("descricao").value,
-whatsapp: (document.getElementById("whatsapp").value || "").replace(/\D/g,''),
+vendedor:vendedor.value,
+produto:produto.value,
+valor:valor.value,
+descricao:descricao.value,
+instagram:instagram.value,
+whatsapp:whatsapp.value.replace(/\D/g,''),
 status:"pendente",
-expiresAt:expire,
-vendas:0
+expiresAt: Date.now() + 86400000
 });
 }
 
@@ -298,7 +320,6 @@ renderAdmin();
 /* CLIENT */
 function render(){
 let html="";
-
 for(let id in cache){
 let d=cache[id];
 if(!d || d.status!=="aprovado") continue;
@@ -309,12 +330,13 @@ html+=`
 📦 ${d.produto}<br>
 💰 R$ ${d.valor}<br>
 📝 ${d.descricao}<br>
+📸 ${d.instagram}<br>
+📱 ${d.whatsapp}<br>
 <div class="timer" id="t_${id}"></div>
 <button class="buyBtn">Adquirir</button>
 </div>`;
 }
-
-document.getElementById("lista").innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
+lista.innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
 }
 
 /* ADMIN */
@@ -332,15 +354,15 @@ html+=`
 Status: ${d.status}<br>
 
 <button class="smallBtn" onclick="aprovar('${id}')">OK</button>
+<button class="smallBtn" onclick="reset('${id}',12)">12h</button>
 <button class="smallBtn" onclick="reset('${id}',24)">24h</button>
 <button class="smallBtn" onclick="deletar('${id}')">Del</button>
 </div>`;
 }
-
-document.getElementById("adminLista").innerHTML = html;
+adminLista.innerHTML = html;
 }
 
-/* ADMIN FUNÇÕES */
+/* FUNÇÕES ADMIN */
 function aprovar(id){
 db.ref("products/"+id).update({status:"aprovado"});
 }
@@ -364,21 +386,16 @@ if(!d || d.status!=="aprovado") continue;
 let el=document.getElementById("t_"+id);
 if(!el) continue;
 
-let diff = d.expiresAt - Date.now();
+let diff=d.expiresAt-Date.now();
+if(diff<=0){ el.innerHTML="EXPIRADO"; continue; }
 
-if(diff <= 0){
-el.innerHTML = "EXPIRADO";
-continue;
-}
+let s=Math.floor(diff/1000);
+let m=Math.floor(s/60);
+let h=Math.floor(m/60);
 
-let s = Math.floor(diff/1000);
-let m = Math.floor(s/60);
-let h = Math.floor(m/60);
-
-el.innerHTML = `⏱ ${h}h ${m%60}m ${s%60}s`;
+el.innerHTML=`⏱ ${h}h ${m%60}m ${s%60}s`;
 }
 }
-
 setInterval(atualizarTempos,1000);
 </script>
 
