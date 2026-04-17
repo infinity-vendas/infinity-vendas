@@ -76,6 +76,68 @@ cursor:pointer;
 font-weight:bold;
 width:100%;
 }
+
+.timer{
+color:#fff;
+font-size:13px;
+margin-top:5px;
+}
+
+/* ADMIN */
+#adminPanel{
+position:fixed;
+top:0;
+right:-340px;
+width:320px;
+height:100%;
+background:#111;
+padding:10px;
+transition:0.3s;
+overflow:auto;
+z-index:9999;
+}
+#adminPanel.open{right:0;}
+
+.smallBtn{
+background:#333;
+color:#fff;
+padding:6px;
+border:none;
+border-radius:6px;
+margin:2px;
+cursor:pointer;
+font-size:11px;
+width:48%;
+}
+
+/* LOGIN */
+#loginBox{
+position:fixed;
+bottom:80px;
+right:15px;
+width:220px;
+background:#111;
+padding:10px;
+display:none;
+border-radius:10px;
+z-index:9999;
+}
+
+#loginBtn{
+position:fixed;
+bottom:15px;
+right:15px;
+width:50px;
+height:50px;
+background:#ff7a00;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+font-weight:bold;
+color:#000;
+}
 </style>
 </head>
 
@@ -113,7 +175,23 @@ width:100%;
 
 </div>
 
+<!-- ADMIN -->
+<div id="adminPanel">
+<h3>ADMIN</h3>
+<div id="adminLista"></div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginBox">
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Senha">
+<button class="btn" onclick="login()">Entrar</button>
+</div>
+
+<div id="loginBtn" onclick="toggleLogin()">A</div>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
@@ -128,10 +206,25 @@ appId: "1:613112794080:web:acd63b723aec957b21f985"
 };
 
 firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
 const db = firebase.database();
 
 let cache={};
+let isAdmin=false;
 
+/* LOGIN */
+function login(){
+auth.signInWithEmailAndPassword(email.value, pass.value)
+.then(()=>{
+isAdmin=true;
+adminPanel.classList.add("open");
+loginBox.style.display="none";
+})
+.catch(e=>alert("Erro login: "+e.message));
+}
+
+/* ENVIAR */
 function enviarProduto(){
 let expire = Date.now() + (24*60*60*1000);
 
@@ -153,25 +246,32 @@ expiresAt:expire
 });
 }
 
+/* LISTA */
 db.ref("products").on("value",snap=>{
 cache = snap.val() || {};
 render();
 });
 
+/* RENDER */
 function render(){
 let html="";
+let adminHTML="";
 
 for(let id in cache){
 let d=cache[id];
-if(!d || d.status!=="aprovado") continue;
+if(!d) continue;
 
+/* CLIENTE */
+if(d.status==="aprovado"){
 html+=`
 <div class="card">
 
 <b>⚡ ${d.vendedor}</b><br>
 📦 ${d.produto}<br>
 💰 R$ ${d.valor}<br>
-📝 ${d.descricao}<br><br>
+📝 ${d.descricao}<br>
+
+<div class="timer" id="t_${id}">⏱ carregando...</div>
 
 <button class="buyBtn" onclick="window.open('https://wa.me/${d.whatsapp}','_blank')">
 📲 WhatsApp
@@ -186,8 +286,93 @@ ${d.facebook ? `<button class="buyBtn" onclick="window.open('${d.facebook}','_bl
 </div>`;
 }
 
-lista.innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
+/* ADMIN */
+if(isAdmin){
+adminHTML+=`
+<div class="card">
+<b>${d.produto}</b><br>
+Status: ${d.status}<br>
+
+<button class="smallBtn" onclick="aprovar('${id}')">APROVAR</button>
+
+<button class="smallBtn" onclick="resetMin('${id}',1)">1MIN</button>
+<button class="smallBtn" onclick="resetMin('${id}',10)">10MIN</button>
+<button class="smallBtn" onclick="resetMin('${id}',30)">30MIN</button>
+
+<button class="smallBtn" onclick="resetHour('${id}',1)">1H</button>
+
+<button class="smallBtn" onclick="resetDay('${id}',7)">7D</button>
+<button class="smallBtn" onclick="resetDay('${id}',14)">14D</button>
+<button class="smallBtn" onclick="resetDay('${id}',21)">21D</button>
+<button class="smallBtn" onclick="resetDay('${id}',31)">31D</button>
+
+<button class="smallBtn" onclick="deletar('${id}')">DELETAR</button>
+</div>`;
 }
+}
+
+lista.innerHTML = html || "<div class='card'>Nenhum produto ativo ⚠️</div>";
+adminLista.innerHTML = adminHTML;
+}
+
+/* CONTADOR */
+function atualizarTempos(){
+for(let id in cache){
+let d=cache[id];
+if(!d || d.status!=="aprovado") continue;
+
+let el = document.getElementById("t_"+id);
+if(!el) continue;
+
+let diff = d.expiresAt - Date.now();
+
+if(diff <= 0){
+el.innerHTML = "⏱ EXPIRADO ❌";
+continue;
+}
+
+let s = Math.floor(diff/1000);
+let m = Math.floor(s/60);
+let h = Math.floor(m/60);
+
+el.innerHTML = `⏱ ${h}h ${m%60}m ${s%60}s`;
+}
+}
+
+/* ADMIN FUNÇÕES */
+function aprovar(id){
+db.ref("products/"+id).update({status:"aprovado"});
+}
+
+function deletar(id){
+db.ref("products/"+id).remove();
+}
+
+function resetMin(id,min){
+db.ref("products/"+id).update({
+expiresAt: Date.now() + min*60*1000
+});
+}
+
+function resetHour(id,h){
+db.ref("products/"+id).update({
+expiresAt: Date.now() + h*60*60*1000
+});
+}
+
+function resetDay(id,d){
+db.ref("products/"+id).update({
+expiresAt: Date.now() + d*24*60*60*1000
+});
+}
+
+/* LOGIN TOGGLE */
+function toggleLogin(){
+loginBox.style.display =
+loginBox.style.display==="block"?"none":"block";
+}
+
+setInterval(atualizarTempos,1000);
 </script>
 
 </body>
