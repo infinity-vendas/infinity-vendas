@@ -139,7 +139,7 @@ font-weight:bold;
 .instaBtn{background:#E1306C;color:#fff;}
 .confirmBtn{background:#00c853;color:#fff;}
 
-/* ADMIN */
+/* ADMIN PANEL (CORRIGIDO) */
 #adminPanel{
 position:fixed;
 top:0;
@@ -149,8 +149,31 @@ height:100%;
 background:#111;
 padding:10px;
 overflow:auto;
-z-index:99999;
+z-index:1000; /* não tampa mais tudo */
 border-left:2px solid #ff7a00;
+transition:0.3s;
+}
+
+/* minimizado */
+#adminPanel.minimizado{
+width:60px;
+padding:5px;
+overflow:hidden;
+}
+
+/* botão flutuante */
+#adminToggle{
+position:fixed;
+top:10px;
+right:10px;
+background:#ff7a00;
+color:#000;
+border:none;
+padding:10px;
+border-radius:50%;
+font-weight:bold;
+cursor:pointer;
+z-index:1001;
 }
 
 .smallBtn{
@@ -164,6 +187,15 @@ cursor:pointer;
 font-size:11px;
 width:48%;
 }
+
+.adminHeader{
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-weight:bold;
+margin-bottom:10px;
+}
+
 </style>
 </head>
 
@@ -174,6 +206,9 @@ width:48%;
 <div class="marquee">
 <span>⚡ Adquira versão VIP ilimitadas! Seus produtos online 24h ⚡ WhatsApp: 51981528372</span>
 </div>
+
+<!-- BOTÃO FLUTUANTE ADMIN -->
+<button id="adminToggle" onclick="toggleAdmin()">☰</button>
 
 <!-- PIX BOX -->
 <div id="pixBox">
@@ -203,7 +238,10 @@ Confirmar pagamento
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel">
-<h3>ADMIN PANEL</h3>
+<div class="adminHeader">
+<span>ADMIN</span>
+<button onclick="toggleAdmin()">—</button>
+</div>
 <div id="adminLista"></div>
 </div>
 
@@ -243,6 +281,11 @@ const db = firebase.database();
 let cache={};
 let pixInterval;
 let pixTime = 120;
+
+/* ADMIN TOGGLE */
+function toggleAdmin(){
+document.getElementById("adminPanel").classList.toggle("minimizado");
+}
 
 /* ENVIAR */
 function enviarProduto(){
@@ -315,7 +358,7 @@ Status: ${d.status}<br>
 adminLista.innerHTML = html;
 }
 
-/* ADMIN FUNÇÕES */
+/* FUNÇÕES ADMIN */
 function aprovar(id){
 db.ref("products/"+id).update({status:"aprovado"});
 }
