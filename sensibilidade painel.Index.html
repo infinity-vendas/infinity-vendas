@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINITY CLIENTES</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at top, #000814, #000);
+    color: white;
+    text-align: center;
+}
+
+/* FUNDO LED */
+body::before {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, #00ccff33, transparent 70%);
+    animation: bg 6s infinite;
+    z-index: -1;
+}
+
+@keyframes bg {
+    0% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.4); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 0.3; }
+}
+
+/* LOGO */
+.logo {
+    width: 120px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #00ccff;
+}
+
+/* TEXTO COLORIDO */
+.anim-text {
+    animation: cores 2s infinite;
+}
+
+@keyframes cores {
+    0% { color: #001f3f; }
+    50% { color: red; }
+    100% { color: white; }
+}
+
+/* CARD */
+.card {
+    background: rgba(0,0,0,0.75);
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+    border: 1px solid #00ccff;
+    box-shadow: 0 0 20px #00ccff;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+/* BOTÕES */
+button {
+    background: transparent;
+    border: 2px solid #00ccff;
+    padding: 12px;
+    border-radius: 10px;
+    color: #00ccff;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 90%;
+    max-width: 300px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #00ccff;
+    color: black;
+    box-shadow: 0 0 20px #00ccff;
+}
+
+/* CONFIG */
+.config {
+    margin-top: 20px;
+    font-size: 17px;
+    animation: cores 2s infinite;
+}
+
+/* FEEDBACK BONITO */
+.feedback-box {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.6);
+    border-left: 4px solid #00ccff;
+    text-align: left;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+
+/* INPUTS */
+input, textarea {
+    width: 90%;
+    max-width: 300px;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    margin-top: 5px;
+    outline: none;
+}
+
+/* MSG */
+#msg {
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.show { opacity: 1; }
+
+.counter { color: #00ff88; }
+
+.credit { color: red; margin-top: 20px; }
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<img src="https://i.postimg.cc/g2JJvqHN/logo.jpg" class="logo">
+
+<h1 class="anim-text">INFINITY CLIENTES</h1>
+
+<div class="anim-text">
+Nick Dono: FAELZIN<br>
+Lançado: 06/05/2026 | Tipy: VIP<br>
+WhatsApp: +55 51 981528372
+</div>
+
+<div class="counter" id="contadorDia">Hoje: 0/500</div>
+
+<!-- GERADOR -->
+<div class="card">
+
+<button onclick="gerarVIP()"> GERAR SENSIBILIDADE</button>
+
+<div id="config" class="config"></div>
+
+<button onclick="copiar()"> COPIAR</button>
+<button onclick="compartilhar()"> COMPARTILHAR</button>
+
+<div id="msg"></div>
+
+</div>
+
+<!-- APOIO -->
+<div class="card">
+<p>Apoie o desenvolvedor </p>
+<button onclick="abrirContribuicao()">Contribuir</button>
+<button onclick="copiarPix()">Copiar PIX</button>
+</div>
+
+<!-- FEEDBACK -->
+<div class="card">
+
+<h3 class="anim-text"> Feedback em tempo real</h3>
+
+<input id="nome" placeholder="Seu nome">
+<textarea id="mensagem" placeholder="Mensagem"></textarea>
+
+<button onclick="enviarFeedback()">Enviar</button>
+
+<div id="listaFeedback"></div>
+
+</div>
+
+<div class="credit">
+Official credits : FAELZIN
+</div>
+
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDUSye7h9KBUdrvyXyZQRNZWA1I8iyMJIE",
+  authDomain: "infinity-site-18b8c.firebaseapp.com",
+  databaseURL: "https://infinity-site-18b8c-default-rtdb.firebaseio.com",
+  projectId: "infinity-site-18b8c",
+  storageBucket: "infinity-site-18b8c.firebasestorage.app",
+  messagingSenderId: "365343504184",
+  appId: "1:365343504184:web:fe7365e122ae60fc1e73cd",
+  measurementId: "G-0JT03KFEVS"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* SISTEMA */
+let ultimaConfig = "";
+let historico = new Set();
+let limiteDia = 500;
+
+function hoje(){ return new Date().toLocaleDateString(); }
+
+function atualizarContador(){
+let uso = localStorage.getItem("usoHoje")||0;
+document.getElementById("contadorDia").innerText=`Hoje: ${uso}/500`;
+}
+
+function checkReset(){
+if(localStorage.getItem("dataHoje")!==hoje()){
+localStorage.setItem("dataHoje",hoje());
+localStorage.setItem("usoHoje",0);
+}
+}
+
+/* VIP */
+function gerarVIP(){
+
+checkReset();
+
+let uso=parseInt(localStorage.getItem("usoHoje")||0);
+
+if(uso>=limiteDia){
+alert("Limite atingido");
+return;
+}
+
+window.open("https://wa.me/5551981528372?text=salve administrador ");
+
+setTimeout(()=>liberar(),2000);
+}
+
+function liberar(){
+
+let uso=parseInt(localStorage.getItem("usoHoje")||0);
+localStorage.setItem("usoHoje",uso+1);
+
+atualizarContador();
+gerarUnica();
+
+msg(" Liberado com sucesso");
+}
+
+/* GERAR */
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+function gerarUnica(){
+
+let config=`
+Geral: ${rand(120,200)}
+Red Dot: ${rand(110,200)}
+Mira 2X: ${rand(100,190)}
+Mira 4X: ${rand(90,170)}
+AWM: ${rand(70,130)}
+Olhadinha: ${rand(50,100)}
+
+Botão: ${rand(40,80)}%
+DPI: ${rand(300,600)}
+Velocidade: ${rand(0,1)?"Max":"Médio"}
+`;
+
+if(historico.has(config)) return gerarUnica();
+
+historico.add(config);
+ultimaConfig=config;
+
+document.getElementById("config").innerHTML=config.replace(/\n/g,"<br>");
+}
+
+/* AÇÕES */
+function copiar(){
+navigator.clipboard.writeText(ultimaConfig);
+msg("Copied success");
+}
+
+function compartilhar(){
+window.open("https://wa.me/?text="+encodeURIComponent(ultimaConfig));
+}
+
+function copiarPix(){
+navigator.clipboard.writeText("51981528372");
+msg("PIX copiado");
+}
+
+function abrirContribuicao(){
+window.open("https://wa.me/5551981528372");
+}
+
+function msg(t){
+let m=document.getElementById("msg");
+m.innerText=t;
+m.classList.add("show");
+setTimeout(()=>m.classList.remove("show"),2000);
+}
+
+/* FEEDBACK */
+let ultimoEnvio=0;
+
+function enviarFeedback(){
+
+let nome=document.getElementById("nome").value;
+let mensagem=document.getElementById("mensagem").value;
+
+if(!nome||!mensagem) return;
+
+if(Date.now()-ultimoEnvio<5000){
+alert("Espere...");
+return;
+}
+
+ultimoEnvio=Date.now();
+
+db.ref("feedback").push({
+nome,
+mensagem,
+time:Date.now()
+});
+
+document.getElementById("mensagem").value="";
+}
+
+/* REALTIME */
+db.ref("feedback").limitToLast(20).on("child_added",snap=>{
+let d=snap.val();
+
+let div=document.createElement("div");
+div.className="feedback-box";
+div.innerHTML=`<b>${d.nome}</b><br>${d.mensagem}`;
+
+document.getElementById("listaFeedback").prepend(div);
+});
+
+/* INIT */
+checkReset();
+atualizarContador();
+
+</script>
+
+</body>
+</html>
