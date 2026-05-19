@@ -3,320 +3,566 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>FNZ FAELZIN VENDAS</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Dark Consultas ACC</title>
 
 <style>
 
-body{
+*{
     margin:0;
-    font-family:Poppins;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
     background:#050505;
     color:#fff;
+    overflow-x:hidden;
 }
 
-/* BLOQUEIOS BÁSICOS */
-body{
-    user-select:none;
+body::before{
+    content:'';
+    position:fixed;
+    width:500px;
+    height:500px;
+    background:#6a00ff;
+    filter:blur(180px);
+    top:-150px;
+    left:-120px;
+    opacity:0.25;
+    z-index:-1;
 }
 
-img{
-    pointer-events:none;
+body::after{
+    content:'';
+    position:fixed;
+    width:450px;
+    height:450px;
+    background:#00ffee;
+    filter:blur(180px);
+    bottom:-150px;
+    right:-120px;
+    opacity:0.10;
+    z-index:-1;
 }
 
-/* HEADER */
-header{
-    padding:20px;
+.container{
+    width:100%;
+    min-height:100vh;
     display:flex;
-    justify-content:space-between;
-    background:#111;
-}
-
-.logo{
-    font-size:26px;
-    font-weight:800;
-    cursor:pointer;
-    background:linear-gradient(90deg,#ff2d00,#ff7b00);
-    -webkit-background-clip:text;
-    color:transparent;
-}
-
-/* PRODUCTS */
-.products{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:20px;
+    justify-content:center;
+    align-items:center;
     padding:20px;
 }
 
 .card{
-    background:#111;
+    width:100%;
+    max-width:460px;
+    background:#0d0d0d;
+    border:1px solid #222;
+    border-radius:24px;
+    padding:30px;
+    box-shadow:0 0 40px rgba(0,0,0,0.7);
+    animation:fade 0.8s ease;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.logo{
+    text-align:center;
+    font-size:34px;
+    font-weight:bold;
+    margin-bottom:15px;
+    background:linear-gradient(90deg,#7b2cff,#00ffee,#ff00ff);
+    background-size:300%;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:gradient 5s linear infinite;
+}
+
+@keyframes gradient{
+    0%{background-position:0%;}
+    100%{background-position:300%;}
+}
+
+.desc{
+    text-align:center;
+    color:#c7c7c7;
+    line-height:25px;
+    font-size:14px;
+    margin-bottom:25px;
+}
+
+.aviso{
+    background:#151515;
+    border:1px solid #2d2d2d;
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:25px;
+    color:#d7d7d7;
+    font-size:13px;
+    line-height:24px;
+}
+
+.google-btn{
+    width:100%;
+    height:58px;
+    border:none;
     border-radius:15px;
-    overflow:hidden;
-}
-
-.card img{
-    width:100%;
-    height:200px;
-    object-fit:cover;
-}
-
-.card-content{
-    padding:15px;
-}
-
-.price{
-    color:#ff7b00;
-    font-size:20px;
-    font-weight:700;
-}
-
-button{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
+    background:linear-gradient(90deg,#6a00ff,#8e2dff);
+    color:#fff;
+    font-size:16px;
+    font-weight:bold;
     cursor:pointer;
-    margin-top:8px;
-}
-
-.whats{
-    background:#25D366;
-}
-
-.pay{
-    background:linear-gradient(90deg,#ff2d00,#ff7b00);
-}
-
-/* ADMIN */
-.admin{
-    position:fixed;
-    right:-400px;
-    top:0;
-    width:350px;
-    height:100%;
-    background:#111;
     transition:0.3s;
-    padding:20px;
 }
 
-.admin.active{
-    right:0;
+.google-btn:hover{
+    transform:scale(1.02);
 }
 
-input,textarea{
-    width:100%;
-    padding:10px;
-    margin:5px 0;
-    background:#222;
-    color:#fff;
-    border:none;
-}
-
-.save{
-    background:linear-gradient(90deg,#ff2d00,#ff7b00);
-}
-
-/* LOGIN ADMIN */
-.login{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.9);
+.hidden{
     display:none;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
 }
 
-.login-box{
-    background:#111;
-    padding:20px;
+.user-box{
+    background:#151515;
+    border:1px solid #2b2b2b;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:20px;
+    text-align:center;
+}
+
+.user-box img{
+    width:75px;
+    height:75px;
+    border-radius:50%;
+    border:3px solid #7b2cff;
+    margin-bottom:10px;
+}
+
+.user-box h3{
+    margin-bottom:5px;
+}
+
+.user-box p{
+    color:#bdbdbd;
+    font-size:14px;
+}
+
+.service{
+    background:#141414;
+    border:1px solid #272727;
+    border-radius:16px;
+    padding:16px;
+    margin-top:15px;
+    transition:0.3s;
+    cursor:pointer;
+}
+
+.service:hover{
+    border-color:#7b2cff;
+    transform:translateY(-2px);
+}
+
+.service h3{
+    color:#9b4dff;
+    margin-bottom:12px;
+}
+
+.service p{
+    color:#c0c0c0;
+    line-height:24px;
+    font-size:14px;
+}
+
+.result{
+    margin-top:25px;
+    background:#121212;
+    border:1px solid #292929;
+    border-radius:18px;
+    padding:18px;
+}
+
+.result h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#8e2dff;
+}
+
+.item{
+    background:#181818;
     border-radius:12px;
-    width:280px;
+    padding:14px;
+    margin-bottom:12px;
 }
 
-.login input{
+.item span{
+    color:#888;
+    display:block;
+    margin-bottom:5px;
+    font-size:13px;
+}
+
+.censurado{
+    filter:blur(5px);
+    user-select:none;
+}
+
+.liberacao{
+    margin-top:18px;
+    background:#151515;
+    border:1px solid #2d2d2d;
+    border-radius:16px;
+    padding:18px;
+    text-align:center;
+}
+
+.btn{
     width:100%;
-    padding:10px;
-    margin:10px 0;
-    background:#222;
-    color:#fff;
+    height:52px;
     border:none;
+    border-radius:14px;
+    background:linear-gradient(90deg,#6a00ff,#8e2dff);
+    color:#fff;
+    font-weight:bold;
+    font-size:15px;
+    margin-top:12px;
+    cursor:pointer;
 }
 
-.login button{
-    background:#ff2d00;
+.footer{
+    text-align:center;
+    color:#666;
+    margin-top:22px;
+    font-size:12px;
+    line-height:22px;
 }
 
 </style>
 </head>
 
-<body oncontextmenu="return false">
+<body>
 
-<header>
-    <div class="logo" id="logo">FNZ FAELZIN VENDAS</div>
-</header>
+<div class="container">
 
-<div class="products" id="products"></div>
+<!-- LOGIN -->
+<div class="card" id="loginCard">
 
-<!-- ADMIN PAINEL -->
-<div class="admin" id="admin">
+<div class="logo">Dark Consultas ACC</div>
 
-    <h3>ADMIN</h3>
+<div class="desc">
+Favor, realize login com Google antes de iniciar suas consultas.
+</div>
 
-    <input id="name" placeholder="Produto">
-    <input id="price" placeholder="Preço">
-    <input id="img" placeholder="Imagem URL">
-    <textarea id="desc" placeholder="Descrição"></textarea>
+<div class="aviso">
+⚠️ <b>Aviso</b> ⚠️<br><br>
 
-    <button class="save" onclick="addProduct()">ADICIONAR</button>
+Coletamos dados de acesso por motivos de segurança da plataforma e termos de uso.<br><br>
+
+Após login sua conta será liberada automaticamente.
+</div>
+
+<button class="google-btn" onclick="loginGoogle()">
+Entrar com Google
+</button>
+
+<div class="footer">
+Sistema fictício simulador para testes visuais.
+</div>
 
 </div>
 
-<!-- LOGIN ADMIN -->
-<div class="login" id="login">
+<!-- PAINEL -->
+<div class="card hidden" id="painelCard">
 
-    <div class="login-box">
+<div class="logo">Dark Consultas ACC</div>
 
-        <h3>ACESSO ADMIN</h3>
+<div class="user-box">
+<img id="userPhoto">
+<h3 id="userName"></h3>
+<p id="userEmail"></p>
+</div>
 
-        <input type="password" id="pass" placeholder="Senha">
+<div class="service" onclick="gerarCPF()">
+<h3>CPF COMPLETO</h3>
 
-        <button onclick="login()">ENTRAR</button>
+<p>
+- Nome<br>
+- Sobrenome<br>
+- RG<br>
+- Data de nascimento<br>
+- Nome da mãe<br>
+- Nome do pai<br>
+- Estado civil
+</p>
+</div>
 
-    </div>
+<div class="service" onclick="gerarEndereco()">
+<h3>GERAR ENDEREÇOS</h3>
+
+<p>
+- Cidade<br>
+- Bairro<br>
+- CEP<br>
+- Casa / Apartamento<br>
+- Número residencial
+</p>
+</div>
+
+<div class="service" onclick="gerarNumero()">
+<h3>GERAR NÚMEROS</h3>
+
+<p>
+- DDD<br>
+- Número<br>
+- Operadora<br>
+- Cidade<br>
+- Estado
+</p>
+</div>
+
+<div class="result hidden" id="resultado"></div>
+
+</div>
 
 </div>
 
 <script type="module">
 
-/* ================= FIREBASE ================= */
-let firebaseEnabled = false;
-let db, col;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-/* ================= PRODUTOS ================= */
-let products =
-JSON.parse(localStorage.getItem("fnz_products")) || [];
+import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithRedirect,
+    getRedirectResult,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* ================= RENDER ================= */
-function renderProducts(){
+import {
+    getFirestore,
+    doc,
+    setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const container = document.getElementById("products");
-    container.innerHTML = "";
 
-    products.forEach(p=>{
+// CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDUSye7h9KBUdrvyXyZQRNZWA1I8iyMJIE",
+  authDomain: "infinity-site-18b8c.firebaseapp.com",
+  databaseURL: "https://infinity-site-18b8c-default-rtdb.firebaseio.com",
+  projectId: "infinity-site-18b8c",
+  storageBucket: "infinity-site-18b8c.firebasestorage.app",
+  messagingSenderId: "365343504184",
+  appId: "1:365343504184:web:fe7365e122ae60fc1e73cd",
+  measurementId: "G-0JT03KFEVS"
+};
 
-        container.innerHTML += `
-        <div class="card">
 
-            <img src="${p.img}">
+// INICIAR FIREBASE
+const app = initializeApp(firebaseConfig);
 
-            <div class="card-content">
+const auth = getAuth(app);
 
-                <h3>${p.name}</h3>
+const db = getFirestore(app);
 
-                <div class="price">R$ ${p.price}</div>
+const provider = new GoogleAuthProvider();
 
-                <p>${p.desc}</p>
 
-                <a href="https://wa.me/55${p.whats}" target="_blank">
-                    <button class="whats">WhatsApp</button>
-                </a>
+// LOGIN GOOGLE
+window.loginGoogle = async function(){
 
-                <button class="pay">Gerar PIX</button>
+    try{
 
-            </div>
+        await signInWithRedirect(auth, provider);
 
-        </div>
-        `;
-    });
-}
+    }catch(error){
 
-/* ================= LOGIN ADMIN ================= */
-window.login = function(){
+        alert("Erro login: " + error.message);
 
-    const pass = document.getElementById("pass").value;
-
-    if(pass === "admin123"){
-
-        sessionStorage.setItem("admin","true");
-
-        document.getElementById("login").style.display="none";
-        document.getElementById("admin").classList.add("active");
-
-        alert("ADMIN LIBERADO");
-
-    }else{
-        alert("Senha incorreta");
-    }
-}
-
-/* ================= ABRIR ADMIN ================= */
-function openAdmin(){
-
-    if(sessionStorage.getItem("admin") === "true"){
-        document.getElementById("admin").classList.add("active");
-    }else{
-        document.getElementById("login").style.display="flex";
-    }
-}
-
-/* ================= ADD ================= */
-window.addProduct = function(){
-
-    const data = {
-        name:document.getElementById("name").value,
-        price:document.getElementById("price").value,
-        img:document.getElementById("img").value,
-        desc:document.getElementById("desc").value,
-        whats:"51981528372"
-    };
-
-    products.push(data);
-    localStorage.setItem("fnz_products",JSON.stringify(products));
-
-    renderProducts();
-
-    alert("Produto adicionado!");
-}
-
-/* ================= ADMIN SECRETO ================= */
-let clicks = 0;
-
-document.getElementById("logo").onclick = () => {
-
-    clicks++;
-
-    if(clicks >= 50){
-        openAdmin();
-        clicks = 0;
-    }
-}
-
-/* ================= PROTEÇÕES BÁSICAS ================= */
-
-// bloquear teclas comuns
-document.addEventListener("keydown",(e)=>{
-
-    if(
-        e.ctrlKey && 
-        (e.key === "u" || e.key === "U" || e.key === "s")
-    ){
-        e.preventDefault();
     }
 
-    if(e.key === "F12"){
-        e.preventDefault();
+};
+
+
+// RESULTADO LOGIN REDIRECT
+getRedirectResult(auth)
+.then(async(result)=>{
+
+    if(result){
+
+        const user = result.user;
+
+        await setDoc(doc(db, "usuarios", user.uid), {
+
+            nome: user.displayName,
+            email: user.email,
+            foto: user.photoURL,
+            uid: user.uid,
+            ultimoLogin: new Date().toISOString()
+
+        });
+
+    }
+
+})
+.catch((error)=>{
+
+    console.log(error);
+
+});
+
+
+// USUARIO LOGADO
+onAuthStateChanged(auth, (user)=>{
+
+    if(user){
+
+        document.getElementById("loginCard").classList.add("hidden");
+
+        document.getElementById("painelCard").classList.remove("hidden");
+
+        document.getElementById("userPhoto").src = user.photoURL;
+
+        document.getElementById("userName").innerText = user.displayName;
+
+        document.getElementById("userEmail").innerText = user.email;
+
     }
 
 });
 
-/* INIT */
-renderProducts();
+
+// GERADORES
+function censurado(texto){
+
+    return `
+    <div class="item">
+        <span>Dado</span>
+        <strong class="censurado">${texto}</strong>
+    </div>
+    `;
+
+}
+
+window.gerarCPF = function(){
+
+    const html = `
+    <h2>CPF COMPLETO</h2>
+
+    ${censurado("Nome: Lucas")}
+    ${censurado("Sobrenome: Ferreira")}
+    ${censurado("RG: 55.444.888-1")}
+    ${censurado("Nascimento: 10/05/2000")}
+    ${censurado("Mãe: Fernanda Ferreira")}
+    ${censurado("Pai: Marcos Ferreira")}
+    ${censurado("Estado civil: Solteiro")}
+
+    <div class="liberacao">
+
+        <h3>🔒 Dados censurados</h3>
+
+        <p style="color:#cfcfcf;line-height:25px;">
+        Necessário liberar consulta.
+        </p>
+
+        <button class="btn">
+            Pagar R$ 0,97
+        </button>
+
+        <button class="btn">
+            Compartilhar WhatsApp
+        </button>
+
+    </div>
+    `;
+
+    mostrar(html);
+
+}
+
+window.gerarEndereco = function(){
+
+    const html = `
+    <h2>ENDEREÇO</h2>
+
+    ${censurado("Cidade: São Paulo")}
+    ${censurado("Bairro: Centro")}
+    ${censurado("CEP: 00000-000")}
+    ${censurado("Casa: Apartamento")}
+    ${censurado("Número: 245")}
+
+    <div class="liberacao">
+
+        <h3>🔒 Dados censurados</h3>
+
+        <button class="btn">
+            Pagar R$ 0,97
+        </button>
+
+        <button class="btn">
+            Compartilhar WhatsApp
+        </button>
+
+    </div>
+    `;
+
+    mostrar(html);
+
+}
+
+window.gerarNumero = function(){
+
+    const html = `
+    <h2>NÚMERO</h2>
+
+    ${censurado("DDD: 51")}
+    ${censurado("Número: 99999-9999")}
+    ${censurado("Operadora: Vivo")}
+    ${censurado("Cidade: Porto Alegre")}
+    ${censurado("Estado: RS")}
+
+    <div class="liberacao">
+
+        <h3>🔒 Dados censurados</h3>
+
+        <button class="btn">
+            Pagar R$ 0,97
+        </button>
+
+        <button class="btn">
+            Compartilhar WhatsApp
+        </button>
+
+    </div>
+    `;
+
+    mostrar(html);
+
+}
+
+function mostrar(html){
+
+    const resultado = document.getElementById("resultado");
+
+    resultado.innerHTML = html;
+
+    resultado.classList.remove("hidden");
+
+}
 
 </script>
 
 </body>
-        </html>
+    </html>
